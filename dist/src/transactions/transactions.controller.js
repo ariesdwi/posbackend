@@ -30,8 +30,11 @@ let TransactionsController = class TransactionsController {
     create(createTransactionDto, user) {
         return this.transactionsService.create(createTransactionDto, user.id);
     }
-    findAll(startDate, endDate, status, userId) {
-        return this.transactionsService.findAll(startDate, endDate, status, userId);
+    checkout(id, checkoutDto) {
+        return this.transactionsService.checkout(id, checkoutDto);
+    }
+    findAll(startDate, endDate, status, userId, tableNumber) {
+        return this.transactionsService.findAll(startDate, endDate, status, userId, tableNumber);
     }
     findOne(id) {
         return this.transactionsService.findOne(id);
@@ -43,7 +46,7 @@ let TransactionsController = class TransactionsController {
 exports.TransactionsController = TransactionsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create new transaction' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new transaction or append items to existing pending table bill' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
@@ -51,18 +54,29 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "create", null);
 __decorate([
+    (0, common_1.Post)(':id/checkout'),
+    (0, swagger_1.ApiOperation)({ summary: 'Checkout and finalize payment for a pending bill' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, transaction_dto_1.CheckoutDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "checkout", null);
+__decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all transactions with filters' }),
     (0, swagger_1.ApiQuery)({ name: 'startDate', required: false, example: '2026-01-01' }),
     (0, swagger_1.ApiQuery)({ name: 'endDate', required: false, example: '2026-01-31' }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'userId', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'tableNumber', required: false }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
     __param(2, (0, common_1.Query)('status')),
     __param(3, (0, common_1.Query)('userId')),
+    __param(4, (0, common_1.Query)('tableNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "findAll", null);
 __decorate([

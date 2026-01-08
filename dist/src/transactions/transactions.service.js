@@ -19,13 +19,23 @@ let TransactionsService = class TransactionsService {
         this.prisma = prisma;
     }
     async create(createTransactionDto, userId) {
-        const { items, paymentMethod, paymentAmount, notes } = createTransactionDto;
+        const { items, tableNumber, paymentMethod, paymentAmount, notes, status } = createTransactionDto;
         const productIds = items.map((item) => item.productId);
         const products = await this.prisma.product.findMany({
             where: { id: { in: productIds } },
         });
         if (products.length !== productIds.length) {
             throw new common_1.NotFoundException('One or more products not found');
+        }
+        let existingTransaction = null;
+        if (tableNumber) {
+            existingTransaction = await this.prisma.transaction.findFirst({
+                where: {
+                    tableNumber,
+                    status: client_1.TransactionStatus.PENDING,
+                },
+                include: { items: true },
+            });
         }
         for (const item of items) {
             const product = products.find((p) => p.id === item.productId);
@@ -38,7 +48,7 @@ let TransactionsService = class TransactionsService {
                 throw new common_1.BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}`);
             }
         }
-        let totalAmount = 0;
+        let additionalAmount = 0;
         const transactionItems = items.map((item) => {
             const product = products.find((p) => p.id === item.productId);
             if (!product) {
@@ -46,7 +56,7 @@ let TransactionsService = class TransactionsService {
             }
             const price = Number(product.price);
             const subtotal = price * item.quantity;
-            totalAmount += subtotal;
+            additionalAmount += subtotal;
             return {
                 productId: item.productId,
                 productName: product.name,
@@ -55,7 +65,42 @@ let TransactionsService = class TransactionsService {
                 subtotal: new client_1.Prisma.Decimal(subtotal),
             };
         });
-        const changeAmount = paymentAmount && paymentAmount >= totalAmount
+        if (existingTransaction) {
+            const newTotalAmount = Number(existingTransaction.totalAmount) + additionalAmount;
+            return this.prisma.$transaction(async (tx) => {
+                const updatedTransaction = await tx.transaction.update({
+                    where: { id: existingTransaction.id },
+                    data: {
+                        totalAmount: new client_1.Prisma.Decimal(newTotalAmount),
+                        notes: notes || existingTransaction.notes,
+                        items: {
+                            create: transactionItems,
+                        },
+                    },
+                    include: {
+                        items: { include: { product: true } },
+                        user: { select: { id: true, name: true, email: true } },
+                    },
+                });
+                for (const item of items) {
+                    const product = products.find((p) => p.id === item.productId);
+                    if (!product)
+                        continue;
+                    const newStock = product.stock - item.quantity;
+                    await tx.product.update({
+                        where: { id: item.productId },
+                        data: {
+                            stock: newStock,
+                            status: newStock > 0 ? client_1.ProductStatus.AVAILABLE : client_1.ProductStatus.OUT_OF_STOCK,
+                        },
+                    });
+                }
+                return updatedTransaction;
+            });
+        }
+        let totalAmount = additionalAmount;
+        const finalStatus = status || client_1.TransactionStatus.PENDING;
+        const changeAmount = finalStatus === client_1.TransactionStatus.COMPLETED && paymentAmount && paymentAmount >= totalAmount
             ? paymentAmount - totalAmount
             : 0;
         const today = new Date();
@@ -69,35 +114,25 @@ let TransactionsService = class TransactionsService {
             },
         });
         const transactionNumber = `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}`;
-        const transaction = await this.prisma.$transaction(async (tx) => {
+        return this.prisma.$transaction(async (tx) => {
             const newTransaction = await tx.transaction.create({
                 data: {
                     transactionNumber,
                     userId,
+                    tableNumber,
                     totalAmount: new client_1.Prisma.Decimal(totalAmount),
-                    paymentMethod,
-                    paymentAmount: paymentAmount
-                        ? new client_1.Prisma.Decimal(paymentAmount)
-                        : null,
+                    paymentMethod: paymentMethod || undefined,
+                    paymentAmount: paymentAmount ? new client_1.Prisma.Decimal(paymentAmount) : null,
                     changeAmount: new client_1.Prisma.Decimal(changeAmount),
+                    status: finalStatus,
                     notes,
                     items: {
                         create: transactionItems,
                     },
                 },
                 include: {
-                    items: {
-                        include: {
-                            product: true,
-                        },
-                    },
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                        },
-                    },
+                    items: { include: { product: true } },
+                    user: { select: { id: true, name: true, email: true } },
                 },
             });
             for (const item of items) {
@@ -115,9 +150,33 @@ let TransactionsService = class TransactionsService {
             }
             return newTransaction;
         });
-        return transaction;
     }
-    async findAll(startDate, endDate, status, userId) {
+    async checkout(id, checkoutDto) {
+        const transaction = await this.findOne(id);
+        if (transaction.status !== client_1.TransactionStatus.PENDING) {
+            throw new common_1.BadRequestException('Transaction is already completed or cancelled');
+        }
+        const totalAmount = Number(transaction.totalAmount);
+        if (checkoutDto.paymentAmount < totalAmount) {
+            throw new common_1.BadRequestException(`Insufficient payment. Total: ${totalAmount}, Provided: ${checkoutDto.paymentAmount}`);
+        }
+        const changeAmount = checkoutDto.paymentAmount - totalAmount;
+        return this.prisma.transaction.update({
+            where: { id },
+            data: {
+                paymentMethod: checkoutDto.paymentMethod,
+                paymentAmount: new client_1.Prisma.Decimal(checkoutDto.paymentAmount),
+                changeAmount: new client_1.Prisma.Decimal(changeAmount),
+                status: client_1.TransactionStatus.COMPLETED,
+                notes: checkoutDto.notes || transaction.notes,
+            },
+            include: {
+                items: { include: { product: true } },
+                user: { select: { id: true, name: true, email: true } },
+            },
+        });
+    }
+    async findAll(startDate, endDate, status, userId, tableNumber) {
         const where = {};
         if (startDate || endDate) {
             where.createdAt = {};
@@ -134,8 +193,11 @@ let TransactionsService = class TransactionsService {
         if (userId) {
             where.userId = userId;
         }
+        if (tableNumber) {
+            where.tableNumber = tableNumber;
+        }
         return this.prisma.transaction.findMany({
-            where,
+            where: where,
             include: {
                 items: {
                     include: {

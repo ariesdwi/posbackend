@@ -13,6 +13,7 @@ import { TransactionsService } from './transactions.service';
 import {
   CreateTransactionDto,
   UpdateTransactionStatusDto,
+  CheckoutDto,
 } from './dto/transaction.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -28,12 +29,21 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new transaction' })
+  @ApiOperation({ summary: 'Create new transaction or append items to existing pending table bill' })
   create(
     @Body() createTransactionDto: CreateTransactionDto,
     @CurrentUser() user: any,
   ) {
     return this.transactionsService.create(createTransactionDto, user.id);
+  }
+
+  @Post(':id/checkout')
+  @ApiOperation({ summary: 'Checkout and finalize payment for a pending bill' })
+  checkout(
+    @Param('id') id: string,
+    @Body() checkoutDto: CheckoutDto,
+  ) {
+    return this.transactionsService.checkout(id, checkoutDto);
   }
 
   @Get()
@@ -42,13 +52,15 @@ export class TransactionsController {
   @ApiQuery({ name: 'endDate', required: false, example: '2026-01-31' })
   @ApiQuery({ name: 'status', required: false })
   @ApiQuery({ name: 'userId', required: false })
+  @ApiQuery({ name: 'tableNumber', required: false })
   findAll(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('status') status?: string,
     @Query('userId') userId?: string,
+    @Query('tableNumber') tableNumber?: string,
   ) {
-    return this.transactionsService.findAll(startDate, endDate, status, userId);
+    return this.transactionsService.findAll(startDate, endDate, status, userId, tableNumber);
   }
 
   @Get(':id')

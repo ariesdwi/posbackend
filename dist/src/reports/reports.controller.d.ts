@@ -21,7 +21,7 @@ export declare class ReportsController {
             id: string;
             transactionNumber: string;
             totalAmount: number;
-            paymentMethod: import("@prisma/client").$Enums.PaymentMethod;
+            paymentMethod: string;
             cashier: string;
             itemCount: number;
             createdAt: Date;
@@ -46,7 +46,7 @@ export declare class ReportsController {
             id: string;
             transactionNumber: string;
             totalAmount: number;
-            paymentMethod: import("@prisma/client").$Enums.PaymentMethod;
+            paymentMethod: string;
             cashier: string;
             itemCount: number;
             createdAt: Date;
@@ -71,7 +71,7 @@ export declare class ReportsController {
             id: string;
             transactionNumber: string;
             totalAmount: number;
-            paymentMethod: import("@prisma/client").$Enums.PaymentMethod;
+            paymentMethod: string;
             cashier: string;
             itemCount: number;
             createdAt: Date;

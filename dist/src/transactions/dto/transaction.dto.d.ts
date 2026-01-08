@@ -5,10 +5,17 @@ export declare class TransactionItemDto {
 }
 export declare class CreateTransactionDto {
     items: TransactionItemDto[];
-    paymentMethod: PaymentMethod;
+    tableNumber?: string;
+    paymentMethod?: PaymentMethod;
     paymentAmount?: number;
+    status?: TransactionStatus;
     notes?: string;
 }
 export declare class UpdateTransactionStatusDto {
     status: TransactionStatus;
+}
+export declare class CheckoutDto {
+    paymentMethod: PaymentMethod;
+    paymentAmount: number;
+    notes?: string;
 }

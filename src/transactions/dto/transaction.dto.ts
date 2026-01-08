@@ -33,10 +33,15 @@ export class CreateTransactionDto {
   @Type(() => TransactionItemDto)
   items: TransactionItemDto[];
 
-  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH })
+  @ApiProperty({ example: 'Table 1', required: false })
+  @IsString()
+  @IsOptional()
+  tableNumber?: string;
+
+  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH, required: false })
   @IsEnum(PaymentMethod)
-  @IsNotEmpty()
-  paymentMethod: PaymentMethod;
+  @IsOptional()
+  paymentMethod?: PaymentMethod;
 
   @ApiProperty({ example: 100000, required: false })
   @IsNumber()
@@ -44,6 +49,11 @@ export class CreateTransactionDto {
   @Type(() => Number)
   @IsOptional()
   paymentAmount?: number;
+
+  @ApiProperty({ enum: TransactionStatus, example: TransactionStatus.PENDING, required: false })
+  @IsEnum(TransactionStatus)
+  @IsOptional()
+  status?: TransactionStatus;
 
   @ApiProperty({ required: false })
   @IsString()
@@ -56,4 +66,23 @@ export class UpdateTransactionStatusDto {
   @IsEnum(TransactionStatus)
   @IsNotEmpty()
   status: TransactionStatus;
+}
+
+export class CheckoutDto {
+  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH })
+  @IsEnum(PaymentMethod)
+  @IsNotEmpty()
+  paymentMethod: PaymentMethod;
+
+  @ApiProperty({ example: 100000 })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  @IsNotEmpty()
+  paymentAmount: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }

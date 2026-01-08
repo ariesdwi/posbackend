@@ -63,7 +63,7 @@ let ReportsService = class ReportsService {
         const totalTransactions = transactions.length;
         const totalItemsSold = transactions.reduce((sum, t) => sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
         const revenueByPaymentMethod = transactions.reduce((acc, t) => {
-            const method = t.paymentMethod;
+            const method = t.paymentMethod || 'UNKNOWN';
             acc[method] = (acc[method] || 0) + Number(t.totalAmount);
             return acc;
         }, {});

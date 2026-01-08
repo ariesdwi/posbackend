@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateTransactionStatusDto = exports.CreateTransactionDto = exports.TransactionItemDto = void 0;
+exports.CheckoutDto = exports.UpdateTransactionStatusDto = exports.CreateTransactionDto = exports.TransactionItemDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
@@ -34,8 +34,10 @@ __decorate([
 ], TransactionItemDto.prototype, "quantity", void 0);
 class CreateTransactionDto {
     items;
+    tableNumber;
     paymentMethod;
     paymentAmount;
+    status;
     notes;
 }
 exports.CreateTransactionDto = CreateTransactionDto;
@@ -47,9 +49,15 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateTransactionDto.prototype, "items", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.PaymentMethod, example: client_1.PaymentMethod.CASH }),
+    (0, swagger_1.ApiProperty)({ example: 'Table 1', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "tableNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.PaymentMethod, example: client_1.PaymentMethod.CASH, required: false }),
     (0, class_validator_1.IsEnum)(client_1.PaymentMethod),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "paymentMethod", void 0);
 __decorate([
@@ -60,6 +68,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "paymentAmount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.TransactionStatus, example: client_1.TransactionStatus.PENDING, required: false }),
+    (0, class_validator_1.IsEnum)(client_1.TransactionStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsString)(),
@@ -76,4 +90,30 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], UpdateTransactionStatusDto.prototype, "status", void 0);
+class CheckoutDto {
+    paymentMethod;
+    paymentAmount;
+    notes;
+}
+exports.CheckoutDto = CheckoutDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.PaymentMethod, example: client_1.PaymentMethod.CASH }),
+    (0, class_validator_1.IsEnum)(client_1.PaymentMethod),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CheckoutDto.prototype, "paymentMethod", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 100000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], CheckoutDto.prototype, "paymentAmount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CheckoutDto.prototype, "notes", void 0);
 //# sourceMappingURL=transaction.dto.js.map

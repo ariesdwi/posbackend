@@ -74,7 +74,7 @@ export class ReportsService {
 
     // Revenue by payment method
     const revenueByPaymentMethod = transactions.reduce((acc, t) => {
-      const method = t.paymentMethod;
+      const method = (t.paymentMethod as string) || 'UNKNOWN';
       acc[method] = (acc[method] || 0) + Number(t.totalAmount);
       return acc;
     }, {} as Record<string, number>);
@@ -127,7 +127,7 @@ export class ReportsService {
         id: t.id,
         transactionNumber: t.transactionNumber,
         totalAmount: Number(t.totalAmount),
-        paymentMethod: t.paymentMethod,
+        paymentMethod: t.paymentMethod as string,
         cashier: t.user.name,
         itemCount: t.items.length,
         createdAt: t.createdAt,

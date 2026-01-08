@@ -7,15 +7,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateTransactionDto,
   UpdateTransactionStatusDto,
+  CheckoutDto,
 } from './dto/transaction.dto';
-import { Prisma, ProductStatus } from '@prisma/client';
+import { Prisma, ProductStatus, TransactionStatus } from '@prisma/client';
 
 @Injectable()
 export class TransactionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTransactionDto: CreateTransactionDto, userId: string) {
-    const { items, paymentMethod, paymentAmount, notes } = createTransactionDto;
+    const { items, tableNumber, paymentMethod, paymentAmount, notes, status } = createTransactionDto;
 
     // Validate products and check stock
     const productIds = items.map((item) => item.productId);
@@ -25,6 +26,18 @@ export class TransactionsService {
 
     if (products.length !== productIds.length) {
       throw new NotFoundException('One or more products not found');
+    }
+
+    // Check if there's an existing PENDING transaction for this table
+    let existingTransaction: any = null;
+    if (tableNumber) {
+      existingTransaction = await this.prisma.transaction.findFirst({
+        where: {
+          tableNumber,
+          status: TransactionStatus.PENDING,
+        } as any,
+        include: { items: true },
+      });
     }
 
     // Check stock availability
@@ -43,8 +56,8 @@ export class TransactionsService {
       }
     }
 
-    // Calculate total amount
-    let totalAmount = 0;
+    // Calculate items data
+    let additionalAmount = 0;
     const transactionItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId);
       if (!product) {
@@ -52,7 +65,7 @@ export class TransactionsService {
       }
       const price = Number(product.price);
       const subtotal = price * item.quantity;
-      totalAmount += subtotal;
+      additionalAmount += subtotal;
 
       return {
         productId: item.productId,
@@ -63,9 +76,52 @@ export class TransactionsService {
       };
     });
 
-    // Calculate change
+    if (existingTransaction) {
+      // APPEND to existing transaction
+      const newTotalAmount = Number(existingTransaction.totalAmount) + additionalAmount;
+      
+      return this.prisma.$transaction(async (tx) => {
+        // Update transaction total
+        const updatedTransaction = await tx.transaction.update({
+          where: { id: existingTransaction.id },
+          data: {
+            totalAmount: new Prisma.Decimal(newTotalAmount),
+            notes: notes || existingTransaction.notes,
+            items: {
+              create: transactionItems,
+            },
+          },
+          include: {
+            items: { include: { product: true } },
+            user: { select: { id: true, name: true, email: true } },
+          },
+        });
+
+        // Update stock
+        for (const item of items) {
+          const product = products.find((p) => p.id === item.productId);
+          if (!product) continue;
+          const newStock = product.stock - item.quantity;
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: newStock,
+              status: newStock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK,
+            },
+          });
+        }
+
+        return updatedTransaction;
+      });
+    }
+
+    // CREATE NEW transaction
+    let totalAmount = additionalAmount;
+    const finalStatus = status || TransactionStatus.PENDING;
+
+    // Calculate change (only if completed)
     const changeAmount =
-      paymentAmount && paymentAmount >= totalAmount
+      finalStatus === TransactionStatus.COMPLETED && paymentAmount && paymentAmount >= totalAmount
         ? paymentAmount - totalAmount
         : 0;
 
@@ -82,61 +138,76 @@ export class TransactionsService {
     });
     const transactionNumber = `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}`;
 
-    // Create transaction with items and update stock
-    const transaction = await this.prisma.$transaction(async (tx) => {
-      // Create transaction
+    return this.prisma.$transaction(async (tx) => {
       const newTransaction = await tx.transaction.create({
         data: {
           transactionNumber,
           userId,
+          tableNumber,
           totalAmount: new Prisma.Decimal(totalAmount),
-          paymentMethod,
-          paymentAmount: paymentAmount
-            ? new Prisma.Decimal(paymentAmount)
-            : null,
+          paymentMethod: paymentMethod || undefined,
+          paymentAmount: paymentAmount ? new Prisma.Decimal(paymentAmount) : null,
           changeAmount: new Prisma.Decimal(changeAmount),
+          status: finalStatus,
           notes,
           items: {
             create: transactionItems,
           },
-        },
+        } as any,
         include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+          items: { include: { product: true } },
+          user: { select: { id: true, name: true, email: true } },
         },
       });
 
-      // Update stock for each product
+      // Update stock
       for (const item of items) {
         const product = products.find((p) => p.id === item.productId);
         if (!product) continue;
-        
         const newStock = product.stock - item.quantity;
-
         await tx.product.update({
           where: { id: item.productId },
           data: {
             stock: newStock,
-            status:
-              newStock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK,
+            status: newStock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK,
           },
         });
       }
 
       return newTransaction;
     });
+  }
 
-    return transaction;
+  async checkout(id: string, checkoutDto: CheckoutDto) {
+    const transaction = await this.findOne(id);
+
+    if (transaction.status !== TransactionStatus.PENDING) {
+      throw new BadRequestException('Transaction is already completed or cancelled');
+    }
+
+    const totalAmount = Number(transaction.totalAmount);
+    if (checkoutDto.paymentAmount < totalAmount) {
+      throw new BadRequestException(
+        `Insufficient payment. Total: ${totalAmount}, Provided: ${checkoutDto.paymentAmount}`,
+      );
+    }
+
+    const changeAmount = checkoutDto.paymentAmount - totalAmount;
+
+    return this.prisma.transaction.update({
+      where: { id },
+      data: {
+        paymentMethod: checkoutDto.paymentMethod,
+        paymentAmount: new Prisma.Decimal(checkoutDto.paymentAmount),
+        changeAmount: new Prisma.Decimal(changeAmount),
+        status: TransactionStatus.COMPLETED,
+        notes: checkoutDto.notes || transaction.notes,
+      },
+      include: {
+        items: { include: { product: true } },
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
   }
 
   async findAll(
@@ -144,6 +215,7 @@ export class TransactionsService {
     endDate?: string,
     status?: string,
     userId?: string,
+    tableNumber?: string,
   ) {
     const where: any = {};
 
@@ -165,8 +237,12 @@ export class TransactionsService {
       where.userId = userId;
     }
 
+    if (tableNumber) {
+      where.tableNumber = tableNumber;
+    }
+
     return this.prisma.transaction.findMany({
-      where,
+      where: where as any,
       include: {
         items: {
           include: {

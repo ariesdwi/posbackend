@@ -81,11 +81,12 @@ model Transaction {
   id                String            @id @default(cuid())
   transactionNumber String            @unique
   userId            String
+  tableNumber       String?
   totalAmount       Decimal           @db.Decimal(10, 2)
-  paymentMethod     PaymentMethod     @default(CASH)
+  paymentMethod     PaymentMethod?    @default(CASH)
   paymentAmount     Decimal?          @db.Decimal(10, 2)
   changeAmount      Decimal?          @db.Decimal(10, 2)
-  status            TransactionStatus @default(COMPLETED)
+  status            TransactionStatus @default(PENDING)
   notes             String?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
