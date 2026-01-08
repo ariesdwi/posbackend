@@ -10,6 +10,7 @@ import { MenuModule } from './menu/menu.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ReportsModule } from './reports/reports.module';
 import { ReceiptsModule } from './receipts/receipts.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReceiptsModule } from './receipts/receipts.module';
     TransactionsModule,
     ReportsModule,
     ReceiptsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
