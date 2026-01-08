@@ -16,8 +16,6 @@ exports.UploadController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
-const multer_1 = require("multer");
-const path_1 = require("path");
 const upload_service_1 = require("./upload.service");
 let UploadController = class UploadController {
     uploadService;
@@ -28,19 +26,28 @@ let UploadController = class UploadController {
         if (!file) {
             throw new common_1.BadRequestException('No file uploaded');
         }
-        const imageUrl = `/uploads/${file.filename}`;
+        if (!this.uploadService.validateImageFile(file)) {
+            throw new common_1.BadRequestException('Invalid file type. Only images (jpg, jpeg, png, gif, webp) are allowed.');
+        }
+        const uploadResult = await this.uploadService.uploadToImageKit(file);
         return {
-            imageUrl,
-            filename: file.filename,
-            size: file.size,
-            mimeType: file.mimetype,
+            success: true,
+            data: {
+                fileId: uploadResult.fileId,
+                imageUrl: uploadResult.url,
+                filename: uploadResult.name,
+                size: uploadResult.size,
+                mimeType: uploadResult.mimetype,
+                width: uploadResult.width,
+                height: uploadResult.height,
+            },
         };
     }
 };
 exports.UploadController = UploadController;
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Upload product image' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload product image to ImageKit' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
         schema: {
@@ -55,16 +62,6 @@ __decorate([
         },
     }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
-        storage: (0, multer_1.diskStorage)({
-            destination: './uploads',
-            filename: (req, file, cb) => {
-                const timestamp = Date.now();
-                const randomString = Math.random().toString(36).substring(2, 8);
-                const ext = (0, path_1.extname)(file.originalname);
-                const filename = `${timestamp}-${randomString}${ext}`;
-                cb(null, filename);
-            },
-        }),
         fileFilter: (req, file, cb) => {
             const allowedMimeTypes = [
                 'image/jpeg',

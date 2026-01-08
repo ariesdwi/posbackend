@@ -7,8 +7,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { UploadService } from './upload.service';
 
 @ApiTags('Upload')
@@ -17,7 +15,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Upload product image' })
+  @ApiOperation({ summary: 'Upload product image to ImageKit' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -33,16 +31,6 @@ export class UploadController {
   })
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const timestamp = Date.now();
-          const randomString = Math.random().toString(36).substring(2, 8);
-          const ext = extname(file.originalname);
-          const filename = `${timestamp}-${randomString}${ext}`;
-          cb(null, filename);
-        },
-      }),
       fileFilter: (req, file, cb) => {
         const allowedMimeTypes = [
           'image/jpeg',
@@ -73,13 +61,25 @@ export class UploadController {
       throw new BadRequestException('No file uploaded');
     }
 
-    const imageUrl = `/uploads/${file.filename}`;
+    if (!this.uploadService.validateImageFile(file)) {
+      throw new BadRequestException(
+        'Invalid file type. Only images (jpg, jpeg, png, gif, webp) are allowed.',
+      );
+    }
+
+    const uploadResult = await this.uploadService.uploadToImageKit(file);
 
     return {
-      imageUrl,
-      filename: file.filename,
-      size: file.size,
-      mimeType: file.mimetype,
+      success: true,
+      data: {
+        fileId: uploadResult.fileId,
+        imageUrl: uploadResult.url,
+        filename: uploadResult.name,
+        size: uploadResult.size,
+        mimeType: uploadResult.mimetype,
+        width: uploadResult.width,
+        height: uploadResult.height,
+      },
     };
   }
 }
