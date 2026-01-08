@@ -22,7 +22,7 @@ export class UploadService {
       'image/gif',
       'image/webp',
     ];
-    
+
     return allowedMimeTypes.includes(file.mimetype);
   }
 
