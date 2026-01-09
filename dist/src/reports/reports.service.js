@@ -17,6 +17,13 @@ let ReportsService = class ReportsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async getCustomReport(startDate, endDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        return this.getReportForPeriod(start, end, 'Custom');
+    }
     async getDailyReport(date) {
         const startDate = new Date(date);
         startDate.setHours(0, 0, 0, 0);

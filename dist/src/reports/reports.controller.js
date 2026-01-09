@@ -22,6 +22,9 @@ let ReportsController = class ReportsController {
     constructor(reportsService) {
         this.reportsService = reportsService;
     }
+    getCustomReport(startDate, endDate) {
+        return this.reportsService.getCustomReport(startDate, endDate);
+    }
     getDailyReport(date) {
         const reportDate = date || new Date().toISOString().split('T')[0];
         return this.reportsService.getDailyReport(reportDate);
@@ -44,6 +47,17 @@ let ReportsController = class ReportsController {
     }
 };
 exports.ReportsController = ReportsController;
+__decorate([
+    (0, common_1.Get)('custom'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get custom date range sales report' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', example: '2026-01-01', description: 'Start date (YYYY-MM-DD)' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31', description: 'End date (YYYY-MM-DD)' }),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getCustomReport", null);
 __decorate([
     (0, common_1.Get)('daily'),
     (0, swagger_1.ApiOperation)({ summary: 'Get daily sales report' }),

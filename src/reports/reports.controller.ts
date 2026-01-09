@@ -10,6 +10,17 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
+  @Get('custom')
+  @ApiOperation({ summary: 'Get custom date range sales report' })
+  @ApiQuery({ name: 'startDate', example: '2026-01-01', description: 'Start date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'endDate', example: '2026-01-31', description: 'End date (YYYY-MM-DD)' })
+  getCustomReport(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.reportsService.getCustomReport(startDate, endDate);
+  }
+
   @Get('daily')
   @ApiOperation({ summary: 'Get daily sales report' })
   @ApiQuery({ name: 'date', example: '2026-01-07' })
