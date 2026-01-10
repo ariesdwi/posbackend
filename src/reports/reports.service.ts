@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import PDFDocument from 'pdfkit';
 
 @Injectable()
 export class ReportsService {
@@ -243,5 +244,212 @@ export class ReportsService {
     return Object.values(revenueByCategory).sort(
       (a: any, b: any) => b.revenue - a.revenue,
     );
+  }
+
+  async generatePDFReport(reportData: any): Promise<Buffer> {
+    const primaryColor = '#7c68ee'; // Indigo branding
+    const secondaryColor = '#64748b'; // Slate 500
+    const accentColor = '#0ea5e9'; // Sky 500
+    const lightBg = '#f8fafc'; // Slate 50
+    const foregroundColor = '#0f172a'; // Slate 900
+    const borderColor = '#e2e8f0';
+
+    return new Promise((resolve) => {
+      const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+      // Helper: Add Footer
+      const addFooter = () => {
+        const pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+          doc.switchToPage(i);
+          doc
+            .fontSize(8)
+            .fillColor(secondaryColor)
+            .text(
+              `Dicetak pada: ${new Date().toLocaleString('id-ID')} | Halaman ${i + 1} dari ${pages.count}`,
+              50,
+              doc.page.height - 50,
+              { align: 'center', width: doc.page.width - 100 },
+            );
+        }
+      };
+
+      // Header Bar
+      doc.rect(0, 0, doc.page.width, 100).fill(primaryColor);
+      doc
+        .fillColor('#ffffff')
+        .fontSize(24)
+        .font('Helvetica-Bold')
+        .text('LAPORAN PENJUALAN', 50, 40);
+      
+      doc
+        .fontSize(10)
+        .font('Helvetica')
+        .text(reportData.period.type.toUpperCase(), 50, 70);
+
+      // Reset text color
+      doc.fillColor(foregroundColor).moveDown(4);
+
+      // Period Info
+      doc
+        .fontSize(11)
+        .font('Helvetica-Bold')
+        .text('Periode Laporan:')
+        .font('Helvetica')
+        .text(
+          `${new Date(reportData.period.startDate).toLocaleDateString('id-ID')} - ${new Date(reportData.period.endDate).toLocaleDateString('id-ID')}`,
+        )
+        .moveDown();
+
+      // Summary Boxes
+      const boxWidth = 120;
+      const boxHeight = 60;
+      const startX = 50;
+      let currentX = startX;
+      let currentY = doc.y;
+
+      const stats = [
+        { label: 'PENDAPATAN', value: this.formatCurrency(reportData.summary.totalRevenue) },
+        { label: 'TRANSAKSI', value: reportData.summary.totalTransactions.toString() },
+        { label: 'ITEM TERJUAL', value: reportData.summary.totalItemsSold.toString() },
+        { label: 'RATA-RATA', value: this.formatCurrency(reportData.summary.averageTransactionValue) },
+      ];
+
+      stats.forEach((stat) => {
+        doc.rect(currentX, currentY, boxWidth, boxHeight).fill(lightBg).stroke(borderColor);
+        doc
+          .fillColor(secondaryColor)
+          .fontSize(8)
+          .font('Helvetica-Bold')
+          .text(stat.label, currentX + 10, currentY + 15);
+        doc
+          .fillColor(primaryColor)
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text(stat.value, currentX + 10, currentY + 30);
+        
+        currentX += boxWidth + 10;
+      });
+
+      doc.fillColor(foregroundColor).moveDown(5);
+
+      // Breakdown Sections (Side by Side)
+      const colWidth = (doc.page.width - 120) / 2;
+      const sectionY = doc.y;
+
+      // Left Column: Payment Methods
+      doc.fontSize(14).font('Helvetica-Bold').text('Metode Pembayaran', 50, sectionY);
+      doc.moveDown(0.5);
+      Object.entries(reportData.revenueByPaymentMethod).forEach(([method, amount]) => {
+        doc
+          .fontSize(10)
+          .font('Helvetica')
+          .text(`${method}:`, { continued: true })
+          .font('Helvetica-Bold')
+          .text(` ${this.formatCurrency(amount as number)}`);
+      });
+
+      // Right Column: Cashiers
+      doc.fontSize(14).font('Helvetica-Bold').text('Performa Kasir', 50 + colWidth + 20, sectionY);
+      doc.y = sectionY + 20;
+      Object.entries(reportData.revenueByCashier).forEach(([cashier, amount]) => {
+        doc
+          .fontSize(10)
+          .font('Helvetica')
+          .text(`${cashier}:`, 50 + colWidth + 20, doc.y, { continued: true })
+          .font('Helvetica-Bold')
+          .text(` ${this.formatCurrency(amount as number)}`);
+      });
+
+      doc.moveDown(2);
+
+      // Best Sellers
+      doc.fontSize(14).font('Helvetica-Bold').text('5 Produk Terlaris', 50, doc.y);
+      doc.moveDown(0.5);
+      
+      const bestSellers = reportData.bestSellers.slice(0, 5);
+      bestSellers.forEach((item: any, index: number) => {
+        const itemY = doc.y;
+        doc.rect(50, itemY - 5, doc.page.width - 100, 25).fill(index % 2 === 0 ? '#ffffff' : lightBg);
+        doc
+          .fillColor(foregroundColor)
+          .fontSize(10)
+          .font('Helvetica')
+          .text(`${index + 1}. ${item.productName}`, 60, itemY)
+          .font('Helvetica-Bold')
+          .text(`${item.quantitySold} item - ${this.formatCurrency(item.revenue)}`, 350, itemY, { align: 'right', width: 180 });
+      });
+
+      // Transaction Table
+      doc.addPage();
+      doc.fontSize(16).font('Helvetica-Bold').text('Riwayat Transaksi').moveDown();
+
+      const tableTop = doc.y;
+      const col1 = 50;
+      const col2 = 180;
+      const col3 = 350;
+      const col4 = 480;
+
+      // Table Header
+      doc.rect(50, tableTop - 5, doc.page.width - 100, 25).fill(primaryColor);
+      doc
+        .fillColor('#ffffff')
+        .fontSize(10)
+        .font('Helvetica-Bold')
+        .text('NO. TRANSAKSI', col1, tableTop)
+        .text('KASIR', col2, tableTop)
+        .text('TOTAL', col3, tableTop)
+        .text('METODE', col4, tableTop);
+
+      let currentTableY = tableTop + 25;
+
+      reportData.transactions.forEach((t: any, index: number) => {
+        if (currentTableY > 750) {
+          doc.addPage();
+          currentTableY = 50;
+          // Redraw header on new page
+          doc.rect(50, currentTableY - 5, doc.page.width - 100, 25).fill(primaryColor);
+          doc
+            .fillColor('#ffffff')
+            .font('Helvetica-Bold')
+            .text('NO. TRANSAKSI', col1, currentTableY)
+            .text('KASIR', col2, currentTableY)
+            .text('TOTAL', col3, currentTableY)
+            .text('METODE', col4, currentTableY);
+          currentTableY += 25;
+        }
+
+        // Zebra striping
+        if (index % 2 !== 0) {
+          doc.rect(50, currentTableY - 5, doc.page.width - 100, 20).fill(lightBg);
+        }
+
+        doc
+          .fillColor(foregroundColor)
+          .font('Helvetica')
+          .fontSize(9)
+          .text(t.transactionNumber, col1, currentTableY)
+          .text(t.cashier, col2, currentTableY)
+          .text(this.formatCurrency(t.totalAmount), col3, currentTableY)
+          .text(t.paymentMethod || '-', col4, currentTableY);
+
+        currentTableY += 20;
+      });
+
+      addFooter();
+      doc.end();
+    });
+  }
+
+  private formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
   }
 }

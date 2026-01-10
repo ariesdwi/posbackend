@@ -8,8 +8,11 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { MenuService } from './menu.service';
 import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -28,8 +31,32 @@ export class MenuController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Create product (Admin only)' })
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.menuService.create(createProductDto);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        description: { type: 'string', nullable: true },
+        price: { type: 'number' },
+        stock: { type: 'integer' },
+        categoryId: { type: 'string' },
+        status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'] },
+        file: { type: 'string', format: 'binary', nullable: true },
+        imageUrl: { type: 'string', nullable: true },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.menuService.create(createProductDto, file);
   }
 
   @Get()
@@ -53,8 +80,33 @@ export class MenuController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update product (Admin only)' })
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.menuService.update(id, updateProductDto);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', nullable: true },
+        description: { type: 'string', nullable: true },
+        price: { type: 'number', nullable: true },
+        stock: { type: 'integer', nullable: true },
+        categoryId: { type: 'string', nullable: true },
+        status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'], nullable: true },
+        file: { type: 'string', format: 'binary', nullable: true },
+        imageUrl: { type: 'string', nullable: true },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  update(
+    @Param('id') id: string, 
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.menuService.update(id, updateProductDto, file);
   }
 
   @Patch(':id/stock')

@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import { ReportsService } from './reports.service';
 export declare class ReportsController {
     private readonly reportsService;
@@ -104,4 +105,5 @@ export declare class ReportsController {
     }>;
     getBestSellers(period?: 'daily' | 'weekly' | 'monthly', limit?: string): Promise<any[]>;
     getRevenueByCategory(startDate: string, endDate: string): Promise<any[]>;
+    exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
 }

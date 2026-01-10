@@ -45,6 +45,35 @@ let ReportsController = class ReportsController {
     getRevenueByCategory(startDate, endDate) {
         return this.reportsService.getRevenueByCategory(startDate, endDate);
     }
+    async exportPDF(res, type, date, startDate, endDate, month) {
+        let reportData;
+        switch (type) {
+            case 'daily':
+                reportData = await this.reportsService.getDailyReport(date || new Date().toISOString().split('T')[0]);
+                break;
+            case 'weekly':
+                reportData = await this.reportsService.getWeeklyReport(startDate || new Date().toISOString().split('T')[0]);
+                break;
+            case 'monthly':
+                reportData = await this.reportsService.getMonthlyReport(month ||
+                    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
+                break;
+            case 'custom':
+                if (!startDate || !endDate) {
+                    return res.status(400).json({ message: 'startDate and endDate are required' });
+                }
+                reportData = await this.reportsService.getCustomReport(startDate, endDate);
+                break;
+        }
+        const pdfBuffer = await this.reportsService.generatePDFReport(reportData);
+        const filename = `laporan-${type}-${new Date().toISOString().split('T')[0]}.pdf`;
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+            'Content-Length': pdfBuffer.length,
+        });
+        res.end(pdfBuffer);
+    }
 };
 exports.ReportsController = ReportsController;
 __decorate([
@@ -107,6 +136,32 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getRevenueByCategory", null);
+__decorate([
+    (0, common_1.Get)('export/pdf'),
+    (0, swagger_1.ApiOperation)({ summary: 'Export sales report as PDF' }),
+    (0, swagger_1.ApiQuery)({ name: 'type', enum: ['daily', 'weekly', 'monthly', 'custom'] }),
+    (0, swagger_1.ApiQuery)({ name: 'date', required: false, description: 'Date for daily report (YYYY-MM-DD)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'startDate',
+        required: false,
+        description: 'Start date for weekly/custom (YYYY-MM-DD)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'endDate',
+        required: false,
+        description: 'End date for custom (YYYY-MM-DD)',
+    }),
+    (0, swagger_1.ApiQuery)({ name: 'month', required: false, description: 'Month for monthly report (YYYY-MM)' }),
+    __param(0, (0, common_1.Res)()),
+    __param(1, (0, common_1.Query)('type')),
+    __param(2, (0, common_1.Query)('date')),
+    __param(3, (0, common_1.Query)('startDate')),
+    __param(4, (0, common_1.Query)('endDate')),
+    __param(5, (0, common_1.Query)('month')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "exportPDF", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, swagger_1.ApiTags)('Reports'),
     (0, common_1.Controller)('reports'),

@@ -105,4 +105,6 @@ export declare class ReportsService {
     private getReportForPeriod;
     getBestSellers(period: 'daily' | 'weekly' | 'monthly', limit?: number): Promise<any[]>;
     getRevenueByCategory(startDate: string, endDate: string): Promise<any[]>;
+    generatePDFReport(reportData: any): Promise<Buffer>;
+    private formatCurrency;
 }

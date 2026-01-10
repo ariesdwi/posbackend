@@ -2,12 +2,16 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
 import { ProductStatus } from '@prisma/client';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class MenuService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private uploadService: UploadService,
+  ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, file?: Express.Multer.File) {
     // Verify category exists
     const category = await this.prisma.category.findUnique({
       where: { id: createProductDto.categoryId },
@@ -17,8 +21,18 @@ export class MenuService {
       throw new NotFoundException('Category not found');
     }
 
+    let imageUrl = createProductDto.imageUrl;
+
+    if (file) {
+      const uploadResult = await this.uploadService.uploadToImageKit(file);
+      imageUrl = uploadResult.url;
+    }
+
     return this.prisma.product.create({
-      data: createProductDto,
+      data: {
+        ...createProductDto,
+        imageUrl,
+      },
       include: {
         category: true,
       },
@@ -65,7 +79,7 @@ export class MenuService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, file?: Express.Multer.File) {
     await this.findOne(id);
 
     if (updateProductDto.categoryId) {
@@ -78,9 +92,19 @@ export class MenuService {
       }
     }
 
+    let imageUrl = updateProductDto.imageUrl;
+
+    if (file) {
+      const uploadResult = await this.uploadService.uploadToImageKit(file);
+      imageUrl = uploadResult.url;
+    }
+
     return this.prisma.product.update({
       where: { id },
-      data: updateProductDto,
+      data: {
+        ...updateProductDto,
+        ...(imageUrl !== undefined && { imageUrl }), // Only update imageUrl if it's explicitly provided or new file uploaded
+      },
       include: {
         category: true,
       },
