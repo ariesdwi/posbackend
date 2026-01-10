@@ -131,19 +131,10 @@ export class MenuService {
   async remove(id: string) {
     await this.findOne(id);
 
-    try {
-      await this.prisma.product.delete({
-        where: { id },
-      });
+    await this.prisma.product.delete({
+      where: { id },
+    });
 
-      return { message: 'Product deleted successfully' };
-    } catch (error) {
-      if (error.code === 'P2003') {
-        throw new BadRequestException(
-          'Cannot delete product because it is part of existing transactions. Please mark it as OUT_OF_STOCK instead.',
-        );
-      }
-      throw error;
-    }
+    return { message: 'Product deleted successfully' };
   }
 }
