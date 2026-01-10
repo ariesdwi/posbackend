@@ -22,8 +22,21 @@ async function main() {
   await prisma.transaction.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.user.deleteMany();
+
+  await prisma.business.deleteMany();
 
   console.log('✅ Existing data deleted');
+
+  // Create default business
+  const business = await prisma.business.create({
+    data: {
+      name: 'Kedai Kita',
+      address: 'Jl. Contoh No. 123',
+      phone: '081234567890',
+    },
+  });
+  console.log('✅ Created business:', business.name);
 
   // Create admin user
   const adminPassword = await bcrypt.hash('admin123', 10);
@@ -35,6 +48,7 @@ async function main() {
       password: adminPassword,
       name: 'Admin User',
       role: UserRole.ADMIN,
+      businessId: business.id,
     },
   });
   console.log('✅ Created admin user:', admin.email);
@@ -49,73 +63,74 @@ async function main() {
       password: kasirPassword,
       name: 'Kasir User',
       role: UserRole.KASIR,
+      businessId: business.id,
     },
   });
   console.log('✅ Created kasir user:', kasir.email);
 
   // Create categories
   const iceDrinkCat = await prisma.category.create({
-    data: { name: 'Ice Drink', description: 'Minuman dingin' },
+    data: { name: 'Ice Drink', description: 'Minuman dingin', businessId: business.id },
   });
 
   const hotDrinkCat = await prisma.category.create({
-    data: { name: 'Hot Drink', description: 'Minuman hangat' },
+    data: { name: 'Hot Drink', description: 'Minuman hangat', businessId: business.id },
   });
 
   const teaCat = await prisma.category.create({
-    data: { name: 'Tea', description: 'Teh' },
+    data: { name: 'Tea', description: 'Teh', businessId: business.id },
   });
 
   const milkShakeCat = await prisma.category.create({
-    data: { name: 'Milk Shake', description: 'Milk shake & minuman susu' },
+    data: { name: 'Milk Shake', description: 'Milk shake & minuman susu', businessId: business.id },
   });
 
   const squashCat = await prisma.category.create({
-    data: { name: 'Squash', description: 'Squash' },
+    data: { name: 'Squash', description: 'Squash', businessId: business.id },
   });
 
   const nasiGorengCat = await prisma.category.create({
-    data: { name: 'Nasi Goreng', description: 'Nasi goreng' },
+    data: { name: 'Nasi Goreng', description: 'Nasi goreng', businessId: business.id },
   });
 
   const laukTambahanCat = await prisma.category.create({
-    data: { name: 'Lauk Tambahan', description: 'Lauk tambahan' },
+    data: { name: 'Lauk Tambahan', description: 'Lauk tambahan', businessId: business.id },
   });
 
   const makananRinganCat = await prisma.category.create({
-    data: { name: 'Makanan Ringan', description: 'Makanan ringan & snack' },
+    data: { name: 'Makanan Ringan', description: 'Makanan ringan & snack', businessId: business.id },
   });
 
   const chineseFoodCat = await prisma.category.create({
-    data: { name: 'Chinese Food', description: 'Masakan chinese' },
+    data: { name: 'Chinese Food', description: 'Masakan chinese', businessId: business.id },
   });
 
   const kwetiauCat = await prisma.category.create({
-    data: { name: 'Kwetiau', description: 'Kwetiau' },
+    data: { name: 'Kwetiau', description: 'Kwetiau', businessId: business.id },
   });
 
   const capcayCat = await prisma.category.create({
-    data: { name: 'Capcay', description: 'Capcay' },
+    data: { name: 'Capcay', description: 'Capcay', businessId: business.id },
   });
 
   const mieCat = await prisma.category.create({
-    data: { name: 'Mie', description: 'Mie' },
+    data: { name: 'Mie', description: 'Mie', businessId: business.id },
   });
 
   const bihunCat = await prisma.category.create({
-    data: { name: 'Bihun', description: 'Bihun' },
+    data: { name: 'Bihun', description: 'Bihun', businessId: business.id },
   });
 
   const menuMakananCat = await prisma.category.create({
-    data: { name: 'Menu Makanan', description: 'Menu makanan utama' },
+    data: { name: 'Menu Makanan', description: 'Menu makanan utama', businessId: business.id },
   });
 
   const lalapanCat = await prisma.category.create({
-    data: { name: 'Lalapan', description: 'Lalapan' },
+    data: { name: 'Lalapan', description: 'Lalapan', businessId: business.id },
   });
 
   const sayuranCat = await prisma.category.create({
-    data: { name: 'Sayuran', description: 'Sayuran' },
+    data: { name: 'Sayuran', description: 'Sayuran', businessId: business.id },
   });
 
   console.log('✅ Created categories');
@@ -846,7 +861,10 @@ async function main() {
 
   for (const product of products) {
     await prisma.product.create({
-      data: product,
+      data: {
+        ...product,
+        businessId: business.id,
+      },
     });
   }
 

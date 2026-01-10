@@ -3,43 +3,44 @@ import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createUserDto: CreateUserDto): Promise<{
+    create(createUserDto: CreateUserDto, businessId: string): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }>;
-    findAll(): Promise<{
+    findAll(businessId: string): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }[]>;
-    findOne(id: string): Promise<{
+    findOne(id: string, businessId: string): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-    }>;
-    update(id: string, updateUserDto: UpdateUserDto): Promise<{
-        id: string;
         email: string;
-        name: string;
         role: import("@prisma/client").$Enums.UserRole;
         isActive: boolean;
+    }>;
+    update(id: string, updateUserDto: UpdateUserDto, businessId: string): Promise<{
+        id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }>;
-    remove(id: string): Promise<{
+    remove(id: string, businessId: string): Promise<{
         message: string;
     }>;
 }

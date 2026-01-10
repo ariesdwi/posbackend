@@ -19,6 +19,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { User } from '../common/decorators/user.decorator';
+import type { RequestUser } from '../common/decorators/user.decorator';
 
 @ApiTags('Menu/Products')
 @Controller('menu')
@@ -54,9 +56,10 @@ export class MenuController {
   )
   create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @User() user: RequestUser,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.menuService.create(createProductDto, file);
+    return this.menuService.create(createProductDto, user.businessId, file);
   }
 
   @Get()
@@ -64,16 +67,17 @@ export class MenuController {
   @ApiQuery({ name: 'categoryId', required: false })
   @ApiQuery({ name: 'search', required: false })
   findAll(
+    @User() user: RequestUser,
     @Query('categoryId') categoryId?: string,
     @Query('search') search?: string,
   ) {
-    return this.menuService.findAll(categoryId, search);
+    return this.menuService.findAll(user.businessId, categoryId, search);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get product by ID' })
-  findOne(@Param('id') id: string) {
-    return this.menuService.findOne(id);
+  findOne(@Param('id') id: string, @User() user: RequestUser) {
+    return this.menuService.findOne(id, user.businessId);
   }
 
   @Patch(':id')
@@ -104,24 +108,25 @@ export class MenuController {
   update(
     @Param('id') id: string, 
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @User() user: RequestUser,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.menuService.update(id, updateProductDto, file);
+    return this.menuService.update(id, updateProductDto, user.businessId, file);
   }
 
   @Patch(':id/stock')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update product stock (Admin only)' })
-  updateStock(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto) {
-    return this.menuService.updateStock(id, updateStockDto);
+  updateStock(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto, @User() user: RequestUser) {
+    return this.menuService.updateStock(id, updateStockDto, user.businessId);
   }
 
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Delete product (Admin only)' })
-  remove(@Param('id') id: string) {
-    return this.menuService.remove(id);
+  remove(@Param('id') id: string, @User() user: RequestUser) {
+    return this.menuService.remove(id, user.businessId);
   }
 }

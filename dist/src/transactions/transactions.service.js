@@ -18,11 +18,14 @@ let TransactionsService = class TransactionsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createTransactionDto, userId) {
+    async create(createTransactionDto, userId, businessId) {
         const { items, tableNumber, paymentMethod, paymentAmount, notes, status } = createTransactionDto;
         const productIds = items.map((item) => item.productId);
         const products = await this.prisma.product.findMany({
-            where: { id: { in: productIds } },
+            where: {
+                id: { in: productIds },
+                businessId,
+            },
         });
         if (products.length !== productIds.length) {
             throw new common_1.NotFoundException('One or more products not found');
@@ -33,6 +36,7 @@ let TransactionsService = class TransactionsService {
                 where: {
                     tableNumber,
                     status: client_1.TransactionStatus.PENDING,
+                    businessId,
                 },
                 include: { items: true },
             });
@@ -107,6 +111,7 @@ let TransactionsService = class TransactionsService {
         const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
         const count = await this.prisma.transaction.count({
             where: {
+                businessId,
                 createdAt: {
                     gte: new Date(today.setHours(0, 0, 0, 0)),
                     lt: new Date(today.setHours(23, 59, 59, 999)),
@@ -119,6 +124,7 @@ let TransactionsService = class TransactionsService {
                 data: {
                     transactionNumber,
                     userId,
+                    businessId,
                     tableNumber,
                     totalAmount: new client_1.Prisma.Decimal(totalAmount),
                     paymentMethod: paymentMethod || undefined,
@@ -151,8 +157,8 @@ let TransactionsService = class TransactionsService {
             return newTransaction;
         });
     }
-    async checkout(id, checkoutDto) {
-        const transaction = await this.findOne(id);
+    async checkout(id, checkoutDto, businessId) {
+        const transaction = await this.findOne(id, businessId);
         if (transaction.status !== client_1.TransactionStatus.PENDING) {
             throw new common_1.BadRequestException('Transaction is already completed or cancelled');
         }
@@ -176,8 +182,8 @@ let TransactionsService = class TransactionsService {
             },
         });
     }
-    async findAll(startDate, endDate, status, userId, tableNumber) {
-        const where = {};
+    async findAll(businessId, startDate, endDate, status, userId, tableNumber) {
+        const where = { businessId };
         if (startDate || endDate) {
             where.createdAt = {};
             if (startDate) {
@@ -217,9 +223,9 @@ let TransactionsService = class TransactionsService {
             },
         });
     }
-    async findOne(id) {
-        const transaction = await this.prisma.transaction.findUnique({
-            where: { id },
+    async findOne(id, businessId) {
+        const transaction = await this.prisma.transaction.findFirst({
+            where: { id, businessId },
             include: {
                 items: {
                     include: {
@@ -240,8 +246,8 @@ let TransactionsService = class TransactionsService {
         }
         return transaction;
     }
-    async updateStatus(id, updateStatusDto) {
-        await this.findOne(id);
+    async updateStatus(id, updateStatusDto, businessId) {
+        await this.findOne(id, businessId);
         return this.prisma.transaction.update({
             where: { id },
             data: { status: updateStatusDto.status },

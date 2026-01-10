@@ -21,25 +21,26 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 let CategoriesController = class CategoriesController {
     categoriesService;
     constructor(categoriesService) {
         this.categoriesService = categoriesService;
     }
-    create(createCategoryDto) {
-        return this.categoriesService.create(createCategoryDto);
+    create(createCategoryDto, user) {
+        return this.categoriesService.create(createCategoryDto, user.businessId);
     }
-    findAll() {
-        return this.categoriesService.findAll();
+    findAll(user) {
+        return this.categoriesService.findAll(user.businessId);
     }
-    findOne(id) {
-        return this.categoriesService.findOne(id);
+    findOne(id, user) {
+        return this.categoriesService.findOne(id, user.businessId);
     }
-    update(id, updateCategoryDto) {
-        return this.categoriesService.update(id, updateCategoryDto);
+    update(id, updateCategoryDto, user) {
+        return this.categoriesService.update(id, updateCategoryDto, user.businessId);
     }
-    remove(id) {
-        return this.categoriesService.remove(id);
+    remove(id, user) {
+        return this.categoriesService.remove(id, user.businessId);
     }
 };
 exports.CategoriesController = CategoriesController;
@@ -49,23 +50,26 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Create category (Admin only)' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [category_dto_1.CreateCategoryDto]),
+    __metadata("design:paramtypes", [category_dto_1.CreateCategoryDto, Object]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all categories' }),
+    __param(0, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get category by ID with products' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "findOne", null);
 __decorate([
@@ -75,8 +79,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update category (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, category_dto_1.UpdateCategoryDto]),
+    __metadata("design:paramtypes", [String, category_dto_1.UpdateCategoryDto, Object]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "update", null);
 __decorate([
@@ -85,8 +90,9 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Delete category (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "remove", null);
 exports.CategoriesController = CategoriesController = __decorate([

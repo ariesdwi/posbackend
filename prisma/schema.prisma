@@ -43,18 +43,40 @@ model User {
   updatedAt DateTime @updatedAt
 
   transactions Transaction[]
+  
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
 
   @@map("users")
 }
 
+model Business {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  categories   Category[]
+  products     Product[]
+  transactions Transaction[]
+
+  @@map("businesses")
+}
+
 model Category {
   id          String   @id @default(cuid())
-  name        String   @unique
+  name        String
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   products Product[]
+  
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
 
   @@map("categories")
 }
@@ -73,6 +95,9 @@ model Product {
 
   category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   transactionItems TransactionItem[]
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
 
   @@map("products")
 }
@@ -93,6 +118,9 @@ model Transaction {
 
   user  User              @relation(fields: [userId], references: [id])
   items TransactionItem[]
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
 
   @@index([createdAt])
   @@index([userId])

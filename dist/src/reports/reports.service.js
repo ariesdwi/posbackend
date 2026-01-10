@@ -21,34 +21,34 @@ let ReportsService = class ReportsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getCustomReport(startDate, endDate) {
+    async getCustomReport(startDate, endDate, businessId) {
         const start = new Date(startDate);
         start.setHours(0, 0, 0, 0);
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        return this.getReportForPeriod(start, end, 'Custom');
+        return this.getReportForPeriod(start, end, 'Custom', businessId);
     }
-    async getDailyReport(date) {
+    async getDailyReport(date, businessId) {
         const startDate = new Date(date);
         startDate.setHours(0, 0, 0, 0);
         const endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
-        return this.getReportForPeriod(startDate, endDate, 'Daily');
+        return this.getReportForPeriod(startDate, endDate, 'Daily', businessId);
     }
-    async getWeeklyReport(startDate) {
+    async getWeeklyReport(startDate, businessId) {
         const start = new Date(startDate);
         const end = new Date(start);
         end.setDate(end.getDate() + 6);
         end.setHours(23, 59, 59, 999);
-        return this.getReportForPeriod(start, end, 'Weekly');
+        return this.getReportForPeriod(start, end, 'Weekly', businessId);
     }
-    async getMonthlyReport(month) {
+    async getMonthlyReport(month, businessId) {
         const [year, monthNum] = month.split('-').map(Number);
         const start = new Date(year, monthNum - 1, 1);
         const end = new Date(year, monthNum, 0, 23, 59, 59, 999);
-        return this.getReportForPeriod(start, end, 'Monthly');
+        return this.getReportForPeriod(start, end, 'Monthly', businessId);
     }
-    async getReportForPeriod(startDate, endDate, periodType) {
+    async getReportForPeriod(startDate, endDate, periodType, businessId) {
         const transactions = await this.prisma.transaction.findMany({
             where: {
                 createdAt: {
@@ -56,6 +56,7 @@ let ReportsService = class ReportsService {
                     lte: endDate,
                 },
                 status: 'COMPLETED',
+                businessId,
             },
             include: {
                 items: {
@@ -129,7 +130,7 @@ let ReportsService = class ReportsService {
             })),
         };
     }
-    async getBestSellers(period, limit = 10) {
+    async getBestSellers(period, businessId, limit = 10) {
         let startDate;
         const endDate = new Date();
         switch (period) {
@@ -153,6 +154,7 @@ let ReportsService = class ReportsService {
                     lte: endDate,
                 },
                 status: 'COMPLETED',
+                businessId,
             },
             include: {
                 items: true,
@@ -179,7 +181,7 @@ let ReportsService = class ReportsService {
             .sort((a, b) => b.quantitySold - a.quantitySold)
             .slice(0, limit);
     }
-    async getRevenueByCategory(startDate, endDate) {
+    async getRevenueByCategory(startDate, endDate, businessId) {
         const start = new Date(startDate);
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
@@ -190,6 +192,7 @@ let ReportsService = class ReportsService {
                     lte: end,
                 },
                 status: 'COMPLETED',
+                businessId,
             },
             include: {
                 items: {

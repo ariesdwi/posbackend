@@ -3,6 +3,8 @@ import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User } from '../common/decorators/user.decorator';
+import type { RequestUser } from '../common/decorators/user.decorator';
 
 @ApiTags('Reports')
 @Controller('reports')
@@ -18,34 +20,35 @@ export class ReportsController {
   getCustomReport(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
+    @User() user: RequestUser,
   ) {
-    return this.reportsService.getCustomReport(startDate, endDate);
+    return this.reportsService.getCustomReport(startDate, endDate, user.businessId);
   }
 
   @Get('daily')
   @ApiOperation({ summary: 'Get daily sales report' })
   @ApiQuery({ name: 'date', example: '2026-01-07' })
-  getDailyReport(@Query('date') date: string) {
+  getDailyReport(@Query('date') date: string, @User() user: RequestUser) {
     const reportDate = date || new Date().toISOString().split('T')[0];
-    return this.reportsService.getDailyReport(reportDate);
+    return this.reportsService.getDailyReport(reportDate, user.businessId);
   }
 
   @Get('weekly')
   @ApiOperation({ summary: 'Get weekly sales report' })
   @ApiQuery({ name: 'startDate', example: '2026-01-01' })
-  getWeeklyReport(@Query('startDate') startDate: string) {
+  getWeeklyReport(@Query('startDate') startDate: string, @User() user: RequestUser) {
     const reportDate = startDate || new Date().toISOString().split('T')[0];
-    return this.reportsService.getWeeklyReport(reportDate);
+    return this.reportsService.getWeeklyReport(reportDate, user.businessId);
   }
 
   @Get('monthly')
   @ApiOperation({ summary: 'Get monthly sales report' })
   @ApiQuery({ name: 'month', example: '2026-01' })
-  getMonthlyReport(@Query('month') month: string) {
+  getMonthlyReport(@Query('month') month: string, @User() user: RequestUser) {
     const reportMonth =
       month ||
       `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-    return this.reportsService.getMonthlyReport(reportMonth);
+    return this.reportsService.getMonthlyReport(reportMonth, user.businessId);
   }
 
   @Get('best-sellers')
@@ -54,10 +57,11 @@ export class ReportsController {
   @ApiQuery({ name: 'limit', required: false })
   getBestSellers(
     @Query('period') period: 'daily' | 'weekly' | 'monthly' = 'daily',
+    @User() user: RequestUser,
     @Query('limit') limit?: string,
   ) {
     const limitNum = limit ? parseInt(limit, 10) : 10;
-    return this.reportsService.getBestSellers(period, limitNum);
+    return this.reportsService.getBestSellers(period, user.businessId, limitNum);
   }
 
   @Get('revenue-by-category')
@@ -67,8 +71,9 @@ export class ReportsController {
   getRevenueByCategory(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
+    @User() user: RequestUser,
   ) {
-    return this.reportsService.getRevenueByCategory(startDate, endDate);
+    return this.reportsService.getRevenueByCategory(startDate, endDate, user.businessId);
   }
 
   @Get('export/pdf')
@@ -89,6 +94,7 @@ export class ReportsController {
   async exportPDF(
     @Res() res: Response,
     @Query('type') type: 'daily' | 'weekly' | 'monthly' | 'custom',
+    @User() user: RequestUser,
     @Query('date') date?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -96,28 +102,33 @@ export class ReportsController {
   ) {
     let reportData: any;
 
+    const businessId = user.businessId;
+
     switch (type) {
       case 'daily':
         reportData = await this.reportsService.getDailyReport(
           date || new Date().toISOString().split('T')[0],
+          businessId,
         );
         break;
       case 'weekly':
         reportData = await this.reportsService.getWeeklyReport(
           startDate || new Date().toISOString().split('T')[0],
+          businessId,
         );
         break;
       case 'monthly':
         reportData = await this.reportsService.getMonthlyReport(
           month ||
             `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+          businessId,
         );
         break;
       case 'custom':
         if (!startDate || !endDate) {
           return res.status(400).json({ message: 'startDate and endDate are required' });
         }
-        reportData = await this.reportsService.getCustomReport(startDate, endDate);
+        reportData = await this.reportsService.getCustomReport(startDate, endDate, businessId);
         break;
     }
 

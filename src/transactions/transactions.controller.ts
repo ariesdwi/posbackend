@@ -18,7 +18,8 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { User } from '../common/decorators/user.decorator';
+import type { RequestUser } from '../common/decorators/user.decorator';
 import { UserRole } from '@prisma/client';
 
 @ApiTags('Transactions')
@@ -32,9 +33,9 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Create new transaction or append items to existing pending table bill' })
   create(
     @Body() createTransactionDto: CreateTransactionDto,
-    @CurrentUser() user: any,
+    @User() user: RequestUser,
   ) {
-    return this.transactionsService.create(createTransactionDto, user.id);
+    return this.transactionsService.create(createTransactionDto, user.id, user.businessId);
   }
 
   @Post(':id/checkout')
@@ -42,8 +43,9 @@ export class TransactionsController {
   checkout(
     @Param('id') id: string,
     @Body() checkoutDto: CheckoutDto,
+    @User() user: RequestUser,
   ) {
-    return this.transactionsService.checkout(id, checkoutDto);
+    return this.transactionsService.checkout(id, checkoutDto, user.businessId);
   }
 
   @Get()
@@ -54,19 +56,20 @@ export class TransactionsController {
   @ApiQuery({ name: 'userId', required: false })
   @ApiQuery({ name: 'tableNumber', required: false })
   findAll(
+    @User() user: RequestUser,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('status') status?: string,
     @Query('userId') userId?: string,
     @Query('tableNumber') tableNumber?: string,
   ) {
-    return this.transactionsService.findAll(startDate, endDate, status, userId, tableNumber);
+    return this.transactionsService.findAll(user.businessId, startDate, endDate, status, userId, tableNumber);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get transaction by ID' })
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(id);
+  findOne(@Param('id') id: string, @User() user: RequestUser) {
+    return this.transactionsService.findOne(id, user.businessId);
   }
 
   @Patch(':id/status')
@@ -76,7 +79,8 @@ export class TransactionsController {
   updateStatus(
     @Param('id') id: string,
     @Body() updateStatusDto: UpdateTransactionStatusDto,
+    @User() user: RequestUser,
   ) {
-    return this.transactionsService.updateStatus(id, updateStatusDto);
+    return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);
   }
 }

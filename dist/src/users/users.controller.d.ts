@@ -1,45 +1,47 @@
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import type { RequestUser } from '../common/decorators/user.decorator';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    create(createUserDto: CreateUserDto): Promise<{
+    create(createUserDto: CreateUserDto, user: RequestUser): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }>;
-    findAll(): Promise<{
+    findAll(user: RequestUser): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }[]>;
-    findOne(id: string): Promise<{
+    findOne(id: string, user: RequestUser): Promise<{
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-    }>;
-    update(id: string, updateUserDto: UpdateUserDto): Promise<{
-        id: string;
         email: string;
-        name: string;
         role: import("@prisma/client").$Enums.UserRole;
         isActive: boolean;
+    }>;
+    update(id: string, updateUserDto: UpdateUserDto, user: RequestUser): Promise<{
+        id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     }>;
-    remove(id: string): Promise<{
+    remove(id: string, user: RequestUser): Promise<{
         message: string;
     }>;
 }

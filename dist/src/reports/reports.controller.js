@@ -17,52 +17,54 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const reports_service_1 = require("./reports.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 let ReportsController = class ReportsController {
     reportsService;
     constructor(reportsService) {
         this.reportsService = reportsService;
     }
-    getCustomReport(startDate, endDate) {
-        return this.reportsService.getCustomReport(startDate, endDate);
+    getCustomReport(startDate, endDate, user) {
+        return this.reportsService.getCustomReport(startDate, endDate, user.businessId);
     }
-    getDailyReport(date) {
+    getDailyReport(date, user) {
         const reportDate = date || new Date().toISOString().split('T')[0];
-        return this.reportsService.getDailyReport(reportDate);
+        return this.reportsService.getDailyReport(reportDate, user.businessId);
     }
-    getWeeklyReport(startDate) {
+    getWeeklyReport(startDate, user) {
         const reportDate = startDate || new Date().toISOString().split('T')[0];
-        return this.reportsService.getWeeklyReport(reportDate);
+        return this.reportsService.getWeeklyReport(reportDate, user.businessId);
     }
-    getMonthlyReport(month) {
+    getMonthlyReport(month, user) {
         const reportMonth = month ||
             `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-        return this.reportsService.getMonthlyReport(reportMonth);
+        return this.reportsService.getMonthlyReport(reportMonth, user.businessId);
     }
-    getBestSellers(period = 'daily', limit) {
+    getBestSellers(period = 'daily', user, limit) {
         const limitNum = limit ? parseInt(limit, 10) : 10;
-        return this.reportsService.getBestSellers(period, limitNum);
+        return this.reportsService.getBestSellers(period, user.businessId, limitNum);
     }
-    getRevenueByCategory(startDate, endDate) {
-        return this.reportsService.getRevenueByCategory(startDate, endDate);
+    getRevenueByCategory(startDate, endDate, user) {
+        return this.reportsService.getRevenueByCategory(startDate, endDate, user.businessId);
     }
-    async exportPDF(res, type, date, startDate, endDate, month) {
+    async exportPDF(res, type, user, date, startDate, endDate, month) {
         let reportData;
+        const businessId = user.businessId;
         switch (type) {
             case 'daily':
-                reportData = await this.reportsService.getDailyReport(date || new Date().toISOString().split('T')[0]);
+                reportData = await this.reportsService.getDailyReport(date || new Date().toISOString().split('T')[0], businessId);
                 break;
             case 'weekly':
-                reportData = await this.reportsService.getWeeklyReport(startDate || new Date().toISOString().split('T')[0]);
+                reportData = await this.reportsService.getWeeklyReport(startDate || new Date().toISOString().split('T')[0], businessId);
                 break;
             case 'monthly':
                 reportData = await this.reportsService.getMonthlyReport(month ||
-                    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
+                    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`, businessId);
                 break;
             case 'custom':
                 if (!startDate || !endDate) {
                     return res.status(400).json({ message: 'startDate and endDate are required' });
                 }
-                reportData = await this.reportsService.getCustomReport(startDate, endDate);
+                reportData = await this.reportsService.getCustomReport(startDate, endDate, businessId);
                 break;
         }
         const pdfBuffer = await this.reportsService.generatePDFReport(reportData);
@@ -83,8 +85,9 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31', description: 'End date (YYYY-MM-DD)' }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getCustomReport", null);
 __decorate([
@@ -92,8 +95,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get daily sales report' }),
     (0, swagger_1.ApiQuery)({ name: 'date', example: '2026-01-07' }),
     __param(0, (0, common_1.Query)('date')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getDailyReport", null);
 __decorate([
@@ -101,8 +105,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get weekly sales report' }),
     (0, swagger_1.ApiQuery)({ name: 'startDate', example: '2026-01-01' }),
     __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getWeeklyReport", null);
 __decorate([
@@ -110,8 +115,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get monthly sales report' }),
     (0, swagger_1.ApiQuery)({ name: 'month', example: '2026-01' }),
     __param(0, (0, common_1.Query)('month')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getMonthlyReport", null);
 __decorate([
@@ -120,9 +126,10 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'period', enum: ['daily', 'weekly', 'monthly'] }),
     (0, swagger_1.ApiQuery)({ name: 'limit', required: false }),
     __param(0, (0, common_1.Query)('period')),
-    __param(1, (0, common_1.Query)('limit')),
+    __param(1, (0, user_decorator_1.User)()),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Object, String]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getBestSellers", null);
 __decorate([
@@ -132,8 +139,9 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31' }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getRevenueByCategory", null);
 __decorate([
@@ -154,12 +162,13 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'month', required: false, description: 'Month for monthly report (YYYY-MM)' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('type')),
-    __param(2, (0, common_1.Query)('date')),
-    __param(3, (0, common_1.Query)('startDate')),
-    __param(4, (0, common_1.Query)('endDate')),
-    __param(5, (0, common_1.Query)('month')),
+    __param(2, (0, user_decorator_1.User)()),
+    __param(3, (0, common_1.Query)('date')),
+    __param(4, (0, common_1.Query)('startDate')),
+    __param(5, (0, common_1.Query)('endDate')),
+    __param(6, (0, common_1.Query)('month')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, Object, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportPDF", null);
 exports.ReportsController = ReportsController = __decorate([

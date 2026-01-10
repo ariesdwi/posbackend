@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, name, role } = registerDto;
+    const { email, password, name, role, businessName } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
@@ -27,22 +27,36 @@ export class AuthService {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        role,
-      },
+    // Transaction: Create Business AND User
+    const result = await this.prisma.$transaction(async (prisma) => {
+      // 1. Create Business
+      const business = await prisma.business.create({
+        data: {
+          name: businessName,
+        },
+      });
+
+      // 2. Create User linked to Business
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          role,
+          businessId: business.id,
+        },
+      });
+
+      return { user, business };
     });
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = result.user;
 
     return {
       user: userWithoutPassword,
-      message: 'User registered successfully',
+      business: result.business,
+      message: 'User and Business registered successfully',
     };
   }
 
@@ -71,7 +85,12 @@ export class AuthService {
     }
 
     // Generate JWT token
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      role: user.role,
+      businessId: user.businessId // Add businessId to token
+    };
     const accessToken = await this.jwtService.signAsync(payload);
 
     // Remove password from response

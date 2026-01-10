@@ -51,7 +51,7 @@ let UsersService = class UsersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createUserDto) {
+    async create(createUserDto, businessId) {
         const { email, password, name, role } = createUserDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
@@ -66,13 +66,15 @@ let UsersService = class UsersService {
                 password: hashedPassword,
                 name,
                 role,
+                businessId,
             },
         });
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
     }
-    async findAll() {
+    async findAll(businessId) {
         const users = await this.prisma.user.findMany({
+            where: { businessId },
             select: {
                 id: true,
                 email: true,
@@ -85,9 +87,9 @@ let UsersService = class UsersService {
         });
         return users;
     }
-    async findOne(id) {
-        const user = await this.prisma.user.findUnique({
-            where: { id },
+    async findOne(id, businessId) {
+        const user = await this.prisma.user.findFirst({
+            where: { id, businessId },
             select: {
                 id: true,
                 email: true,
@@ -103,8 +105,8 @@ let UsersService = class UsersService {
         }
         return user;
     }
-    async update(id, updateUserDto) {
-        await this.findOne(id);
+    async update(id, updateUserDto, businessId) {
+        await this.findOne(id, businessId);
         const updateData = { ...updateUserDto };
         if (updateUserDto.password) {
             updateData.password = await bcrypt.hash(updateUserDto.password, 10);
@@ -124,8 +126,8 @@ let UsersService = class UsersService {
         });
         return user;
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, businessId) {
+        await this.findOne(id, businessId);
         await this.prisma.user.delete({
             where: { id },
         });

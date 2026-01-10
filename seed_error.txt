@@ -1,0 +1,36 @@
+🌱 Starting database seed...
+🗑️  Deleting existing data...
+❌ Error seeding database: PrismaClientKnownRequestError: 
+Invalid `prisma.business.deleteMany()` invocation in
+/Users/ptsiagaabdiutama/Desktop/pos-backend/prisma/seed.ts:26:25
+
+  23 await prisma.product.deleteMany();
+  24 await prisma.category.deleteMany();
+  25 
+→ 26 await prisma.business.deleteMany(
+Foreign key constraint violated on the constraint: `users_businessId_fkey`
+    at qr.handleRequestError (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)
+    at qr.handleAndLogRequestError (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    at qr.request (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:805:24)
+    at async main (/Users/ptsiagaabdiutama/Desktop/pos-backend/prisma/seed.ts:26:3) {
+  code: 'P2003',
+  meta: {
+    modelName: 'Business',
+    driverAdapterError: DriverAdapterError: ForeignKeyConstraintViolation
+        at PrismaPgAdapter.onError (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/adapter-pg/dist/index.js:687:11)
+        at PrismaPgAdapter.performIO (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/adapter-pg/dist/index.js:682:12)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at async PrismaPgAdapter.executeRaw (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/adapter-pg/dist/index.js:641:13)
+        at async /Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client-engine-runtime/src/tracing.ts:68:22
+        at async fr (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client-engine-runtime/src/tracing.ts:56:10)
+        at async e.interpretNode (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:172:18)
+        at async e.interpretNode (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:276:41)
+        at async e.run (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:96:23)
+        at async execute (/Users/ptsiagaabdiutama/Desktop/pos-backend/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12) {
+      cause: [Object]
+    }
+  },
+  clientVersion: '7.2.0'
+}

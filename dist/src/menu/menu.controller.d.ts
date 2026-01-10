@@ -1,109 +1,120 @@
 import { MenuService } from './menu.service';
 import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import type { RequestUser } from '../common/decorators/user.decorator';
 export declare class MenuController {
     private readonly menuService;
     constructor(menuService: MenuService);
-    create(createProductDto: CreateProductDto, file: Express.Multer.File): Promise<{
+    create(createProductDto: CreateProductDto, user: RequestUser, file?: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
     }>;
-    findAll(categoryId?: string, search?: string): Promise<({
+    findAll(user: RequestUser, categoryId?: string, search?: string): Promise<({
         category: {
             id: string;
             name: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
     })[]>;
-    findOne(id: string): Promise<{
+    findOne(id: string, user: RequestUser): Promise<{
         category: {
             id: string;
             name: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
     }>;
-    update(id: string, updateProductDto: UpdateProductDto, file: Express.Multer.File): Promise<{
+    update(id: string, updateProductDto: UpdateProductDto, user: RequestUser, file?: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
     }>;
-    updateStock(id: string, updateStockDto: UpdateStockDto): Promise<{
+    updateStock(id: string, updateStockDto: UpdateStockDto, user: RequestUser): Promise<{
         category: {
             id: string;
             name: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
     }>;
-    remove(id: string): Promise<{
+    remove(id: string, user: RequestUser): Promise<{
         message: string;
     }>;
 }

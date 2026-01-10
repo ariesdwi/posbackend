@@ -17,19 +17,23 @@ let CategoriesService = class CategoriesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createCategoryDto) {
-        const existing = await this.prisma.category.findUnique({
-            where: { name: createCategoryDto.name },
+    async create(createCategoryDto, businessId) {
+        const existing = await this.prisma.category.findFirst({
+            where: { name: createCategoryDto.name, businessId },
         });
         if (existing) {
             throw new common_1.ConflictException('Category name already exists');
         }
         return this.prisma.category.create({
-            data: createCategoryDto,
+            data: {
+                ...createCategoryDto,
+                businessId,
+            },
         });
     }
-    async findAll() {
+    async findAll(businessId) {
         return this.prisma.category.findMany({
+            where: { businessId },
             include: {
                 _count: {
                     select: { products: true },
@@ -37,9 +41,9 @@ let CategoriesService = class CategoriesService {
             },
         });
     }
-    async findOne(id) {
-        const category = await this.prisma.category.findUnique({
-            where: { id },
+    async findOne(id, businessId) {
+        const category = await this.prisma.category.findFirst({
+            where: { id, businessId },
             include: {
                 products: true,
             },
@@ -49,15 +53,15 @@ let CategoriesService = class CategoriesService {
         }
         return category;
     }
-    async update(id, updateCategoryDto) {
-        await this.findOne(id);
+    async update(id, updateCategoryDto, businessId) {
+        await this.findOne(id, businessId);
         return this.prisma.category.update({
             where: { id },
             data: updateCategoryDto,
         });
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, businessId) {
+        await this.findOne(id, businessId);
         await this.prisma.category.delete({
             where: { id },
         });

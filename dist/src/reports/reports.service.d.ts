@@ -2,7 +2,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class ReportsService {
     private prisma;
     constructor(prisma: PrismaService);
-    getCustomReport(startDate: string, endDate: string): Promise<{
+    getCustomReport(startDate: string, endDate: string, businessId: string): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -27,7 +27,7 @@ export declare class ReportsService {
             createdAt: Date;
         }[];
     }>;
-    getDailyReport(date: string): Promise<{
+    getDailyReport(date: string, businessId: string): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -52,7 +52,7 @@ export declare class ReportsService {
             createdAt: Date;
         }[];
     }>;
-    getWeeklyReport(startDate: string): Promise<{
+    getWeeklyReport(startDate: string, businessId: string): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -77,7 +77,7 @@ export declare class ReportsService {
             createdAt: Date;
         }[];
     }>;
-    getMonthlyReport(month: string): Promise<{
+    getMonthlyReport(month: string, businessId: string): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -103,8 +103,8 @@ export declare class ReportsService {
         }[];
     }>;
     private getReportForPeriod;
-    getBestSellers(period: 'daily' | 'weekly' | 'monthly', limit?: number): Promise<any[]>;
-    getRevenueByCategory(startDate: string, endDate: string): Promise<any[]>;
+    getBestSellers(period: 'daily' | 'weekly' | 'monthly', businessId: string, limit?: number): Promise<any[]>;
+    getRevenueByCategory(startDate: string, endDate: string, businessId: string): Promise<any[]>;
     generatePDFReport(reportData: any): Promise<Buffer>;
     private formatCurrency;
 }

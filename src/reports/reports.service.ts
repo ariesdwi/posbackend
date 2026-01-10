@@ -7,49 +7,50 @@ import PDFDocument from 'pdfkit';
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  async getCustomReport(startDate: string, endDate: string) {
+  async getCustomReport(startDate: string, endDate: string, businessId: string) {
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
 
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
-    return this.getReportForPeriod(start, end, 'Custom');
+    return this.getReportForPeriod(start, end, 'Custom', businessId);
   }
 
-  async getDailyReport(date: string) {
+  async getDailyReport(date: string, businessId: string) {
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
 
     const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
 
-    return this.getReportForPeriod(startDate, endDate, 'Daily');
+    return this.getReportForPeriod(startDate, endDate, 'Daily', businessId);
   }
 
-  async getWeeklyReport(startDate: string) {
+  async getWeeklyReport(startDate: string, businessId: string) {
     const start = new Date(startDate);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
     end.setHours(23, 59, 59, 999);
 
-    return this.getReportForPeriod(start, end, 'Weekly');
+    return this.getReportForPeriod(start, end, 'Weekly', businessId);
   }
 
-  async getMonthlyReport(month: string) {
+  async getMonthlyReport(month: string, businessId: string) {
     const [year, monthNum] = month.split('-').map(Number);
     const start = new Date(year, monthNum - 1, 1);
     const end = new Date(year, monthNum, 0, 23, 59, 59, 999);
 
-    return this.getReportForPeriod(start, end, 'Monthly');
+    return this.getReportForPeriod(start, end, 'Monthly', businessId);
   }
 
   private async getReportForPeriod(
     startDate: Date,
     endDate: Date,
     periodType: string,
+    businessId: string,
   ) {
-    // Get all transactions in period
+    // Get all transactions in period for the specific business
     const transactions = await this.prisma.transaction.findMany({
       where: {
         createdAt: {
@@ -57,6 +58,7 @@ export class ReportsService {
           lte: endDate,
         },
         status: 'COMPLETED',
+        businessId, // Scope by business
       },
       include: {
         items: {
@@ -148,7 +150,7 @@ export class ReportsService {
     };
   }
 
-  async getBestSellers(period: 'daily' | 'weekly' | 'monthly', limit = 10) {
+  async getBestSellers(period: 'daily' | 'weekly' | 'monthly', businessId: string, limit = 10) {
     let startDate: Date;
     const endDate = new Date();
 
@@ -174,6 +176,7 @@ export class ReportsService {
           lte: endDate,
         },
         status: 'COMPLETED',
+        businessId, // Scope by business
       },
       include: {
         items: true,
@@ -203,7 +206,7 @@ export class ReportsService {
       .slice(0, limit);
   }
 
-  async getRevenueByCategory(startDate: string, endDate: string) {
+  async getRevenueByCategory(startDate: string, endDate: string, businessId: string) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
@@ -215,6 +218,7 @@ export class ReportsService {
           lte: end,
         },
         status: 'COMPLETED',
+        businessId, // Scope by business
       },
       include: {
         items: {

@@ -21,9 +21,9 @@ let MenuService = class MenuService {
         this.prisma = prisma;
         this.uploadService = uploadService;
     }
-    async create(createProductDto, file) {
-        const category = await this.prisma.category.findUnique({
-            where: { id: createProductDto.categoryId },
+    async create(createProductDto, businessId, file) {
+        const category = await this.prisma.category.findFirst({
+            where: { id: createProductDto.categoryId, businessId },
         });
         if (!category) {
             throw new common_1.NotFoundException('Category not found');
@@ -37,14 +37,15 @@ let MenuService = class MenuService {
             data: {
                 ...createProductDto,
                 imageUrl,
+                businessId,
             },
             include: {
                 category: true,
             },
         });
     }
-    async findAll(categoryId, search) {
-        const where = {};
+    async findAll(businessId, categoryId, search) {
+        const where = { businessId };
         if (categoryId) {
             where.categoryId = categoryId;
         }
@@ -64,9 +65,9 @@ let MenuService = class MenuService {
             },
         });
     }
-    async findOne(id) {
-        const product = await this.prisma.product.findUnique({
-            where: { id },
+    async findOne(id, businessId) {
+        const product = await this.prisma.product.findFirst({
+            where: { id, businessId },
             include: {
                 category: true,
             },
@@ -76,11 +77,11 @@ let MenuService = class MenuService {
         }
         return product;
     }
-    async update(id, updateProductDto, file) {
-        await this.findOne(id);
+    async update(id, updateProductDto, businessId, file) {
+        await this.findOne(id, businessId);
         if (updateProductDto.categoryId) {
-            const category = await this.prisma.category.findUnique({
-                where: { id: updateProductDto.categoryId },
+            const category = await this.prisma.category.findFirst({
+                where: { id: updateProductDto.categoryId, businessId },
             });
             if (!category) {
                 throw new common_1.NotFoundException('Category not found');
@@ -102,8 +103,8 @@ let MenuService = class MenuService {
             },
         });
     }
-    async updateStock(id, updateStockDto) {
-        await this.findOne(id);
+    async updateStock(id, updateStockDto, businessId) {
+        await this.findOne(id, businessId);
         const status = updateStockDto.stock > 0 ? client_1.ProductStatus.AVAILABLE : client_1.ProductStatus.OUT_OF_STOCK;
         return this.prisma.product.update({
             where: { id },
@@ -116,8 +117,8 @@ let MenuService = class MenuService {
             },
         });
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, businessId) {
+        await this.findOne(id, businessId);
         await this.prisma.product.delete({
             where: { id },
         });

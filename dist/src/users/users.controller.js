@@ -21,25 +21,26 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
-    create(createUserDto) {
-        return this.usersService.create(createUserDto);
+    create(createUserDto, user) {
+        return this.usersService.create(createUserDto, user.businessId);
     }
-    findAll() {
-        return this.usersService.findAll();
+    findAll(user) {
+        return this.usersService.findAll(user.businessId);
     }
-    findOne(id) {
-        return this.usersService.findOne(id);
+    findOne(id, user) {
+        return this.usersService.findOne(id, user.businessId);
     }
-    update(id, updateUserDto) {
-        return this.usersService.update(id, updateUserDto);
+    update(id, updateUserDto, user) {
+        return this.usersService.update(id, updateUserDto, user.businessId);
     }
-    remove(id) {
-        return this.usersService.remove(id);
+    remove(id, user) {
+        return this.usersService.remove(id, user.businessId);
     }
 };
 exports.UsersController = UsersController;
@@ -49,8 +50,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create new user (Admin only)' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User created successfully' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_dto_1.CreateUserDto]),
+    __metadata("design:paramtypes", [user_dto_1.CreateUserDto, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "create", null);
 __decorate([
@@ -58,8 +60,9 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get all users (Admin only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Users retrieved successfully' }),
+    __param(0, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
 __decorate([
@@ -67,8 +70,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User retrieved successfully' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findOne", null);
 __decorate([
@@ -78,8 +82,9 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, user_dto_1.UpdateUserDto]),
+    __metadata("design:paramtypes", [String, user_dto_1.UpdateUserDto, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "update", null);
 __decorate([
@@ -88,8 +93,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Delete user (Admin only)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User deleted successfully' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "remove", null);
 exports.UsersController = UsersController = __decorate([

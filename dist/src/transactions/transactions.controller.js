@@ -20,7 +20,7 @@ const transaction_dto_1 = require("./dto/transaction.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 const client_1 = require("@prisma/client");
 let TransactionsController = class TransactionsController {
     transactionsService;
@@ -28,19 +28,19 @@ let TransactionsController = class TransactionsController {
         this.transactionsService = transactionsService;
     }
     create(createTransactionDto, user) {
-        return this.transactionsService.create(createTransactionDto, user.id);
+        return this.transactionsService.create(createTransactionDto, user.id, user.businessId);
     }
-    checkout(id, checkoutDto) {
-        return this.transactionsService.checkout(id, checkoutDto);
+    checkout(id, checkoutDto, user) {
+        return this.transactionsService.checkout(id, checkoutDto, user.businessId);
     }
-    findAll(startDate, endDate, status, userId, tableNumber) {
-        return this.transactionsService.findAll(startDate, endDate, status, userId, tableNumber);
+    findAll(user, startDate, endDate, status, userId, tableNumber) {
+        return this.transactionsService.findAll(user.businessId, startDate, endDate, status, userId, tableNumber);
     }
-    findOne(id) {
-        return this.transactionsService.findOne(id);
+    findOne(id, user) {
+        return this.transactionsService.findOne(id, user.businessId);
     }
-    updateStatus(id, updateStatusDto) {
-        return this.transactionsService.updateStatus(id, updateStatusDto);
+    updateStatus(id, updateStatusDto, user) {
+        return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -48,7 +48,7 @@ __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create new transaction or append items to existing pending table bill' }),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [transaction_dto_1.CreateTransactionDto, Object]),
     __metadata("design:returntype", void 0)
@@ -58,8 +58,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Checkout and finalize payment for a pending bill' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.CheckoutDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.CheckoutDto, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "checkout", null);
 __decorate([
@@ -70,21 +71,23 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'status', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'userId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'tableNumber', required: false }),
-    __param(0, (0, common_1.Query)('startDate')),
-    __param(1, (0, common_1.Query)('endDate')),
-    __param(2, (0, common_1.Query)('status')),
-    __param(3, (0, common_1.Query)('userId')),
-    __param(4, (0, common_1.Query)('tableNumber')),
+    __param(0, (0, user_decorator_1.User)()),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, common_1.Query)('status')),
+    __param(4, (0, common_1.Query)('userId')),
+    __param(5, (0, common_1.Query)('tableNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get transaction by ID' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "findOne", null);
 __decorate([
@@ -94,8 +97,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update transaction status (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, transaction_dto_1.UpdateTransactionStatusDto]),
+    __metadata("design:paramtypes", [String, transaction_dto_1.UpdateTransactionStatusDto, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "updateStatus", null);
 exports.TransactionsController = TransactionsController = __decorate([
