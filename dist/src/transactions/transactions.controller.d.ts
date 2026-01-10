@@ -21,14 +21,14 @@ export declare class TransactionsController {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
             quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -63,14 +63,14 @@ export declare class TransactionsController {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
             quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -105,14 +105,14 @@ export declare class TransactionsController {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
             quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -147,14 +147,14 @@ export declare class TransactionsController {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
             quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -189,14 +189,14 @@ export declare class TransactionsController {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
             quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {

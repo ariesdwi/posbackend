@@ -100,6 +100,8 @@ export class ReportsService {
     // Best selling products
     const productSales = transactions.reduce((acc, t) => {
       t.items.forEach((item) => {
+        if (!item.productId) return; // Skip deleted products
+
         if (!acc[item.productId]) {
           acc[item.productId] = {
             productId: item.productId,
@@ -180,6 +182,8 @@ export class ReportsService {
 
     const productSales = transactions.reduce((acc, t) => {
       t.items.forEach((item) => {
+        if (!item.productId) return; // Skip deleted products
+
         if (!acc[item.productId]) {
           acc[item.productId] = {
             productId: item.productId,
@@ -227,7 +231,9 @@ export class ReportsService {
 
     const revenueByCategory = transactions.reduce((acc, t) => {
       t.items.forEach((item) => {
-        const categoryName = item.product.category.name;
+        // Handle deleted products where item.product is null
+        const categoryName = item.product?.category?.name || 'Deleted Products';
+        
         if (!acc[categoryName]) {
           acc[categoryName] = {
             category: categoryName,

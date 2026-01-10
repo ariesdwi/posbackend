@@ -85,6 +85,8 @@ let ReportsService = class ReportsService {
         }, {});
         const productSales = transactions.reduce((acc, t) => {
             t.items.forEach((item) => {
+                if (!item.productId)
+                    return;
                 if (!acc[item.productId]) {
                     acc[item.productId] = {
                         productId: item.productId,
@@ -158,6 +160,8 @@ let ReportsService = class ReportsService {
         });
         const productSales = transactions.reduce((acc, t) => {
             t.items.forEach((item) => {
+                if (!item.productId)
+                    return;
                 if (!acc[item.productId]) {
                     acc[item.productId] = {
                         productId: item.productId,
@@ -201,7 +205,7 @@ let ReportsService = class ReportsService {
         });
         const revenueByCategory = transactions.reduce((acc, t) => {
             t.items.forEach((item) => {
-                const categoryName = item.product.category.name;
+                const categoryName = item.product?.category?.name || 'Deleted Products';
                 if (!acc[categoryName]) {
                     acc[categoryName] = {
                         category: categoryName,

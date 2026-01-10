@@ -22,14 +22,14 @@ export declare class TransactionsService {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
             productName: string;
             quantity: number;
             subtotal: Prisma.Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -64,14 +64,14 @@ export declare class TransactionsService {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
             productName: string;
             quantity: number;
             subtotal: Prisma.Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -106,14 +106,14 @@ export declare class TransactionsService {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
             productName: string;
             quantity: number;
             subtotal: Prisma.Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -148,14 +148,14 @@ export declare class TransactionsService {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
             productName: string;
             quantity: number;
             subtotal: Prisma.Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -190,14 +190,14 @@ export declare class TransactionsService {
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
-            };
+            } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
             productName: string;
             quantity: number;
             subtotal: Prisma.Decimal;
-            productId: string;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {

@@ -13,20 +13,31 @@ exports.MenuService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const upload_service_1 = require("../upload/upload.service");
 let MenuService = class MenuService {
     prisma;
-    constructor(prisma) {
+    uploadService;
+    constructor(prisma, uploadService) {
         this.prisma = prisma;
+        this.uploadService = uploadService;
     }
-    async create(createProductDto) {
+    async create(createProductDto, file) {
         const category = await this.prisma.category.findUnique({
             where: { id: createProductDto.categoryId },
         });
         if (!category) {
             throw new common_1.NotFoundException('Category not found');
         }
+        let imageUrl = createProductDto.imageUrl;
+        if (file) {
+            const uploadResult = await this.uploadService.uploadToImageKit(file);
+            imageUrl = uploadResult.url;
+        }
         return this.prisma.product.create({
-            data: createProductDto,
+            data: {
+                ...createProductDto,
+                imageUrl,
+            },
             include: {
                 category: true,
             },
@@ -65,7 +76,7 @@ let MenuService = class MenuService {
         }
         return product;
     }
-    async update(id, updateProductDto) {
+    async update(id, updateProductDto, file) {
         await this.findOne(id);
         if (updateProductDto.categoryId) {
             const category = await this.prisma.category.findUnique({
@@ -75,9 +86,17 @@ let MenuService = class MenuService {
                 throw new common_1.NotFoundException('Category not found');
             }
         }
+        let imageUrl = updateProductDto.imageUrl;
+        if (file) {
+            const uploadResult = await this.uploadService.uploadToImageKit(file);
+            imageUrl = uploadResult.url;
+        }
         return this.prisma.product.update({
             where: { id },
-            data: updateProductDto,
+            data: {
+                ...updateProductDto,
+                ...(imageUrl !== undefined && { imageUrl }),
+            },
             include: {
                 category: true,
             },
@@ -108,6 +127,7 @@ let MenuService = class MenuService {
 exports.MenuService = MenuService;
 exports.MenuService = MenuService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        upload_service_1.UploadService])
 ], MenuService);
 //# sourceMappingURL=menu.service.js.map

@@ -3,7 +3,7 @@ import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/produc
 export declare class MenuController {
     private readonly menuService;
     constructor(menuService: MenuService);
-    create(createProductDto: CreateProductDto): Promise<{
+    create(createProductDto: CreateProductDto, file: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
@@ -63,7 +63,7 @@ export declare class MenuController {
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
     }>;
-    update(id: string, updateProductDto: UpdateProductDto): Promise<{
+    update(id: string, updateProductDto: UpdateProductDto, file: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;

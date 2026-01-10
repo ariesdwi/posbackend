@@ -1,9 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import { UploadService } from '../upload/upload.service';
 export declare class MenuService {
     private prisma;
-    constructor(prisma: PrismaService);
-    create(createProductDto: CreateProductDto): Promise<{
+    private uploadService;
+    constructor(prisma: PrismaService, uploadService: UploadService);
+    create(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
@@ -63,7 +65,7 @@ export declare class MenuService {
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
     }>;
-    update(id: string, updateProductDto: UpdateProductDto): Promise<{
+    update(id: string, updateProductDto: UpdateProductDto, file?: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
