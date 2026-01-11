@@ -12,9 +12,20 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { MenuService } from './menu.service';
-import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateStockDto,
+} from './dto/product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -94,7 +105,11 @@ export class MenuController {
         price: { type: 'number', nullable: true },
         stock: { type: 'integer', nullable: true },
         categoryId: { type: 'string', nullable: true },
-        status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'], nullable: true },
+        status: {
+          type: 'string',
+          enum: ['AVAILABLE', 'OUT_OF_STOCK'],
+          nullable: true,
+        },
         file: { type: 'string', format: 'binary', nullable: true },
         imageUrl: { type: 'string', nullable: true },
       },
@@ -106,7 +121,7 @@ export class MenuController {
     }),
   )
   update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @User() user: RequestUser,
     @UploadedFile() file?: Express.Multer.File,
@@ -118,7 +133,11 @@ export class MenuController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update product stock (Admin only)' })
-  updateStock(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto, @User() user: RequestUser) {
+  updateStock(
+    @Param('id') id: string,
+    @Body() updateStockDto: UpdateStockDto,
+    @User() user: RequestUser,
+  ) {
     return this.menuService.updateStock(id, updateStockDto, user.businessId);
   }
 

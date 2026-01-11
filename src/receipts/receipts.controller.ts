@@ -13,18 +13,16 @@ export class ReceiptsController {
   @Get(':transactionId/whatsapp')
   @ApiOperation({ summary: 'Get WhatsApp formatted receipt' })
   async getWhatsAppReceipt(@Param('transactionId') transactionId: string) {
-    const receipt = await this.receiptsService.generateWhatsAppReceipt(
-      transactionId,
-    );
+    const receipt =
+      await this.receiptsService.generateWhatsAppReceipt(transactionId);
     return { receipt };
   }
 
   @Get(':transactionId/thermal')
   @ApiOperation({ summary: 'Get thermal printer formatted receipt' })
   async getThermalReceipt(@Param('transactionId') transactionId: string) {
-    const receipt = await this.receiptsService.generateThermalReceipt(
-      transactionId,
-    );
+    const receipt =
+      await this.receiptsService.generateThermalReceipt(transactionId);
     return { receipt };
   }
 }

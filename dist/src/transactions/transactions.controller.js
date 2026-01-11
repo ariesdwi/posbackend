@@ -46,7 +46,9 @@ let TransactionsController = class TransactionsController {
 exports.TransactionsController = TransactionsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create new transaction or append items to existing pending table bill' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Create new transaction or append items to existing pending table bill',
+    }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),

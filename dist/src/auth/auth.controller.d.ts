@@ -1,6 +1,7 @@
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { type RequestUser } from '../common/decorators/user.decorator';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -38,7 +39,7 @@ export declare class AuthController {
             isActive: boolean;
         };
     }>;
-    getProfile(user: any): Promise<{
-        user: any;
+    getProfile(user: RequestUser): Promise<{
+        user: RequestUser;
     }>;
 }

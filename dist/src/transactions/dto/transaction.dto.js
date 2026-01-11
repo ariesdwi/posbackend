@@ -55,7 +55,11 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "tableNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.PaymentMethod, example: client_1.PaymentMethod.CASH, required: false }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.PaymentMethod,
+        example: client_1.PaymentMethod.CASH,
+        required: false,
+    }),
     (0, class_validator_1.IsEnum)(client_1.PaymentMethod),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -69,7 +73,11 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "paymentAmount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.TransactionStatus, example: client_1.TransactionStatus.PENDING, required: false }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.TransactionStatus,
+        example: client_1.TransactionStatus.PENDING,
+        required: false,
+    }),
     (0, class_validator_1.IsEnum)(client_1.TransactionStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

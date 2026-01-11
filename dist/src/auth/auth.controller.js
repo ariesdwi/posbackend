@@ -21,7 +21,7 @@ const register_dto_1 = require("./dto/register.dto");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 const client_1 = require("@prisma/client");
 let AuthController = class AuthController {
     authService;
@@ -46,10 +46,13 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, swagger_1.ApiOperation)({
         summary: 'Register new user (Admin only)',
-        description: 'Create a new user account. Only accessible by Admin users.'
+        description: 'Create a new user account. Only accessible by Admin users.',
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Invalid or missing token' }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
     (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - Admin role required' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -60,7 +63,7 @@ __decorate([
     (0, common_1.Post)('login'),
     (0, swagger_1.ApiOperation)({
         summary: 'User login',
-        description: 'Authenticate user and receive JWT access token'
+        description: 'Authenticate user and receive JWT access token',
     }),
     (0, swagger_1.ApiBody)({
         type: login_dto_1.LoginDto,
@@ -69,17 +72,17 @@ __decorate([
                 summary: 'Admin Login',
                 value: {
                     email: 'admin@pos.com',
-                    password: 'admin123'
-                }
+                    password: 'admin123',
+                },
             },
             kasir: {
                 summary: 'Kasir Login',
                 value: {
                     email: 'kasir@pos.com',
-                    password: 'kasir123'
-                }
-            }
-        }
+                    password: 'kasir123',
+                },
+            },
+        },
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -92,10 +95,10 @@ __decorate([
                     email: 'admin@pos.com',
                     name: 'Admin User',
                     role: 'ADMIN',
-                    isActive: true
-                }
-            }
-        }
+                    isActive: true,
+                },
+            },
+        },
     }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
     __param(0, (0, common_1.Body)()),
@@ -109,7 +112,7 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, swagger_1.ApiOperation)({
         summary: 'Get current user profile',
-        description: 'Retrieve the authenticated user\'s profile information'
+        description: "Retrieve the authenticated user's profile information",
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -121,13 +124,16 @@ __decorate([
                     email: 'admin@pos.com',
                     name: 'Admin User',
                     role: 'ADMIN',
-                    isActive: true
-                }
-            }
-        }
+                    isActive: true,
+                },
+            },
+        },
     }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Invalid or missing token' }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    __param(0, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)

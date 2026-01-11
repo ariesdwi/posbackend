@@ -18,7 +18,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -43,7 +43,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -68,7 +68,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -93,7 +93,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -104,7 +104,7 @@ export declare class ReportsController {
             createdAt: Date;
         }[];
     }>;
-    getBestSellers(period: "daily" | "weekly" | "monthly" | undefined, user: RequestUser, limit?: string): Promise<any[]>;
-    getRevenueByCategory(startDate: string, endDate: string, user: RequestUser): Promise<any[]>;
+    getBestSellers(period: "daily" | "weekly" | "monthly" | undefined, user: RequestUser, limit?: string): Promise<import("./reports.service").ProductSale[]>;
+    getRevenueByCategory(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").CategoryRevenue[]>;
     exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', user: RequestUser, date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 
@@ -49,7 +53,11 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto, businessId: string) {
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+    businessId: string,
+  ) {
     await this.findOne(id, businessId);
 
     return this.prisma.category.update({

@@ -15,7 +15,8 @@ let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
     }
     handleRequest(err, user, info) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Invalid or missing authentication token');
+            throw (err ||
+                new common_1.UnauthorizedException('Invalid or missing authentication token'));
         }
         return user;
     }

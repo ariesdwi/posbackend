@@ -231,7 +231,11 @@ let ReportsService = class ReportsService {
         const foregroundColor = '#0f172a';
         const borderColor = '#e2e8f0';
         return new Promise((resolve) => {
-            const doc = new pdfkit_1.default({ margin: 50, size: 'A4', bufferPages: true });
+            const doc = new pdfkit_1.default({
+                margin: 50,
+                size: 'A4',
+                bufferPages: true,
+            });
             const buffers = [];
             doc.on('data', buffers.push.bind(buffers));
             doc.on('end', () => resolve(Buffer.concat(buffers)));
@@ -267,15 +271,30 @@ let ReportsService = class ReportsService {
             const boxHeight = 60;
             const startX = 50;
             let currentX = startX;
-            let currentY = doc.y;
+            const currentY = doc.y;
             const stats = [
-                { label: 'PENDAPATAN', value: this.formatCurrency(reportData.summary.totalRevenue) },
-                { label: 'TRANSAKSI', value: reportData.summary.totalTransactions.toString() },
-                { label: 'ITEM TERJUAL', value: reportData.summary.totalItemsSold.toString() },
-                { label: 'RATA-RATA', value: this.formatCurrency(reportData.summary.averageTransactionValue) },
+                {
+                    label: 'PENDAPATAN',
+                    value: this.formatCurrency(reportData.summary.totalRevenue),
+                },
+                {
+                    label: 'TRANSAKSI',
+                    value: reportData.summary.totalTransactions.toString(),
+                },
+                {
+                    label: 'ITEM TERJUAL',
+                    value: reportData.summary.totalItemsSold.toString(),
+                },
+                {
+                    label: 'RATA-RATA',
+                    value: this.formatCurrency(reportData.summary.averageTransactionValue),
+                },
             ];
             stats.forEach((stat) => {
-                doc.rect(currentX, currentY, boxWidth, boxHeight).fill(lightBg).stroke(borderColor);
+                doc
+                    .rect(currentX, currentY, boxWidth, boxHeight)
+                    .fill(lightBg)
+                    .stroke(borderColor);
                 doc
                     .fillColor(secondaryColor)
                     .fontSize(8)
@@ -291,7 +310,10 @@ let ReportsService = class ReportsService {
             doc.fillColor(foregroundColor).moveDown(5);
             const colWidth = (doc.page.width - 120) / 2;
             const sectionY = doc.y;
-            doc.fontSize(14).font('Helvetica-Bold').text('Metode Pembayaran', 50, sectionY);
+            doc
+                .fontSize(14)
+                .font('Helvetica-Bold')
+                .text('Metode Pembayaran', 50, sectionY);
             doc.moveDown(0.5);
             Object.entries(reportData.revenueByPaymentMethod).forEach(([method, amount]) => {
                 doc
@@ -301,7 +323,10 @@ let ReportsService = class ReportsService {
                     .font('Helvetica-Bold')
                     .text(` ${this.formatCurrency(amount)}`);
             });
-            doc.fontSize(14).font('Helvetica-Bold').text('Performa Kasir', 50 + colWidth + 20, sectionY);
+            doc
+                .fontSize(14)
+                .font('Helvetica-Bold')
+                .text('Performa Kasir', 50 + colWidth + 20, sectionY);
             doc.y = sectionY + 20;
             Object.entries(reportData.revenueByCashier).forEach(([cashier, amount]) => {
                 doc
@@ -312,12 +337,17 @@ let ReportsService = class ReportsService {
                     .text(` ${this.formatCurrency(amount)}`);
             });
             doc.moveDown(2);
-            doc.fontSize(14).font('Helvetica-Bold').text('5 Produk Terlaris', 50, doc.y);
+            doc
+                .fontSize(14)
+                .font('Helvetica-Bold')
+                .text('5 Produk Terlaris', 50, doc.y);
             doc.moveDown(0.5);
             const bestSellers = reportData.bestSellers.slice(0, 5);
             bestSellers.forEach((item, index) => {
                 const itemY = doc.y;
-                doc.rect(50, itemY - 5, doc.page.width - 100, 25).fill(index % 2 === 0 ? '#ffffff' : lightBg);
+                doc
+                    .rect(50, itemY - 5, doc.page.width - 100, 25)
+                    .fill(index % 2 === 0 ? '#ffffff' : lightBg);
                 doc
                     .fillColor(foregroundColor)
                     .fontSize(10)
@@ -327,7 +357,11 @@ let ReportsService = class ReportsService {
                     .text(`${item.quantitySold} item - ${this.formatCurrency(item.revenue)}`, 350, itemY, { align: 'right', width: 180 });
             });
             doc.addPage();
-            doc.fontSize(16).font('Helvetica-Bold').text('Riwayat Transaksi').moveDown();
+            doc
+                .fontSize(16)
+                .font('Helvetica-Bold')
+                .text('Riwayat Transaksi')
+                .moveDown();
             const tableTop = doc.y;
             const col1 = 50;
             const col2 = 180;
@@ -347,7 +381,9 @@ let ReportsService = class ReportsService {
                 if (currentTableY > 750) {
                     doc.addPage();
                     currentTableY = 50;
-                    doc.rect(50, currentTableY - 5, doc.page.width - 100, 25).fill(primaryColor);
+                    doc
+                        .rect(50, currentTableY - 5, doc.page.width - 100, 25)
+                        .fill(primaryColor);
                     doc
                         .fillColor('#ffffff')
                         .font('Helvetica-Bold')
@@ -358,7 +394,9 @@ let ReportsService = class ReportsService {
                     currentTableY += 25;
                 }
                 if (index % 2 !== 0) {
-                    doc.rect(50, currentTableY - 5, doc.page.width - 100, 20).fill(lightBg);
+                    doc
+                        .rect(50, currentTableY - 5, doc.page.width - 100, 20)
+                        .fill(lightBg);
                 }
                 doc
                     .fillColor(foregroundColor)

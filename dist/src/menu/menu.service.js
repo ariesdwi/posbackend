@@ -105,7 +105,9 @@ let MenuService = class MenuService {
     }
     async updateStock(id, updateStockDto, businessId) {
         await this.findOne(id, businessId);
-        const status = updateStockDto.stock > 0 ? client_1.ProductStatus.AVAILABLE : client_1.ProductStatus.OUT_OF_STOCK;
+        const status = updateStockDto.stock > 0
+            ? client_1.ProductStatus.AVAILABLE
+            : client_1.ProductStatus.OUT_OF_STOCK;
         return this.prisma.product.update({
             where: { id },
             data: {

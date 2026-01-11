@@ -29,7 +29,10 @@ export class CategoriesController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Create category (Admin only)' })
-  create(@Body() createCategoryDto: CreateCategoryDto, @User() user: RequestUser) {
+  create(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @User() user: RequestUser,
+  ) {
     return this.categoriesService.create(createCategoryDto, user.businessId);
   }
 
@@ -49,8 +52,16 @@ export class CategoriesController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update category (Admin only)' })
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @User() user: RequestUser) {
-    return this.categoriesService.update(id, updateCategoryDto, user.businessId);
+  update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @User() user: RequestUser,
+  ) {
+    return this.categoriesService.update(
+      id,
+      updateCategoryDto,
+      user.businessId,
+    );
   }
 
   @Delete(':id')

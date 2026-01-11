@@ -38,7 +38,11 @@ export class CreateTransactionDto {
   @IsOptional()
   tableNumber?: string;
 
-  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH, required: false })
+  @ApiProperty({
+    enum: PaymentMethod,
+    example: PaymentMethod.CASH,
+    required: false,
+  })
   @IsEnum(PaymentMethod)
   @IsOptional()
   paymentMethod?: PaymentMethod;
@@ -50,7 +54,11 @@ export class CreateTransactionDto {
   @IsOptional()
   paymentAmount?: number;
 
-  @ApiProperty({ enum: TransactionStatus, example: TransactionStatus.PENDING, required: false })
+  @ApiProperty({
+    enum: TransactionStatus,
+    example: TransactionStatus.PENDING,
+    required: false,
+  })
   @IsEnum(TransactionStatus)
   @IsOptional()
   status?: TransactionStatus;

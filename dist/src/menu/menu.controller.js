@@ -115,7 +115,11 @@ __decorate([
                 price: { type: 'number', nullable: true },
                 stock: { type: 'integer', nullable: true },
                 categoryId: { type: 'string', nullable: true },
-                status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'], nullable: true },
+                status: {
+                    type: 'string',
+                    enum: ['AVAILABLE', 'OUT_OF_STOCK'],
+                    nullable: true,
+                },
                 file: { type: 'string', format: 'binary', nullable: true },
                 imageUrl: { type: 'string', nullable: true },
             },

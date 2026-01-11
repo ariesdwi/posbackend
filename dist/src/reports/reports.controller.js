@@ -62,7 +62,9 @@ let ReportsController = class ReportsController {
                 break;
             case 'custom':
                 if (!startDate || !endDate) {
-                    return res.status(400).json({ message: 'startDate and endDate are required' });
+                    return res
+                        .status(400)
+                        .json({ message: 'startDate and endDate are required' });
                 }
                 reportData = await this.reportsService.getCustomReport(startDate, endDate, businessId);
                 break;
@@ -81,8 +83,16 @@ exports.ReportsController = ReportsController;
 __decorate([
     (0, common_1.Get)('custom'),
     (0, swagger_1.ApiOperation)({ summary: 'Get custom date range sales report' }),
-    (0, swagger_1.ApiQuery)({ name: 'startDate', example: '2026-01-01', description: 'Start date (YYYY-MM-DD)' }),
-    (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31', description: 'End date (YYYY-MM-DD)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'startDate',
+        example: '2026-01-01',
+        description: 'Start date (YYYY-MM-DD)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'endDate',
+        example: '2026-01-31',
+        description: 'End date (YYYY-MM-DD)',
+    }),
     __param(0, (0, common_1.Query)('startDate')),
     __param(1, (0, common_1.Query)('endDate')),
     __param(2, (0, user_decorator_1.User)()),
@@ -148,7 +158,11 @@ __decorate([
     (0, common_1.Get)('export/pdf'),
     (0, swagger_1.ApiOperation)({ summary: 'Export sales report as PDF' }),
     (0, swagger_1.ApiQuery)({ name: 'type', enum: ['daily', 'weekly', 'monthly', 'custom'] }),
-    (0, swagger_1.ApiQuery)({ name: 'date', required: false, description: 'Date for daily report (YYYY-MM-DD)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'date',
+        required: false,
+        description: 'Date for daily report (YYYY-MM-DD)',
+    }),
     (0, swagger_1.ApiQuery)({
         name: 'startDate',
         required: false,
@@ -159,7 +173,11 @@ __decorate([
         required: false,
         description: 'End date for custom (YYYY-MM-DD)',
     }),
-    (0, swagger_1.ApiQuery)({ name: 'month', required: false, description: 'Month for monthly report (YYYY-MM)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'month',
+        required: false,
+        description: 'Month for monthly report (YYYY-MM)',
+    }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('type')),
     __param(2, (0, user_decorator_1.User)()),

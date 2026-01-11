@@ -95,16 +95,20 @@ let TransactionsService = class TransactionsService {
                         where: { id: item.productId },
                         data: {
                             stock: newStock,
-                            status: newStock > 0 ? client_1.ProductStatus.AVAILABLE : client_1.ProductStatus.OUT_OF_STOCK,
+                            status: newStock > 0
+                                ? client_1.ProductStatus.AVAILABLE
+                                : client_1.ProductStatus.OUT_OF_STOCK,
                         },
                     });
                 }
                 return updatedTransaction;
             });
         }
-        let totalAmount = additionalAmount;
+        const totalAmount = additionalAmount;
         const finalStatus = status || client_1.TransactionStatus.PENDING;
-        const changeAmount = finalStatus === client_1.TransactionStatus.COMPLETED && paymentAmount && paymentAmount >= totalAmount
+        const changeAmount = finalStatus === client_1.TransactionStatus.COMPLETED &&
+            paymentAmount &&
+            paymentAmount >= totalAmount
             ? paymentAmount - totalAmount
             : 0;
         const today = new Date();
@@ -128,7 +132,9 @@ let TransactionsService = class TransactionsService {
                     tableNumber,
                     totalAmount: new client_1.Prisma.Decimal(totalAmount),
                     paymentMethod: paymentMethod || undefined,
-                    paymentAmount: paymentAmount ? new client_1.Prisma.Decimal(paymentAmount) : null,
+                    paymentAmount: paymentAmount
+                        ? new client_1.Prisma.Decimal(paymentAmount)
+                        : null,
                     changeAmount: new client_1.Prisma.Decimal(changeAmount),
                     status: finalStatus,
                     notes,
@@ -150,7 +156,9 @@ let TransactionsService = class TransactionsService {
                     where: { id: item.productId },
                     data: {
                         stock: newStock,
-                        status: newStock > 0 ? client_1.ProductStatus.AVAILABLE : client_1.ProductStatus.OUT_OF_STOCK,
+                        status: newStock > 0
+                            ? client_1.ProductStatus.AVAILABLE
+                            : client_1.ProductStatus.OUT_OF_STOCK,
                     },
                 });
             }

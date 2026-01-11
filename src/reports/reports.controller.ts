@@ -1,6 +1,11 @@
 import { Controller, Get, Query, UseGuards, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../common/decorators/user.decorator';
@@ -15,14 +20,26 @@ export class ReportsController {
 
   @Get('custom')
   @ApiOperation({ summary: 'Get custom date range sales report' })
-  @ApiQuery({ name: 'startDate', example: '2026-01-01', description: 'Start date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'endDate', example: '2026-01-31', description: 'End date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'startDate',
+    example: '2026-01-01',
+    description: 'Start date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    example: '2026-01-31',
+    description: 'End date (YYYY-MM-DD)',
+  })
   getCustomReport(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
     @User() user: RequestUser,
   ) {
-    return this.reportsService.getCustomReport(startDate, endDate, user.businessId);
+    return this.reportsService.getCustomReport(
+      startDate,
+      endDate,
+      user.businessId,
+    );
   }
 
   @Get('daily')
@@ -36,7 +53,10 @@ export class ReportsController {
   @Get('weekly')
   @ApiOperation({ summary: 'Get weekly sales report' })
   @ApiQuery({ name: 'startDate', example: '2026-01-01' })
-  getWeeklyReport(@Query('startDate') startDate: string, @User() user: RequestUser) {
+  getWeeklyReport(
+    @Query('startDate') startDate: string,
+    @User() user: RequestUser,
+  ) {
     const reportDate = startDate || new Date().toISOString().split('T')[0];
     return this.reportsService.getWeeklyReport(reportDate, user.businessId);
   }
@@ -61,7 +81,11 @@ export class ReportsController {
     @Query('limit') limit?: string,
   ) {
     const limitNum = limit ? parseInt(limit, 10) : 10;
-    return this.reportsService.getBestSellers(period, user.businessId, limitNum);
+    return this.reportsService.getBestSellers(
+      period,
+      user.businessId,
+      limitNum,
+    );
   }
 
   @Get('revenue-by-category')
@@ -73,13 +97,21 @@ export class ReportsController {
     @Query('endDate') endDate: string,
     @User() user: RequestUser,
   ) {
-    return this.reportsService.getRevenueByCategory(startDate, endDate, user.businessId);
+    return this.reportsService.getRevenueByCategory(
+      startDate,
+      endDate,
+      user.businessId,
+    );
   }
 
   @Get('export/pdf')
   @ApiOperation({ summary: 'Export sales report as PDF' })
   @ApiQuery({ name: 'type', enum: ['daily', 'weekly', 'monthly', 'custom'] })
-  @ApiQuery({ name: 'date', required: false, description: 'Date for daily report (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    description: 'Date for daily report (YYYY-MM-DD)',
+  })
   @ApiQuery({
     name: 'startDate',
     required: false,
@@ -90,7 +122,11 @@ export class ReportsController {
     required: false,
     description: 'End date for custom (YYYY-MM-DD)',
   })
-  @ApiQuery({ name: 'month', required: false, description: 'Month for monthly report (YYYY-MM)' })
+  @ApiQuery({
+    name: 'month',
+    required: false,
+    description: 'Month for monthly report (YYYY-MM)',
+  })
   async exportPDF(
     @Res() res: Response,
     @Query('type') type: 'daily' | 'weekly' | 'monthly' | 'custom',
@@ -126,9 +162,15 @@ export class ReportsController {
         break;
       case 'custom':
         if (!startDate || !endDate) {
-          return res.status(400).json({ message: 'startDate and endDate are required' });
+          return res
+            .status(400)
+            .json({ message: 'startDate and endDate are required' });
         }
-        reportData = await this.reportsService.getCustomReport(startDate, endDate, businessId);
+        reportData = await this.reportsService.getCustomReport(
+          startDate,
+          endDate,
+          businessId,
+        );
         break;
     }
 

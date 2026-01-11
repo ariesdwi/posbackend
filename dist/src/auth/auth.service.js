@@ -106,7 +106,7 @@ let AuthService = class AuthService {
             sub: user.id,
             email: user.email,
             role: user.role,
-            businessId: user.businessId
+            businessId: user.businessId,
         };
         const accessToken = await this.jwtService.signAsync(payload);
         const { password: _, ...userWithoutPassword } = user;

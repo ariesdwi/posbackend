@@ -116,20 +116,23 @@ export class ReceiptsService {
     });
 
     receipt += '-'.repeat(width) + '\n';
-    receipt += this.rightAlign(
-      `Subtotal: ${this.formatCurrency(Number(transaction.totalAmount))}`,
-      width,
-    ) + '\n';
+    receipt +=
+      this.rightAlign(
+        `Subtotal: ${this.formatCurrency(Number(transaction.totalAmount))}`,
+        width,
+      ) + '\n';
 
     if (transaction.paymentAmount) {
-      receipt += this.rightAlign(
-        `Bayar: ${this.formatCurrency(Number(transaction.paymentAmount))}`,
-        width,
-      ) + '\n';
-      receipt += this.rightAlign(
-        `Kembali: ${this.formatCurrency(Number(transaction.changeAmount))}`,
-        width,
-      ) + '\n';
+      receipt +=
+        this.rightAlign(
+          `Bayar: ${this.formatCurrency(Number(transaction.paymentAmount))}`,
+          width,
+        ) + '\n';
+      receipt +=
+        this.rightAlign(
+          `Kembali: ${this.formatCurrency(Number(transaction.changeAmount))}`,
+          width,
+        ) + '\n';
     }
 
     receipt += '='.repeat(width) + '\n';
@@ -159,30 +162,38 @@ export class ReceiptsService {
   }
 
   private truncate(text: string, maxLength: number): string {
-    return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength - 3) + '...'
+      : text;
   }
 
-  private padText(col1: string, col2: string, col3: string, width: number): string {
+  private padText(
+    col1: string,
+    col2: string,
+    col3: string,
+    width: number,
+  ): string {
     const col1Width = Math.floor(width * 0.5);
     const col2Width = Math.floor(width * 0.15);
     const col3Width = width - col1Width - col2Width;
 
     return (
-      col1.padEnd(col1Width) +
-      col2.padEnd(col2Width) +
-      col3.padStart(col3Width)
+      col1.padEnd(col1Width) + col2.padEnd(col2Width) + col3.padStart(col3Width)
     );
   }
 
-  private formatItemLine(name: string, qty: string, price: string, width: number): string {
+  private formatItemLine(
+    name: string,
+    qty: string,
+    price: string,
+    width: number,
+  ): string {
     const col1Width = Math.floor(width * 0.5);
     const col2Width = Math.floor(width * 0.15);
     const col3Width = width - col1Width - col2Width;
 
     return (
-      name.padEnd(col1Width) +
-      qty.padEnd(col2Width) +
-      price.padStart(col3Width)
+      name.padEnd(col1Width) + qty.padEnd(col2Width) + price.padStart(col3Width)
     );
   }
 }

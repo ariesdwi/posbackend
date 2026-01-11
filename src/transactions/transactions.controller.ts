@@ -8,7 +8,12 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import {
   CreateTransactionDto,
@@ -30,12 +35,19 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new transaction or append items to existing pending table bill' })
+  @ApiOperation({
+    summary:
+      'Create new transaction or append items to existing pending table bill',
+  })
   create(
     @Body() createTransactionDto: CreateTransactionDto,
     @User() user: RequestUser,
   ) {
-    return this.transactionsService.create(createTransactionDto, user.id, user.businessId);
+    return this.transactionsService.create(
+      createTransactionDto,
+      user.id,
+      user.businessId,
+    );
   }
 
   @Post(':id/checkout')
@@ -63,7 +75,14 @@ export class TransactionsController {
     @Query('userId') userId?: string,
     @Query('tableNumber') tableNumber?: string,
   ) {
-    return this.transactionsService.findAll(user.businessId, startDate, endDate, status, userId, tableNumber);
+    return this.transactionsService.findAll(
+      user.businessId,
+      startDate,
+      endDate,
+      status,
+      userId,
+      tableNumber,
+    );
   }
 
   @Get(':id')
@@ -81,6 +100,10 @@ export class TransactionsController {
     @Body() updateStatusDto: UpdateTransactionStatusDto,
     @User() user: RequestUser,
   ) {
-    return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);
+    return this.transactionsService.updateStatus(
+      id,
+      updateStatusDto,
+      user.businessId,
+    );
   }
 }

@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateStockDto,
+} from './dto/product.dto';
 import { ProductStatus } from '@prisma/client';
 import { UploadService } from '../upload/upload.service';
 
@@ -11,7 +19,11 @@ export class MenuService {
     private uploadService: UploadService,
   ) {}
 
-  async create(createProductDto: CreateProductDto, businessId: string, file?: Express.Multer.File) {
+  async create(
+    createProductDto: CreateProductDto,
+    businessId: string,
+    file?: Express.Multer.File,
+  ) {
     // Verify category exists
     const category = await this.prisma.category.findFirst({
       where: { id: createProductDto.categoryId, businessId },
@@ -80,7 +92,12 @@ export class MenuService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, businessId: string, file?: Express.Multer.File) {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    businessId: string,
+    file?: Express.Multer.File,
+  ) {
     await this.findOne(id, businessId);
 
     if (updateProductDto.categoryId) {
@@ -112,10 +129,17 @@ export class MenuService {
     });
   }
 
-  async updateStock(id: string, updateStockDto: UpdateStockDto, businessId: string) {
+  async updateStock(
+    id: string,
+    updateStockDto: UpdateStockDto,
+    businessId: string,
+  ) {
     await this.findOne(id, businessId);
 
-    const status = updateStockDto.stock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK;
+    const status =
+      updateStockDto.stock > 0
+        ? ProductStatus.AVAILABLE
+        : ProductStatus.OUT_OF_STOCK;
 
     return this.prisma.product.update({
       where: { id },
