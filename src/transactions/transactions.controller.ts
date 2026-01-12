@@ -19,6 +19,7 @@ import {
   CreateTransactionDto,
   UpdateTransactionStatusDto,
   CheckoutDto,
+  UpdateTransactionDto,
 } from './dto/transaction.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -89,6 +90,20 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Get transaction by ID' })
   findOne(@Param('id') id: string, @User() user: RequestUser) {
     return this.transactionsService.findOne(id, user.businessId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update transaction items and totals (PENDING only)' })
+  update(
+    @Param('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+    @User() user: RequestUser,
+  ) {
+    return this.transactionsService.update(
+      id,
+      updateTransactionDto,
+      user.businessId,
+    );
   }
 
   @Patch(':id/status')

@@ -8,6 +8,7 @@ import {
   CreateTransactionDto,
   UpdateTransactionStatusDto,
   CheckoutDto,
+  UpdateTransactionDto,
 } from './dto/transaction.dto';
 import { Prisma, ProductStatus, TransactionStatus } from '@prisma/client';
 
@@ -340,6 +341,55 @@ export class TransactionsService {
           },
         },
       },
+    });
+  }
+
+  async update(
+    id: string,
+    updateDto: UpdateTransactionDto,
+    businessId: string,
+  ) {
+    // Verify transaction exists and belongs to business
+    const transaction = await this.findOne(id, businessId);
+
+    // Only allow updating PENDING transactions
+    if (transaction.status !== TransactionStatus.PENDING) {
+      throw new BadRequestException(
+        'Only PENDING transactions can be updated. This transaction is already completed or cancelled.',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // Delete existing transaction items
+      await tx.transactionItem.deleteMany({
+        where: { transactionId: id },
+      });
+
+      // Create new transaction items from DTO
+      const transactionItems = updateDto.items.map((item) => ({
+        productId: item.productId || null,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: new Prisma.Decimal(item.price),
+        subtotal: new Prisma.Decimal(item.subtotal),
+      }));
+
+      // Update transaction with new items and totals
+      const updatedTransaction = await tx.transaction.update({
+        where: { id },
+        data: {
+          totalAmount: new Prisma.Decimal(updateDto.total),
+          items: {
+            create: transactionItems,
+          },
+        },
+        include: {
+          items: { include: { product: true } },
+          user: { select: { id: true, name: true, email: true } },
+        },
+      });
+
+      return updatedTransaction;
     });
   }
 }

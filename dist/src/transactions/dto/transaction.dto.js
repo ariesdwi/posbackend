@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CheckoutDto = exports.UpdateTransactionStatusDto = exports.CreateTransactionDto = exports.TransactionItemDto = void 0;
+exports.UpdateTransactionDto = exports.UpdateTransactionItemDto = exports.CheckoutDto = exports.UpdateTransactionStatusDto = exports.CreateTransactionDto = exports.TransactionItemDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
@@ -124,4 +124,95 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CheckoutDto.prototype, "notes", void 0);
+class UpdateTransactionItemDto {
+    productId;
+    productName;
+    price;
+    quantity;
+    subtotal;
+}
+exports.UpdateTransactionItemDto = UpdateTransactionItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'product-id', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionItemDto.prototype, "productId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Nasi Goreng' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], UpdateTransactionItemDto.prototype, "productName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 25000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateTransactionItemDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateTransactionItemDto.prototype, "quantity", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 50000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateTransactionItemDto.prototype, "subtotal", void 0);
+class UpdateTransactionDto {
+    items;
+    subtotal;
+    discount;
+    tax;
+    total;
+}
+exports.UpdateTransactionDto = UpdateTransactionDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [UpdateTransactionItemDto] }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => UpdateTransactionItemDto),
+    __metadata("design:type", Array)
+], UpdateTransactionDto.prototype, "items", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 60000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "subtotal", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 0, required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "discount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 6000, required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "tax", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 66000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "total", void 0);
 //# sourceMappingURL=transaction.dto.js.map

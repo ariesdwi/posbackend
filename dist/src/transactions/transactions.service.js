@@ -275,6 +275,38 @@ let TransactionsService = class TransactionsService {
             },
         });
     }
+    async update(id, updateDto, businessId) {
+        const transaction = await this.findOne(id, businessId);
+        if (transaction.status !== client_1.TransactionStatus.PENDING) {
+            throw new common_1.BadRequestException('Only PENDING transactions can be updated. This transaction is already completed or cancelled.');
+        }
+        return this.prisma.$transaction(async (tx) => {
+            await tx.transactionItem.deleteMany({
+                where: { transactionId: id },
+            });
+            const transactionItems = updateDto.items.map((item) => ({
+                productId: item.productId || null,
+                productName: item.productName,
+                quantity: item.quantity,
+                price: new client_1.Prisma.Decimal(item.price),
+                subtotal: new client_1.Prisma.Decimal(item.subtotal),
+            }));
+            const updatedTransaction = await tx.transaction.update({
+                where: { id },
+                data: {
+                    totalAmount: new client_1.Prisma.Decimal(updateDto.total),
+                    items: {
+                        create: transactionItems,
+                    },
+                },
+                include: {
+                    items: { include: { product: true } },
+                    user: { select: { id: true, name: true, email: true } },
+                },
+            });
+            return updatedTransaction;
+        });
+    }
 };
 exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([
