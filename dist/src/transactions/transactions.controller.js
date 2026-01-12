@@ -39,6 +39,9 @@ let TransactionsController = class TransactionsController {
     findOne(id, user) {
         return this.transactionsService.findOne(id, user.businessId);
     }
+    update(id, updateTransactionDto, user) {
+        return this.transactionsService.update(id, updateTransactionDto, user.businessId);
+    }
     updateStatus(id, updateStatusDto, user) {
         return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);
     }
@@ -92,6 +95,16 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update transaction items and totals (PENDING only)' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, transaction_dto_1.UpdateTransactionDto, Object]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
