@@ -104,10 +104,13 @@ let ReceiptsService = class ReceiptsService {
             receipt += this.formatItemLine(name, qty, price, width) + '\n';
         });
         receipt += '-'.repeat(width) + '\n';
-        receipt += this.rightAlign(`Subtotal: ${this.formatCurrency(Number(transaction.totalAmount))}`, width) + '\n';
+        receipt +=
+            this.rightAlign(`Subtotal: ${this.formatCurrency(Number(transaction.totalAmount))}`, width) + '\n';
         if (transaction.paymentAmount) {
-            receipt += this.rightAlign(`Bayar: ${this.formatCurrency(Number(transaction.paymentAmount))}`, width) + '\n';
-            receipt += this.rightAlign(`Kembali: ${this.formatCurrency(Number(transaction.changeAmount))}`, width) + '\n';
+            receipt +=
+                this.rightAlign(`Bayar: ${this.formatCurrency(Number(transaction.paymentAmount))}`, width) + '\n';
+            receipt +=
+                this.rightAlign(`Kembali: ${this.formatCurrency(Number(transaction.changeAmount))}`, width) + '\n';
         }
         receipt += '='.repeat(width) + '\n';
         receipt += this.centerText('Terima Kasih!', width) + '\n';
@@ -131,23 +134,21 @@ let ReceiptsService = class ReceiptsService {
         return ' '.repeat(padding) + text;
     }
     truncate(text, maxLength) {
-        return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+        return text.length > maxLength
+            ? text.substring(0, maxLength - 3) + '...'
+            : text;
     }
     padText(col1, col2, col3, width) {
         const col1Width = Math.floor(width * 0.5);
         const col2Width = Math.floor(width * 0.15);
         const col3Width = width - col1Width - col2Width;
-        return (col1.padEnd(col1Width) +
-            col2.padEnd(col2Width) +
-            col3.padStart(col3Width));
+        return (col1.padEnd(col1Width) + col2.padEnd(col2Width) + col3.padStart(col3Width));
     }
     formatItemLine(name, qty, price, width) {
         const col1Width = Math.floor(width * 0.5);
         const col2Width = Math.floor(width * 0.15);
         const col3Width = width - col1Width - col2Width;
-        return (name.padEnd(col1Width) +
-            qty.padEnd(col2Width) +
-            price.padStart(col3Width));
+        return (name.padEnd(col1Width) + qty.padEnd(col2Width) + price.padStart(col3Width));
     }
 };
 exports.ReceiptsService = ReceiptsService;

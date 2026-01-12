@@ -22,7 +22,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('JWT_SECRET') || 'your-super-secret-jwt-key-change-this-in-production',
+            secretOrKey: configService.get('JWT_SECRET') ||
+                'your-super-secret-jwt-key-change-this-in-production',
         });
         this.configService = configService;
         this.prisma = prisma;
@@ -36,6 +37,15 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 name: true,
                 role: true,
                 isActive: true,
+                businessId: true,
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        phone: true,
+                    },
+                },
             },
         });
         if (!user || !user.isActive) {

@@ -18,7 +18,7 @@ let ResponseInterceptor = class ResponseInterceptor {
             success: true,
             statusCode,
             message: this.getSuccessMessage(context, data),
-            data,
+            data: data,
             timestamp: new Date().toISOString(),
         })));
     }
@@ -27,7 +27,7 @@ let ResponseInterceptor = class ResponseInterceptor {
         const request = ctx.getRequest();
         const method = request.method;
         const path = request.route?.path || request.url;
-        if (data?.message) {
+        if (data && typeof data === 'object' && 'message' in data) {
             return data.message;
         }
         switch (method) {

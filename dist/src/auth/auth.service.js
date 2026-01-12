@@ -55,7 +55,7 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async register(registerDto) {
-        const { email, password, name, role } = registerDto;
+        const { email, password, name, role, businessName } = registerDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -63,18 +63,28 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Email already registered');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await this.prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                name,
-                role,
-            },
+        const result = await this.prisma.$transaction(async (prisma) => {
+            const business = await prisma.business.create({
+                data: {
+                    name: businessName,
+                },
+            });
+            const user = await prisma.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    name,
+                    role,
+                    businessId: business.id,
+                },
+            });
+            return { user, business };
         });
-        const { password: _, ...userWithoutPassword } = user;
+        const { password: _, ...userWithoutPassword } = result.user;
         return {
             user: userWithoutPassword,
-            message: 'User registered successfully',
+            business: result.business,
+            message: 'User and Business registered successfully',
         };
     }
     async login(loginDto) {
@@ -92,7 +102,12 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { sub: user.id, email: user.email, role: user.role };
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            role: user.role,
+            businessId: user.businessId,
+        };
         const accessToken = await this.jwtService.signAsync(payload);
         const { password: _, ...userWithoutPassword } = user;
         return {
@@ -103,6 +118,16 @@ let AuthService = class AuthService {
     async validateUser(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
+            include: {
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        phone: true,
+                    },
+                },
+            },
         });
         if (!user || !user.isActive) {
             return null;

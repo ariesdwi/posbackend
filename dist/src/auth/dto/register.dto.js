@@ -17,6 +17,7 @@ class RegisterDto {
     email;
     password;
     name;
+    businessName;
     role;
 }
 exports.RegisterDto = RegisterDto;
@@ -39,6 +40,12 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'My Coffee Shop' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "businessName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: client_1.UserRole, example: client_1.UserRole.KASIR }),
     (0, class_validator_1.IsEnum)(client_1.UserRole),

@@ -12,13 +12,26 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { MenuService } from './menu.service';
-import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateStockDto,
+} from './dto/product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { User } from '../common/decorators/user.decorator';
+import type { RequestUser } from '../common/decorators/user.decorator';
 
 @ApiTags('Menu/Products')
 @Controller('menu')
@@ -29,7 +42,7 @@ export class MenuController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Create product (Admin only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -54,9 +67,10 @@ export class MenuController {
   )
   create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @User() user: RequestUser,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.menuService.create(createProductDto, file);
+    return this.menuService.create(createProductDto, user.businessId, file);
   }
 
   @Get()
@@ -64,21 +78,22 @@ export class MenuController {
   @ApiQuery({ name: 'categoryId', required: false })
   @ApiQuery({ name: 'search', required: false })
   findAll(
+    @User() user: RequestUser,
     @Query('categoryId') categoryId?: string,
     @Query('search') search?: string,
   ) {
-    return this.menuService.findAll(categoryId, search);
+    return this.menuService.findAll(user.businessId, categoryId, search);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get product by ID' })
-  findOne(@Param('id') id: string) {
-    return this.menuService.findOne(id);
+  findOne(@Param('id') id: string, @User() user: RequestUser) {
+    return this.menuService.findOne(id, user.businessId);
   }
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update product (Admin only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -90,7 +105,11 @@ export class MenuController {
         price: { type: 'number', nullable: true },
         stock: { type: 'integer', nullable: true },
         categoryId: { type: 'string', nullable: true },
-        status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'], nullable: true },
+        status: {
+          type: 'string',
+          enum: ['AVAILABLE', 'OUT_OF_STOCK'],
+          nullable: true,
+        },
         file: { type: 'string', format: 'binary', nullable: true },
         imageUrl: { type: 'string', nullable: true },
       },
@@ -102,26 +121,31 @@ export class MenuController {
     }),
   )
   update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @User() user: RequestUser,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.menuService.update(id, updateProductDto, file);
+    return this.menuService.update(id, updateProductDto, user.businessId, file);
   }
 
   @Patch(':id/stock')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update product stock (Admin only)' })
-  updateStock(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto) {
-    return this.menuService.updateStock(id, updateStockDto);
+  updateStock(
+    @Param('id') id: string,
+    @Body() updateStockDto: UpdateStockDto,
+    @User() user: RequestUser,
+  ) {
+    return this.menuService.updateStock(id, updateStockDto, user.businessId);
   }
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Delete product (Admin only)' })
-  remove(@Param('id') id: string) {
-    return this.menuService.remove(id);
+  remove(@Param('id') id: string, @User() user: RequestUser) {
+    return this.menuService.remove(id, user.businessId);
   }
 }

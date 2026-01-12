@@ -9,12 +9,21 @@ export declare class AuthService {
     register(registerDto: RegisterDto): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
-            role: import("@prisma/client").$Enums.UserRole;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
+            email: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            isActive: boolean;
+        };
+        business: {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string | null;
         };
         message: string;
     }>;
@@ -22,21 +31,29 @@ export declare class AuthService {
         accessToken: string;
         user: {
             id: string;
-            email: string;
             name: string;
-            role: import("@prisma/client").$Enums.UserRole;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
+            email: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            isActive: boolean;
         };
     }>;
     validateUser(userId: string): Promise<{
+        business: {
+            id: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+        };
         id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        isActive: boolean;
     } | null>;
 }

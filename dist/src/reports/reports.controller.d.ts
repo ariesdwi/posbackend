@@ -1,9 +1,10 @@
 import type { Response } from 'express';
 import { ReportsService } from './reports.service';
+import type { RequestUser } from '../common/decorators/user.decorator';
 export declare class ReportsController {
     private readonly reportsService;
     constructor(reportsService: ReportsService);
-    getCustomReport(startDate: string, endDate: string): Promise<{
+    getCustomReport(startDate: string, endDate: string, user: RequestUser): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -17,7 +18,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -28,7 +29,7 @@ export declare class ReportsController {
             createdAt: Date;
         }[];
     }>;
-    getDailyReport(date: string): Promise<{
+    getDailyReport(date: string, user: RequestUser): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -42,7 +43,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -53,7 +54,7 @@ export declare class ReportsController {
             createdAt: Date;
         }[];
     }>;
-    getWeeklyReport(startDate: string): Promise<{
+    getWeeklyReport(startDate: string, user: RequestUser): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -67,7 +68,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -78,7 +79,7 @@ export declare class ReportsController {
             createdAt: Date;
         }[];
     }>;
-    getMonthlyReport(month: string): Promise<{
+    getMonthlyReport(month: string, user: RequestUser): Promise<{
         period: {
             type: string;
             startDate: string;
@@ -92,7 +93,7 @@ export declare class ReportsController {
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
-        bestSellers: any[];
+        bestSellers: import("./reports.service").ProductSale[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -103,7 +104,7 @@ export declare class ReportsController {
             createdAt: Date;
         }[];
     }>;
-    getBestSellers(period?: 'daily' | 'weekly' | 'monthly', limit?: string): Promise<any[]>;
-    getRevenueByCategory(startDate: string, endDate: string): Promise<any[]>;
-    exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
+    getBestSellers(period: "daily" | "weekly" | "monthly" | undefined, user: RequestUser, limit?: string): Promise<import("./reports.service").ProductSale[]>;
+    getRevenueByCategory(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").CategoryRevenue[]>;
+    exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', user: RequestUser, date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
 }

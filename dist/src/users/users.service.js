@@ -51,7 +51,7 @@ let UsersService = class UsersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createUserDto) {
+    async create(createUserDto, businessId) {
         const { email, password, name, role } = createUserDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
@@ -66,13 +66,15 @@ let UsersService = class UsersService {
                 password: hashedPassword,
                 name,
                 role,
+                businessId,
             },
         });
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
     }
-    async findAll() {
+    async findAll(businessId) {
         const users = await this.prisma.user.findMany({
+            where: { businessId },
             select: {
                 id: true,
                 email: true,
@@ -85,9 +87,9 @@ let UsersService = class UsersService {
         });
         return users;
     }
-    async findOne(id) {
-        const user = await this.prisma.user.findUnique({
-            where: { id },
+    async findOne(id, businessId) {
+        const user = await this.prisma.user.findFirst({
+            where: { id, businessId },
             select: {
                 id: true,
                 email: true,
@@ -103,8 +105,8 @@ let UsersService = class UsersService {
         }
         return user;
     }
-    async update(id, updateUserDto) {
-        await this.findOne(id);
+    async update(id, updateUserDto, businessId) {
+        await this.findOne(id, businessId);
         const updateData = { ...updateUserDto };
         if (updateUserDto.password) {
             updateData.password = await bcrypt.hash(updateUserDto.password, 10);
@@ -124,8 +126,115 @@ let UsersService = class UsersService {
         });
         return user;
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, businessId) {
+        await this.findOne(id, businessId);
+        await this.prisma.user.delete({
+            where: { id },
+        });
+        return { message: 'User deleted successfully' };
+    }
+    async findAllGlobal() {
+        const users = await this.prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                isActive: true,
+                businessId: true,
+                createdAt: true,
+                updatedAt: true,
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        phone: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return users;
+    }
+    async findAllByRole(role) {
+        const users = await this.prisma.user.findMany({
+            where: { role: role },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                isActive: true,
+                businessId: true,
+                createdAt: true,
+                updatedAt: true,
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        phone: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return users;
+    }
+    async findOneGlobal(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                isActive: true,
+                businessId: true,
+                createdAt: true,
+                updatedAt: true,
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        phone: true,
+                        address: true,
+                    },
+                },
+            },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return user;
+    }
+    async updateGlobal(id, updateUserDto) {
+        await this.findOneGlobal(id);
+        const updateData = { ...updateUserDto };
+        if (updateUserDto.password) {
+            updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+        }
+        const user = await this.prisma.user.update({
+            where: { id },
+            data: updateData,
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                isActive: true,
+                businessId: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+        return user;
+    }
+    async removeGlobal(id) {
+        await this.findOneGlobal(id);
         await this.prisma.user.delete({
             where: { id },
         });

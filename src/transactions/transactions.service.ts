@@ -15,13 +15,21 @@ import { Prisma, ProductStatus, TransactionStatus } from '@prisma/client';
 export class TransactionsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createTransactionDto: CreateTransactionDto, userId: string) {
-    const { items, tableNumber, paymentMethod, paymentAmount, notes, status } = createTransactionDto;
+  async create(
+    createTransactionDto: CreateTransactionDto,
+    userId: string,
+    businessId: string,
+  ) {
+    const { items, tableNumber, paymentMethod, paymentAmount, notes, status } =
+      createTransactionDto;
 
-    // Validate products and check stock
+    // Validate products and check stock, ensuring they belong to the same business
     const productIds = items.map((item) => item.productId);
     const products = await this.prisma.product.findMany({
-      where: { id: { in: productIds } },
+      where: {
+        id: { in: productIds },
+        businessId, // Scope by business
+      },
     });
 
     if (products.length !== productIds.length) {
@@ -35,6 +43,7 @@ export class TransactionsService {
         where: {
           tableNumber,
           status: TransactionStatus.PENDING,
+          businessId, // Scope by business
         } as any,
         include: { items: true },
       });
@@ -46,7 +55,9 @@ export class TransactionsService {
       if (!product) continue;
 
       if (product.status === ProductStatus.OUT_OF_STOCK) {
-        throw new BadRequestException(`Product ${product.name} is out of stock`);
+        throw new BadRequestException(
+          `Product ${product.name} is out of stock`,
+        );
       }
 
       if (product.stock < item.quantity) {
@@ -78,8 +89,9 @@ export class TransactionsService {
 
     if (existingTransaction) {
       // APPEND to existing transaction
-      const newTotalAmount = Number(existingTransaction.totalAmount) + additionalAmount;
-      
+      const newTotalAmount =
+        Number(existingTransaction.totalAmount) + additionalAmount;
+
       return this.prisma.$transaction(async (tx) => {
         // Update transaction total
         const updatedTransaction = await tx.transaction.update({
@@ -106,7 +118,10 @@ export class TransactionsService {
             where: { id: item.productId },
             data: {
               stock: newStock,
-              status: newStock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK,
+              status:
+                newStock > 0
+                  ? ProductStatus.AVAILABLE
+                  : ProductStatus.OUT_OF_STOCK,
             },
           });
         }
@@ -116,12 +131,14 @@ export class TransactionsService {
     }
 
     // CREATE NEW transaction
-    let totalAmount = additionalAmount;
+    const totalAmount = additionalAmount;
     const finalStatus = status || TransactionStatus.PENDING;
 
     // Calculate change (only if completed)
     const changeAmount =
-      finalStatus === TransactionStatus.COMPLETED && paymentAmount && paymentAmount >= totalAmount
+      finalStatus === TransactionStatus.COMPLETED &&
+      paymentAmount &&
+      paymentAmount >= totalAmount
         ? paymentAmount - totalAmount
         : 0;
 
@@ -130,6 +147,7 @@ export class TransactionsService {
     const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
     const count = await this.prisma.transaction.count({
       where: {
+        businessId, // Scope count by business
         createdAt: {
           gte: new Date(today.setHours(0, 0, 0, 0)),
           lt: new Date(today.setHours(23, 59, 59, 999)),
@@ -143,10 +161,13 @@ export class TransactionsService {
         data: {
           transactionNumber,
           userId,
+          businessId, // Link to business
           tableNumber,
           totalAmount: new Prisma.Decimal(totalAmount),
           paymentMethod: paymentMethod || undefined,
-          paymentAmount: paymentAmount ? new Prisma.Decimal(paymentAmount) : null,
+          paymentAmount: paymentAmount
+            ? new Prisma.Decimal(paymentAmount)
+            : null,
           changeAmount: new Prisma.Decimal(changeAmount),
           status: finalStatus,
           notes,
@@ -169,7 +190,10 @@ export class TransactionsService {
           where: { id: item.productId },
           data: {
             stock: newStock,
-            status: newStock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK,
+            status:
+              newStock > 0
+                ? ProductStatus.AVAILABLE
+                : ProductStatus.OUT_OF_STOCK,
           },
         });
       }
@@ -178,11 +202,13 @@ export class TransactionsService {
     });
   }
 
-  async checkout(id: string, checkoutDto: CheckoutDto) {
-    const transaction = await this.findOne(id);
+  async checkout(id: string, checkoutDto: CheckoutDto, businessId: string) {
+    const transaction = await this.findOne(id, businessId);
 
     if (transaction.status !== TransactionStatus.PENDING) {
-      throw new BadRequestException('Transaction is already completed or cancelled');
+      throw new BadRequestException(
+        'Transaction is already completed or cancelled',
+      );
     }
 
     const totalAmount = Number(transaction.totalAmount);
@@ -211,13 +237,14 @@ export class TransactionsService {
   }
 
   async findAll(
+    businessId: string,
     startDate?: string,
     endDate?: string,
     status?: string,
     userId?: string,
     tableNumber?: string,
   ) {
-    const where: any = {};
+    const where: any = { businessId };
 
     if (startDate || endDate) {
       where.createdAt = {};
@@ -242,7 +269,7 @@ export class TransactionsService {
     }
 
     return this.prisma.transaction.findMany({
-      where: where as any,
+      where: where,
       include: {
         items: {
           include: {
@@ -263,9 +290,9 @@ export class TransactionsService {
     });
   }
 
-  async findOne(id: string) {
-    const transaction = await this.prisma.transaction.findUnique({
-      where: { id },
+  async findOne(id: string, businessId: string) {
+    const transaction = await this.prisma.transaction.findFirst({
+      where: { id, businessId },
       include: {
         items: {
           include: {
@@ -289,8 +316,12 @@ export class TransactionsService {
     return transaction;
   }
 
-  async updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto) {
-    await this.findOne(id);
+  async updateStatus(
+    id: string,
+    updateStatusDto: UpdateTransactionStatusDto,
+    businessId: string,
+  ) {
+    await this.findOne(id, businessId);
 
     return this.prisma.transaction.update({
       where: { id },

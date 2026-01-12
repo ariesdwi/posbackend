@@ -25,6 +25,11 @@ export class RegisterDto {
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty({ example: 'My Coffee Shop' })
+  @IsString()
+  @IsNotEmpty()
+  businessName: string;
+
   @ApiProperty({ enum: UserRole, example: UserRole.KASIR })
   @IsEnum(UserRole)
   @IsNotEmpty()

@@ -53,78 +53,103 @@ async function main() {
     await prisma.transaction.deleteMany();
     await prisma.product.deleteMany();
     await prisma.category.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.business.deleteMany();
     console.log('✅ Existing data deleted');
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const admin = await prisma.user.upsert({
-        where: { email: 'admin@pos.com' },
-        update: {},
-        create: {
-            email: 'admin@pos.com',
-            password: adminPassword,
-            name: 'Admin User',
-            role: client_1.UserRole.ADMIN,
+    const business = await prisma.business.create({
+        data: {
+            name: 'Kedai Kita',
+            address: 'Jl. Contoh No. 123',
+            phone: '081234567890',
         },
     });
-    console.log('✅ Created admin user:', admin.email);
-    const kasirPassword = await bcrypt.hash('kasir123', 10);
-    const kasir = await prisma.user.upsert({
-        where: { email: 'kasir@pos.com' },
+    console.log('✅ Created business:', business.name);
+    const platformAdminPassword = await bcrypt.hash('platform123', 10);
+    const platformAdmin = await prisma.user.upsert({
+        where: { email: 'platform@admin.com' },
         update: {},
         create: {
-            email: 'kasir@pos.com',
+            email: 'platform@admin.com',
+            password: platformAdminPassword,
+            name: 'Platform Admin',
+            role: client_1.UserRole.ADMIN,
+            businessId: business.id,
+        },
+    });
+    console.log('✅ Created platform admin:', platformAdmin.email);
+    const ownerPassword = await bcrypt.hash('owner123', 10);
+    const owner = await prisma.user.upsert({
+        where: { email: 'owner@kedaikita.com' },
+        update: {},
+        create: {
+            email: 'owner@kedaikita.com',
+            password: ownerPassword,
+            name: 'Business Owner',
+            role: client_1.UserRole.BUSINESS_OWNER,
+            businessId: business.id,
+        },
+    });
+    console.log('✅ Created business owner:', owner.email);
+    const kasirPassword = await bcrypt.hash('kasir123', 10);
+    const kasir = await prisma.user.upsert({
+        where: { email: 'kasir@kedaikita.com' },
+        update: {},
+        create: {
+            email: 'kasir@kedaikita.com',
             password: kasirPassword,
             name: 'Kasir User',
             role: client_1.UserRole.KASIR,
+            businessId: business.id,
         },
     });
     console.log('✅ Created kasir user:', kasir.email);
     const iceDrinkCat = await prisma.category.create({
-        data: { name: 'Ice Drink', description: 'Minuman dingin' },
+        data: { name: 'Ice Drink', description: 'Minuman dingin', businessId: business.id },
     });
     const hotDrinkCat = await prisma.category.create({
-        data: { name: 'Hot Drink', description: 'Minuman hangat' },
+        data: { name: 'Hot Drink', description: 'Minuman hangat', businessId: business.id },
     });
     const teaCat = await prisma.category.create({
-        data: { name: 'Tea', description: 'Teh' },
+        data: { name: 'Tea', description: 'Teh', businessId: business.id },
     });
     const milkShakeCat = await prisma.category.create({
-        data: { name: 'Milk Shake', description: 'Milk shake & minuman susu' },
+        data: { name: 'Milk Shake', description: 'Milk shake & minuman susu', businessId: business.id },
     });
     const squashCat = await prisma.category.create({
-        data: { name: 'Squash', description: 'Squash' },
+        data: { name: 'Squash', description: 'Squash', businessId: business.id },
     });
     const nasiGorengCat = await prisma.category.create({
-        data: { name: 'Nasi Goreng', description: 'Nasi goreng' },
+        data: { name: 'Nasi Goreng', description: 'Nasi goreng', businessId: business.id },
     });
     const laukTambahanCat = await prisma.category.create({
-        data: { name: 'Lauk Tambahan', description: 'Lauk tambahan' },
+        data: { name: 'Lauk Tambahan', description: 'Lauk tambahan', businessId: business.id },
     });
     const makananRinganCat = await prisma.category.create({
-        data: { name: 'Makanan Ringan', description: 'Makanan ringan & snack' },
+        data: { name: 'Makanan Ringan', description: 'Makanan ringan & snack', businessId: business.id },
     });
     const chineseFoodCat = await prisma.category.create({
-        data: { name: 'Chinese Food', description: 'Masakan chinese' },
+        data: { name: 'Chinese Food', description: 'Masakan chinese', businessId: business.id },
     });
     const kwetiauCat = await prisma.category.create({
-        data: { name: 'Kwetiau', description: 'Kwetiau' },
+        data: { name: 'Kwetiau', description: 'Kwetiau', businessId: business.id },
     });
     const capcayCat = await prisma.category.create({
-        data: { name: 'Capcay', description: 'Capcay' },
+        data: { name: 'Capcay', description: 'Capcay', businessId: business.id },
     });
     const mieCat = await prisma.category.create({
-        data: { name: 'Mie', description: 'Mie' },
+        data: { name: 'Mie', description: 'Mie', businessId: business.id },
     });
     const bihunCat = await prisma.category.create({
-        data: { name: 'Bihun', description: 'Bihun' },
+        data: { name: 'Bihun', description: 'Bihun', businessId: business.id },
     });
     const menuMakananCat = await prisma.category.create({
-        data: { name: 'Menu Makanan', description: 'Menu makanan utama' },
+        data: { name: 'Menu Makanan', description: 'Menu makanan utama', businessId: business.id },
     });
     const lalapanCat = await prisma.category.create({
-        data: { name: 'Lalapan', description: 'Lalapan' },
+        data: { name: 'Lalapan', description: 'Lalapan', businessId: business.id },
     });
     const sayuranCat = await prisma.category.create({
-        data: { name: 'Sayuran', description: 'Sayuran' },
+        data: { name: 'Sayuran', description: 'Sayuran', businessId: business.id },
     });
     console.log('✅ Created categories');
     const products = [
@@ -817,7 +842,10 @@ async function main() {
     ];
     for (const product of products) {
         await prisma.product.create({
-            data: product,
+            data: {
+                ...product,
+                businessId: business.id,
+            },
         });
     }
     console.log('✅ Created products');
@@ -826,8 +854,9 @@ async function main() {
     console.log(`- Categories: 16`);
     console.log(`- Products: ${products.length}`);
     console.log('\n📝 Default credentials:');
-    console.log('Admin - Email: admin@pos.com, Password: admin123');
-    console.log('Kasir - Email: kasir@pos.com, Password: kasir123');
+    console.log('Platform Admin - Email: platform@admin.com, Password: platform123');
+    console.log('Business Owner - Email: owner@kedaikita.com, Password: owner123');
+    console.log('Kasir - Email: kasir@kedaikita.com, Password: kasir123');
 }
 main()
     .catch((e) => {

@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto, UpdateProductDto, UpdateStockDto } from './dto/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateStockDto,
+} from './dto/product.dto';
 import { ProductStatus } from '@prisma/client';
 import { UploadService } from '../upload/upload.service';
 
@@ -11,10 +19,14 @@ export class MenuService {
     private uploadService: UploadService,
   ) {}
 
-  async create(createProductDto: CreateProductDto, file?: Express.Multer.File) {
+  async create(
+    createProductDto: CreateProductDto,
+    businessId: string,
+    file?: Express.Multer.File,
+  ) {
     // Verify category exists
-    const category = await this.prisma.category.findUnique({
-      where: { id: createProductDto.categoryId },
+    const category = await this.prisma.category.findFirst({
+      where: { id: createProductDto.categoryId, businessId },
     });
 
     if (!category) {
@@ -32,6 +44,7 @@ export class MenuService {
       data: {
         ...createProductDto,
         imageUrl,
+        businessId, // Link to business
       },
       include: {
         category: true,
@@ -39,8 +52,8 @@ export class MenuService {
     });
   }
 
-  async findAll(categoryId?: string, search?: string) {
-    const where: any = {};
+  async findAll(businessId: string, categoryId?: string, search?: string) {
+    const where: any = { businessId }; // Filter by business
 
     if (categoryId) {
       where.categoryId = categoryId;
@@ -64,9 +77,9 @@ export class MenuService {
     });
   }
 
-  async findOne(id: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
+  async findOne(id: string, businessId: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, businessId },
       include: {
         category: true,
       },
@@ -79,12 +92,17 @@ export class MenuService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, file?: Express.Multer.File) {
-    await this.findOne(id);
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    businessId: string,
+    file?: Express.Multer.File,
+  ) {
+    await this.findOne(id, businessId);
 
     if (updateProductDto.categoryId) {
-      const category = await this.prisma.category.findUnique({
-        where: { id: updateProductDto.categoryId },
+      const category = await this.prisma.category.findFirst({
+        where: { id: updateProductDto.categoryId, businessId },
       });
 
       if (!category) {
@@ -111,10 +129,17 @@ export class MenuService {
     });
   }
 
-  async updateStock(id: string, updateStockDto: UpdateStockDto) {
-    await this.findOne(id);
+  async updateStock(
+    id: string,
+    updateStockDto: UpdateStockDto,
+    businessId: string,
+  ) {
+    await this.findOne(id, businessId);
 
-    const status = updateStockDto.stock > 0 ? ProductStatus.AVAILABLE : ProductStatus.OUT_OF_STOCK;
+    const status =
+      updateStockDto.stock > 0
+        ? ProductStatus.AVAILABLE
+        : ProductStatus.OUT_OF_STOCK;
 
     return this.prisma.product.update({
       where: { id },
@@ -128,8 +153,8 @@ export class MenuService {
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, businessId: string) {
+    await this.findOne(id, businessId);
 
     await this.prisma.product.delete({
       where: { id },

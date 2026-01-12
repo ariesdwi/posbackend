@@ -22,35 +22,36 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
+const user_decorator_1 = require("../common/decorators/user.decorator");
 let MenuController = class MenuController {
     menuService;
     constructor(menuService) {
         this.menuService = menuService;
     }
-    create(createProductDto, file) {
-        return this.menuService.create(createProductDto, file);
+    create(createProductDto, user, file) {
+        return this.menuService.create(createProductDto, user.businessId, file);
     }
-    findAll(categoryId, search) {
-        return this.menuService.findAll(categoryId, search);
+    findAll(user, categoryId, search) {
+        return this.menuService.findAll(user.businessId, categoryId, search);
     }
-    findOne(id) {
-        return this.menuService.findOne(id);
+    findOne(id, user) {
+        return this.menuService.findOne(id, user.businessId);
     }
-    update(id, updateProductDto, file) {
-        return this.menuService.update(id, updateProductDto, file);
+    update(id, updateProductDto, user, file) {
+        return this.menuService.update(id, updateProductDto, user.businessId, file);
     }
-    updateStock(id, updateStockDto) {
-        return this.menuService.updateStock(id, updateStockDto);
+    updateStock(id, updateStockDto, user) {
+        return this.menuService.updateStock(id, updateStockDto, user.businessId);
     }
-    remove(id) {
-        return this.menuService.remove(id);
+    remove(id, user) {
+        return this.menuService.remove(id, user.businessId);
     }
 };
 exports.MenuController = MenuController;
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Create product (Admin only)' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -72,9 +73,10 @@ __decorate([
         limits: { fileSize: 5 * 1024 * 1024 },
     })),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.UploadedFile)()),
+    __param(1, (0, user_decorator_1.User)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [product_dto_1.CreateProductDto, Object]),
+    __metadata("design:paramtypes", [product_dto_1.CreateProductDto, Object, Object]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "create", null);
 __decorate([
@@ -82,24 +84,26 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get all products with optional filters' }),
     (0, swagger_1.ApiQuery)({ name: 'categoryId', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'search', required: false }),
-    __param(0, (0, common_1.Query)('categoryId')),
-    __param(1, (0, common_1.Query)('search')),
+    __param(0, (0, user_decorator_1.User)()),
+    __param(1, (0, common_1.Query)('categoryId')),
+    __param(2, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get product by ID' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Update product (Admin only)' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -111,7 +115,11 @@ __decorate([
                 price: { type: 'number', nullable: true },
                 stock: { type: 'integer', nullable: true },
                 categoryId: { type: 'string', nullable: true },
-                status: { type: 'string', enum: ['AVAILABLE', 'OUT_OF_STOCK'], nullable: true },
+                status: {
+                    type: 'string',
+                    enum: ['AVAILABLE', 'OUT_OF_STOCK'],
+                    nullable: true,
+                },
                 file: { type: 'string', format: 'binary', nullable: true },
                 imageUrl: { type: 'string', nullable: true },
             },
@@ -122,30 +130,33 @@ __decorate([
     })),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.UploadedFile)()),
+    __param(2, (0, user_decorator_1.User)()),
+    __param(3, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, product_dto_1.UpdateProductDto, Object]),
+    __metadata("design:paramtypes", [String, product_dto_1.UpdateProductDto, Object, Object]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id/stock'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Update product stock (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, product_dto_1.UpdateStockDto]),
+    __metadata("design:paramtypes", [String, product_dto_1.UpdateStockDto, Object]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "updateStock", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Delete product (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], MenuController.prototype, "remove", null);
 exports.MenuController = MenuController = __decorate([

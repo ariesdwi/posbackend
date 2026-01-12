@@ -4,214 +4,224 @@ import { Prisma } from '@prisma/client';
 export declare class TransactionsService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createTransactionDto: CreateTransactionDto, userId: string): Promise<{
+    create(createTransactionDto: CreateTransactionDto, userId: string, businessId: string): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         items: ({
             product: {
                 id: string;
                 name: string;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string | null;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
+                createdAt: Date;
+                updatedAt: Date;
+                businessId: string;
             } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
-            productName: string;
-            quantity: number;
-            subtotal: Prisma.Decimal;
             productId: string | null;
+            quantity: number;
+            productName: string;
+            subtotal: Prisma.Decimal;
             transactionId: string;
         })[];
     } & {
         id: string;
+        status: import("@prisma/client").$Enums.TransactionStatus;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.TransactionStatus;
-        transactionNumber: string;
+        businessId: string;
         tableNumber: string | null;
-        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        changeAmount: Prisma.Decimal | null;
         notes: string | null;
+        transactionNumber: string;
         userId: string;
+        totalAmount: Prisma.Decimal;
+        changeAmount: Prisma.Decimal | null;
     }>;
-    checkout(id: string, checkoutDto: CheckoutDto): Promise<{
+    checkout(id: string, checkoutDto: CheckoutDto, businessId: string): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         items: ({
             product: {
                 id: string;
                 name: string;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string | null;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
+                createdAt: Date;
+                updatedAt: Date;
+                businessId: string;
             } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
-            productName: string;
-            quantity: number;
-            subtotal: Prisma.Decimal;
             productId: string | null;
+            quantity: number;
+            productName: string;
+            subtotal: Prisma.Decimal;
             transactionId: string;
         })[];
     } & {
         id: string;
+        status: import("@prisma/client").$Enums.TransactionStatus;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.TransactionStatus;
-        transactionNumber: string;
+        businessId: string;
         tableNumber: string | null;
-        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        changeAmount: Prisma.Decimal | null;
         notes: string | null;
+        transactionNumber: string;
         userId: string;
+        totalAmount: Prisma.Decimal;
+        changeAmount: Prisma.Decimal | null;
     }>;
-    findAll(startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
+    findAll(businessId: string, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         items: ({
             product: {
                 id: string;
                 name: string;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string | null;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
+                createdAt: Date;
+                updatedAt: Date;
+                businessId: string;
             } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
-            productName: string;
-            quantity: number;
-            subtotal: Prisma.Decimal;
             productId: string | null;
+            quantity: number;
+            productName: string;
+            subtotal: Prisma.Decimal;
             transactionId: string;
         })[];
     } & {
         id: string;
+        status: import("@prisma/client").$Enums.TransactionStatus;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.TransactionStatus;
-        transactionNumber: string;
+        businessId: string;
         tableNumber: string | null;
-        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        changeAmount: Prisma.Decimal | null;
         notes: string | null;
+        transactionNumber: string;
         userId: string;
+        totalAmount: Prisma.Decimal;
+        changeAmount: Prisma.Decimal | null;
     })[]>;
-    findOne(id: string): Promise<{
+    findOne(id: string, businessId: string): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         items: ({
             product: {
                 id: string;
                 name: string;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string | null;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
+                createdAt: Date;
+                updatedAt: Date;
+                businessId: string;
             } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
-            productName: string;
-            quantity: number;
-            subtotal: Prisma.Decimal;
             productId: string | null;
+            quantity: number;
+            productName: string;
+            subtotal: Prisma.Decimal;
             transactionId: string;
         })[];
     } & {
         id: string;
+        status: import("@prisma/client").$Enums.TransactionStatus;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.TransactionStatus;
-        transactionNumber: string;
+        businessId: string;
         tableNumber: string | null;
-        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        changeAmount: Prisma.Decimal | null;
         notes: string | null;
+        transactionNumber: string;
         userId: string;
+        totalAmount: Prisma.Decimal;
+        changeAmount: Prisma.Decimal | null;
     }>;
-    updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto): Promise<{
+    updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, businessId: string): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
         items: ({
             product: {
                 id: string;
                 name: string;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string | null;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
                 categoryId: string;
+                createdAt: Date;
+                updatedAt: Date;
+                businessId: string;
             } | null;
         } & {
             id: string;
             price: Prisma.Decimal;
-            productName: string;
-            quantity: number;
-            subtotal: Prisma.Decimal;
             productId: string | null;
+            quantity: number;
+            productName: string;
+            subtotal: Prisma.Decimal;
             transactionId: string;
         })[];
     } & {
         id: string;
+        status: import("@prisma/client").$Enums.TransactionStatus;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.TransactionStatus;
-        transactionNumber: string;
+        businessId: string;
         tableNumber: string | null;
-        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        changeAmount: Prisma.Decimal | null;
         notes: string | null;
+        transactionNumber: string;
         userId: string;
+        totalAmount: Prisma.Decimal;
+        changeAmount: Prisma.Decimal | null;
     }>;
 }
