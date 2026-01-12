@@ -51,7 +51,7 @@ exports.MenuController = MenuController;
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Create product (Admin only)' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -103,7 +103,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Update product (Admin only)' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -139,7 +139,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/stock'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Update product stock (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -151,7 +151,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
     (0, swagger_1.ApiOperation)({ summary: 'Delete product (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, user_decorator_1.User)()),

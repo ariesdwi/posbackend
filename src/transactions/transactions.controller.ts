@@ -93,7 +93,7 @@ export class TransactionsController {
 
   @Patch(':id/status')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update transaction status (Admin only)' })
   updateStatus(
     @Param('id') id: string,

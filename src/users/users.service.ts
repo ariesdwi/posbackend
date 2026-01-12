@@ -115,4 +115,133 @@ export class UsersService {
 
     return { message: 'User deleted successfully' };
   }
+
+  // Platform Admin Methods
+  async findAllGlobal() {
+    // For platform admins - get all users across all businesses
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        businessId: true,
+        createdAt: true,
+        updatedAt: true,
+        business: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return users;
+  }
+
+  async findAllByRole(role: string) {
+    // For platform admins - get all users of a specific role
+    const users = await this.prisma.user.findMany({
+      where: { role: role as any },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        businessId: true,
+        createdAt: true,
+        updatedAt: true,
+        business: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return users;
+  }
+
+  async findOneGlobal(id: string) {
+    // For platform admins - get any user regardless of business
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        businessId: true,
+        createdAt: true,
+        updatedAt: true,
+        business: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            address: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async updateGlobal(id: string, updateUserDto: UpdateUserDto) {
+    // For platform admins - update any user regardless of business
+    await this.findOneGlobal(id); // Check if exists
+
+    const updateData: any = { ...updateUserDto };
+
+    // Hash password if provided
+    if (updateUserDto.password) {
+      updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        businessId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return user;
+  }
+
+  async removeGlobal(id: string) {
+    // For platform admins - delete any user regardless of business
+    await this.findOneGlobal(id); // Check if exists
+
+    await this.prisma.user.delete({
+      where: { id },
+    });
+
+    return { message: 'User deleted successfully' };
+  }
 }

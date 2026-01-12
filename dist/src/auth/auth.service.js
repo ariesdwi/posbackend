@@ -118,6 +118,16 @@ let AuthService = class AuthService {
     async validateUser(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
+            include: {
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        phone: true,
+                    },
+                },
+            },
         });
         if (!user || !user.isActive) {
             return null;

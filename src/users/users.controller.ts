@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -30,8 +31,87 @@ import type { RequestUser } from '../common/decorators/user.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  // Platform Admin Routes
+  @Get('admin/all')
   @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get all users across all businesses (Platform Admin only)',
+    description: 'Retrieve all users from all businesses in the platform',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All users retrieved successfully',
+    schema: {
+      example: [
+        {
+          id: 'user-id',
+          email: 'user@example.com',
+          name: 'User Name',
+          role: 'BUSINESS_OWNER',
+          isActive: true,
+          businessId: 'business-id',
+          business: {
+            id: 'business-id',
+            name: 'Business Name',
+            phone: '081234567890',
+          },
+        },
+      ],
+    },
+  })
+  findAllGlobal() {
+    return this.usersService.findAllGlobal();
+  }
+
+  @Get('admin/by-role')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get users by role (Platform Admin only)',
+    description: 'Filter users by their role across all businesses',
+  })
+  @ApiResponse({ status: 200, description: 'Users filtered by role' })
+  findByRole(@Query('role') role: string) {
+    return this.usersService.findAllByRole(role);
+  }
+
+  @Get('admin/:id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get any user by ID (Platform Admin only)',
+    description: 'Get user details regardless of business',
+  })
+  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
+  findOneGlobal(@Param('id') id: string) {
+    return this.usersService.findOneGlobal(id);
+  }
+
+  @Patch('admin/:id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Update any user (Platform Admin only)',
+    description: 'Update user details regardless of business',
+  })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  updateGlobal(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.updateGlobal(id, updateUserDto);
+  }
+
+  @Delete('admin/:id')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Delete any user (Platform Admin only)',
+    description: 'Delete user regardless of business',
+  })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  removeGlobal(@Param('id') id: string) {
+    return this.usersService.removeGlobal(id);
+  }
+
+  @Post()
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Create new user (Admin only)' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   create(@Body() createUserDto: CreateUserDto, @User() user: RequestUser) {
@@ -39,7 +119,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Get all users (Admin only)' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
   findAll(@User() user: RequestUser) {
@@ -54,7 +134,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update user (Admin only)' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   update(
@@ -66,7 +146,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Delete user (Admin only)' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   remove(@Param('id') id: string, @User() user: RequestUser) {

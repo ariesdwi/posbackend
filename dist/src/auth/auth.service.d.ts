@@ -41,6 +41,12 @@ export declare class AuthService {
         };
     }>;
     validateUser(userId: string): Promise<{
+        business: {
+            id: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+        };
         id: string;
         name: string;
         createdAt: Date;

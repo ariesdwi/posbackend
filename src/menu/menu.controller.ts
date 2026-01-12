@@ -42,7 +42,7 @@ export class MenuController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Create product (Admin only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -93,7 +93,7 @@ export class MenuController {
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update product (Admin only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -131,7 +131,7 @@ export class MenuController {
 
   @Patch(':id/stock')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update product stock (Admin only)' })
   updateStock(
     @Param('id') id: string,
@@ -143,7 +143,7 @@ export class MenuController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Delete product (Admin only)' })
   remove(@Param('id') id: string, @User() user: RequestUser) {
     return this.menuService.remove(id, user.businessId);

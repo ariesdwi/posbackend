@@ -112,7 +112,7 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, swagger_1.ApiOperation)({
         summary: 'Get current user profile',
-        description: "Retrieve the authenticated user's profile information",
+        description: "Retrieve the authenticated user's profile information with business details",
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -121,10 +121,17 @@ __decorate([
             example: {
                 user: {
                     id: 'user-id',
-                    email: 'admin@pos.com',
-                    name: 'Admin User',
-                    role: 'ADMIN',
+                    email: 'kasir@kedaikita.com',
+                    name: 'Kasir User',
+                    role: 'KASIR',
                     isActive: true,
+                    businessId: 'business-id',
+                    business: {
+                        id: 'business-id',
+                        name: 'Kedai Kita',
+                        address: 'Jl. Contoh No. 123',
+                        phone: '081234567890',
+                    },
                 },
             },
         },

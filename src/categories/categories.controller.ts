@@ -27,7 +27,7 @@ export class CategoriesController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Create category (Admin only)' })
   create(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -50,7 +50,7 @@ export class CategoriesController {
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Update category (Admin only)' })
   update(
     @Param('id') id: string,
@@ -66,7 +66,7 @@ export class CategoriesController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.BUSINESS_OWNER)
   @ApiOperation({ summary: 'Delete category (Admin only)' })
   remove(@Param('id') id: string, @User() user: RequestUser) {
     return this.categoriesService.remove(id, user.businessId);

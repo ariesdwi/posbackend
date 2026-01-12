@@ -38,6 +38,14 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 role: true,
                 isActive: true,
                 businessId: true,
+                business: {
+                    select: {
+                        id: true,
+                        name: true,
+                        address: true,
+                        phone: true,
+                    },
+                },
             },
         });
         if (!user || !user.isActive) {

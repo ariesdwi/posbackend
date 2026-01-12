@@ -64,25 +64,38 @@ async function main() {
         },
     });
     console.log('✅ Created business:', business.name);
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const admin = await prisma.user.upsert({
-        where: { email: 'admin@pos.com' },
+    const platformAdminPassword = await bcrypt.hash('platform123', 10);
+    const platformAdmin = await prisma.user.upsert({
+        where: { email: 'platform@admin.com' },
         update: {},
         create: {
-            email: 'admin@pos.com',
-            password: adminPassword,
-            name: 'Admin User',
+            email: 'platform@admin.com',
+            password: platformAdminPassword,
+            name: 'Platform Admin',
             role: client_1.UserRole.ADMIN,
             businessId: business.id,
         },
     });
-    console.log('✅ Created admin user:', admin.email);
-    const kasirPassword = await bcrypt.hash('kasir123', 10);
-    const kasir = await prisma.user.upsert({
-        where: { email: 'kasir@pos.com' },
+    console.log('✅ Created platform admin:', platformAdmin.email);
+    const ownerPassword = await bcrypt.hash('owner123', 10);
+    const owner = await prisma.user.upsert({
+        where: { email: 'owner@kedaikita.com' },
         update: {},
         create: {
-            email: 'kasir@pos.com',
+            email: 'owner@kedaikita.com',
+            password: ownerPassword,
+            name: 'Business Owner',
+            role: client_1.UserRole.BUSINESS_OWNER,
+            businessId: business.id,
+        },
+    });
+    console.log('✅ Created business owner:', owner.email);
+    const kasirPassword = await bcrypt.hash('kasir123', 10);
+    const kasir = await prisma.user.upsert({
+        where: { email: 'kasir@kedaikita.com' },
+        update: {},
+        create: {
+            email: 'kasir@kedaikita.com',
             password: kasirPassword,
             name: 'Kasir User',
             role: client_1.UserRole.KASIR,
@@ -841,8 +854,9 @@ async function main() {
     console.log(`- Categories: 16`);
     console.log(`- Products: ${products.length}`);
     console.log('\n📝 Default credentials:');
-    console.log('Admin - Email: admin@pos.com, Password: admin123');
-    console.log('Kasir - Email: kasir@pos.com, Password: kasir123');
+    console.log('Platform Admin - Email: platform@admin.com, Password: platform123');
+    console.log('Business Owner - Email: owner@kedaikita.com, Password: owner123');
+    console.log('Kasir - Email: kasir@kedaikita.com, Password: kasir123');
 }
 main()
     .catch((e) => {
