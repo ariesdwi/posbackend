@@ -162,4 +162,14 @@ export class UpdateTransactionDto {
   @Type(() => Number)
   @IsNotEmpty()
   total: number;
+
+  @ApiProperty({ example: 'Table 1', required: false })
+  @IsString()
+  @IsOptional()
+  tableNumber?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }

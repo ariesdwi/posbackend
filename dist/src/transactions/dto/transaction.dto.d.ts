@@ -32,4 +32,6 @@ export declare class UpdateTransactionDto {
     discount?: number;
     tax?: number;
     total: number;
+    tableNumber?: string;
+    notes?: string;
 }
