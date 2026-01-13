@@ -295,6 +295,8 @@ let TransactionsService = class TransactionsService {
                 where: { id },
                 data: {
                     totalAmount: new client_1.Prisma.Decimal(updateDto.total),
+                    tableNumber: updateDto.tableNumber ?? transaction.tableNumber,
+                    notes: updateDto.notes ?? transaction.notes,
                     items: {
                         create: transactionItems,
                     },

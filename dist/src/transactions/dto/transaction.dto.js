@@ -174,6 +174,8 @@ class UpdateTransactionDto {
     discount;
     tax;
     total;
+    tableNumber;
+    notes;
 }
 exports.UpdateTransactionDto = UpdateTransactionDto;
 __decorate([
@@ -215,4 +217,16 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], UpdateTransactionDto.prototype, "total", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Table 1', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "tableNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "notes", void 0);
 //# sourceMappingURL=transaction.dto.js.map

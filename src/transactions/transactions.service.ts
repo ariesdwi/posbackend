@@ -379,6 +379,8 @@ export class TransactionsService {
         where: { id },
         data: {
           totalAmount: new Prisma.Decimal(updateDto.total),
+          tableNumber: updateDto.tableNumber ?? transaction.tableNumber,
+          notes: updateDto.notes ?? transaction.notes,
           items: {
             create: transactionItems,
           },
