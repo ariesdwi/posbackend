@@ -28,6 +28,12 @@ export class CreateProductDto {
   @Type(() => Number)
   price: number;
 
+  @ApiProperty({ example: 17500, description: 'Cost price (harga modal)' })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  costPrice: number;
+
   @ApiProperty({ example: 50 })
   @IsInt()
   @Min(0)
@@ -67,6 +73,13 @@ export class UpdateProductDto {
   @Type(() => Number)
   @IsOptional()
   price?: number;
+
+  @ApiProperty({ example: 17500, description: 'Cost price (harga modal)', required: false })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  costPrice?: number;
 
   @ApiProperty({ example: 50, required: false })
   @IsInt()

@@ -104,6 +104,22 @@ export class ReportsController {
     );
   }
 
+  @Get('margin')
+  @ApiOperation({ summary: 'Get profit margin report' })
+  @ApiQuery({ name: 'startDate', example: '2026-01-01' })
+  @ApiQuery({ name: 'endDate', example: '2026-01-31' })
+  getMarginReport(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @User() user: RequestUser,
+  ) {
+    return this.reportsService.getCustomReport(
+      startDate,
+      endDate,
+      user.businessId,
+    );
+  }
+
   @Get('export/pdf')
   @ApiOperation({ summary: 'Export sales report as PDF' })
   @ApiQuery({ name: 'type', enum: ['daily', 'weekly', 'monthly', 'custom'] })

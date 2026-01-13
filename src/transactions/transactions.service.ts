@@ -76,6 +76,7 @@ export class TransactionsService {
         throw new NotFoundException(`Product not found: ${item.productId}`);
       }
       const price = Number(product.price);
+      const costPrice = Number(product.costPrice || 0);
       const subtotal = price * item.quantity;
       additionalAmount += subtotal;
 
@@ -84,6 +85,7 @@ export class TransactionsService {
         productName: product.name,
         quantity: item.quantity,
         price: new Prisma.Decimal(price),
+        costPrice: new Prisma.Decimal(costPrice),
         subtotal: new Prisma.Decimal(subtotal),
       };
     });

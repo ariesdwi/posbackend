@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { Prisma, PrismaClient, UserRole } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as bcrypt from 'bcrypt';
@@ -156,6 +156,7 @@ async function main() {
     {
       name: 'Ice Coffee Klepon',
       price: 10000,
+      costPrice: 7000,
       stock: 100,
       categoryId: iceDrinkCat.id,
       imageUrl: 'https://source.unsplash.com/400x400/?iced-coffee',
@@ -163,6 +164,7 @@ async function main() {
     {
       name: 'Ice Coffee Gula Aren',
       price: 10000,
+      costPrice: 7000,
       stock: 100,
       categoryId: iceDrinkCat.id,
       imageUrl: 'https://source.unsplash.com/400x400/?cold-brew-coffee',
@@ -170,6 +172,7 @@ async function main() {
     {
       name: 'Ice Coffee Latte',
       price: 10000,
+      costPrice: 7000,
       stock: 100,
       categoryId: iceDrinkCat.id,
       imageUrl: 'https://source.unsplash.com/400x400/?iced-latte',
@@ -177,6 +180,7 @@ async function main() {
     {
       name: 'Ice Jahe',
       price: 7000,
+      costPrice: 4500,
       stock: 100,
       categoryId: iceDrinkCat.id,
       imageUrl: 'https://source.unsplash.com/400x400/?ginger-drink',
@@ -874,10 +878,11 @@ async function main() {
     },
   ];
 
-  for (const product of products) {
+  for (const product of products as any[]) {
     await prisma.product.create({
       data: {
         ...product,
+        costPrice: new Prisma.Decimal(product.costPrice || product.price * 0.7),
         businessId: business.id,
       },
     });
