@@ -29,8 +29,9 @@ enum TransactionStatus {
 enum PaymentMethod {
   CASH
   CARD
-  E_WALLET
+  QRIS
   TRANSFER
+  OTHER
 }
 
 model User {
