@@ -145,64 +145,91 @@ export class TransactionsService {
         ? paymentAmount - totalAmount
         : 0;
 
-    // Generate transaction number
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-    const count = await this.prisma.transaction.count({
-      where: {
-        businessId, // Scope count by business
-        createdAt: {
-          gte: new Date(today.setHours(0, 0, 0, 0)),
-          lt: new Date(today.setHours(23, 59, 59, 999)),
-        },
-      },
-    });
-    const transactionNumber = `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}`;
-
-    return this.prisma.$transaction(async (tx) => {
-      const newTransaction = await tx.transaction.create({
-        data: {
-          transactionNumber,
-          userId,
-          businessId, // Link to business
-          tableNumber,
-          totalAmount: new Prisma.Decimal(totalAmount),
-          paymentMethod: paymentMethod || undefined,
-          paymentAmount: paymentAmount
-            ? new Prisma.Decimal(paymentAmount)
-            : null,
-          changeAmount: new Prisma.Decimal(changeAmount),
-          status: finalStatus,
-          notes,
-          items: {
-            create: transactionItems,
+    // Generate transaction number with retry logic to handle race conditions
+    const generateTransactionNumber = async (attempt: number = 0): Promise<string> => {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+      const count = await this.prisma.transaction.count({
+        where: {
+          businessId, // Scope count by business
+          createdAt: {
+            gte: new Date(today.setHours(0, 0, 0, 0)),
+            lt: new Date(today.setHours(23, 59, 59, 999)),
           },
-        } as any,
-        include: {
-          items: { include: { product: true } },
-          user: { select: { id: true, name: true, email: true } },
         },
       });
+      
+      // Add random suffix on retry attempts to avoid collision
+      const suffix = attempt > 0 ? `-${Math.random().toString(36).substring(2, 6).toUpperCase()}` : '';
+      return `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}${suffix}`;
+    };
 
-      // Update stock
-      for (const item of items) {
-        const product = products.find((p) => p.id === item.productId);
-        if (!product) continue;
-        const newStock = product.stock - item.quantity;
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: newStock,
-            status:
-              newStock > 0
-                ? ProductStatus.AVAILABLE
-                : ProductStatus.OUT_OF_STOCK,
-          },
+    // Retry logic for handling unique constraint violations
+    const maxRetries = 3;
+    let lastError: any;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const transactionNumber = await generateTransactionNumber(attempt);
+        
+        return await this.prisma.$transaction(async (tx) => {
+          const newTransaction = await tx.transaction.create({
+            data: {
+              transactionNumber,
+              userId,
+              businessId, // Link to business
+              tableNumber,
+              totalAmount: new Prisma.Decimal(totalAmount),
+              paymentMethod: paymentMethod || undefined,
+              paymentAmount: paymentAmount
+                ? new Prisma.Decimal(paymentAmount)
+                : null,
+              changeAmount: new Prisma.Decimal(changeAmount),
+              status: finalStatus,
+              notes,
+              items: {
+                create: transactionItems,
+              },
+            } as any,
+            include: {
+              items: { include: { product: true } },
+              user: { select: { id: true, name: true, email: true } },
+            },
+          });
+
+          // Update stock
+          for (const item of items) {
+            const product = products.find((p) => p.id === item.productId);
+            if (!product) continue;
+            const newStock = product.stock - item.quantity;
+            await tx.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: newStock,
+                status:
+                  newStock > 0
+                    ? ProductStatus.AVAILABLE
+                    : ProductStatus.OUT_OF_STOCK,
+              },
+            });
+          }
+
+          return newTransaction;
         });
+      } catch (error) {
+        lastError = error;
+        // Check if it's a unique constraint violation on transactionNumber
+        if (error?.code === 'P2002' && error?.meta?.target?.includes('transactionNumber')) {
+          // Retry with a new transaction number
+          continue;
+        }
+        // If it's a different error, throw immediately
+        throw error;
       }
-
-      return newTransaction;
-    });
+    }
+    
+    // If all retries failed, throw the last error
+    throw lastError;
   }
 
   async checkout(id: string, checkoutDto: CheckoutDto, businessId: string) {
