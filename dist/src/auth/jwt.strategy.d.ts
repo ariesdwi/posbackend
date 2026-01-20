@@ -1,17 +1,20 @@
 import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuthService } from './auth.service';
 interface JwtPayload {
     sub: string;
     email: string;
     role: string;
     businessId: string;
+    sessionToken?: string;
 }
 declare const JwtStrategy_base: new (...args: any[]) => Strategy;
 export declare class JwtStrategy extends JwtStrategy_base {
     private configService;
     private prisma;
-    constructor(configService: ConfigService, prisma: PrismaService);
+    private authService;
+    constructor(configService: ConfigService, prisma: PrismaService, authService: AuthService);
     validate(payload: JwtPayload): Promise<{
         id: string;
         name: string;
@@ -24,7 +27,6 @@ export declare class JwtStrategy extends JwtStrategy_base {
         };
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }>;
 }
 export {};

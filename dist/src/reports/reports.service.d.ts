@@ -4,6 +4,9 @@ export interface ProductSale {
     productName: string;
     quantitySold: number;
     revenue: number;
+    totalCost: number;
+    profit: number;
+    marginPercentage: number;
 }
 export interface CategoryRevenue {
     category: string;
@@ -27,9 +30,12 @@ export interface ReportData {
     };
     summary: {
         totalRevenue: number;
+        totalCost: number;
+        totalProfit: number;
         totalTransactions: number;
         totalItemsSold: number;
         averageTransactionValue: number;
+        averageMargin: number;
     };
     revenueByPaymentMethod: Record<string, number>;
     revenueByCashier: Record<string, number>;
@@ -47,9 +53,12 @@ export declare class ReportsService {
         };
         summary: {
             totalRevenue: number;
+            totalCost: number;
+            totalProfit: number;
             totalTransactions: number;
             totalItemsSold: number;
             averageTransactionValue: number;
+            averageMargin: number;
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
@@ -72,9 +81,12 @@ export declare class ReportsService {
         };
         summary: {
             totalRevenue: number;
+            totalCost: number;
+            totalProfit: number;
             totalTransactions: number;
             totalItemsSold: number;
             averageTransactionValue: number;
+            averageMargin: number;
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
@@ -97,9 +109,12 @@ export declare class ReportsService {
         };
         summary: {
             totalRevenue: number;
+            totalCost: number;
+            totalProfit: number;
             totalTransactions: number;
             totalItemsSold: number;
             averageTransactionValue: number;
+            averageMargin: number;
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
@@ -122,9 +137,12 @@ export declare class ReportsService {
         };
         summary: {
             totalRevenue: number;
+            totalCost: number;
+            totalProfit: number;
             totalTransactions: number;
             totalItemsSold: number;
             averageTransactionValue: number;
+            averageMargin: number;
         };
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;

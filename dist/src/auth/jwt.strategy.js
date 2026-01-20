@@ -15,10 +15,12 @@ const passport_1 = require("@nestjs/passport");
 const passport_jwt_1 = require("passport-jwt");
 const config_1 = require("@nestjs/config");
 const prisma_service_1 = require("../prisma/prisma.service");
+const auth_service_1 = require("./auth.service");
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt') {
     configService;
     prisma;
-    constructor(configService, prisma) {
+    authService;
+    constructor(configService, prisma, authService) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
@@ -27,8 +29,15 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         });
         this.configService = configService;
         this.prisma = prisma;
+        this.authService = authService;
     }
     async validate(payload) {
+        if (payload.sessionToken) {
+            const isValidSession = await this.authService.validateSession(payload.sub, payload.sessionToken);
+            if (!isValidSession) {
+                throw new common_1.UnauthorizedException('Session expired. Please login again from this device.');
+            }
+        }
         const user = await this.prisma.user.findUnique({
             where: { id: payload.sub },
             select: {
@@ -36,7 +45,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 email: true,
                 name: true,
                 role: true,
-                isActive: true,
                 businessId: true,
                 business: {
                     select: {
@@ -48,8 +56,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 },
             },
         });
-        if (!user || !user.isActive) {
-            throw new common_1.UnauthorizedException('User not found or inactive');
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
         }
         return user;
     }
@@ -58,6 +66,7 @@ exports.JwtStrategy = JwtStrategy;
 exports.JwtStrategy = JwtStrategy = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService,
-        prisma_service_1.PrismaService])
+        prisma_service_1.PrismaService,
+        auth_service_1.AuthService])
 ], JwtStrategy);
 //# sourceMappingURL=jwt.strategy.js.map

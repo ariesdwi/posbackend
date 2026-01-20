@@ -18,6 +18,7 @@ class CreateProductDto {
     name;
     description;
     price;
+    costPrice;
     stock;
     categoryId;
     imageUrl;
@@ -43,6 +44,13 @@ __decorate([
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 17500, description: 'Cost price (harga modal)' }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], CreateProductDto.prototype, "costPrice", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 50 }),
     (0, class_validator_1.IsInt)(),
@@ -72,6 +80,7 @@ class UpdateProductDto {
     name;
     description;
     price;
+    costPrice;
     stock;
     categoryId;
     imageUrl;
@@ -98,6 +107,14 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 17500, description: 'Cost price (harga modal)', required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateProductDto.prototype, "costPrice", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 50, required: false }),
     (0, class_validator_1.IsInt)(),

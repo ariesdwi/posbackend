@@ -16,6 +16,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -27,10 +28,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -39,14 +41,14 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     checkout(id: string, checkoutDto: CheckoutDto, businessId: string): Promise<{
         user: {
@@ -60,6 +62,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -71,10 +74,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -83,14 +87,14 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     findAll(businessId: string, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
@@ -104,6 +108,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -115,10 +120,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -127,14 +133,14 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         user: {
@@ -148,6 +154,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -159,10 +166,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -171,14 +179,14 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, businessId: string): Promise<{
         user: {
@@ -192,6 +200,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -203,10 +212,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -215,14 +225,14 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     update(id: string, updateDto: UpdateTransactionDto, businessId: string): Promise<{
         user: {
@@ -236,6 +246,7 @@ export declare class TransactionsService {
                 name: string;
                 description: string | null;
                 price: Prisma.Decimal;
+                costPrice: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -247,10 +258,11 @@ export declare class TransactionsService {
         } & {
             id: string;
             price: Prisma.Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: Prisma.Decimal;
             productName: string;
+            quantity: number;
             subtotal: Prisma.Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -259,13 +271,13 @@ export declare class TransactionsService {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: Prisma.Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: Prisma.Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: Prisma.Decimal;
         changeAmount: Prisma.Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
 }

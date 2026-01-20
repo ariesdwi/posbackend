@@ -29,6 +29,7 @@ export declare class CategoriesService {
             name: string;
             description: string | null;
             price: import("@prisma/client-runtime-utils").Decimal;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             stock: number;
             imageUrl: string | null;
             status: import("@prisma/client").$Enums.ProductStatus;

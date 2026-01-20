@@ -59,6 +59,7 @@ let TransactionsService = class TransactionsService {
                 throw new common_1.NotFoundException(`Product not found: ${item.productId}`);
             }
             const price = Number(product.price);
+            const costPrice = Number(product.costPrice || 0);
             const subtotal = price * item.quantity;
             additionalAmount += subtotal;
             return {
@@ -66,6 +67,7 @@ let TransactionsService = class TransactionsService {
                 productName: product.name,
                 quantity: item.quantity,
                 price: new client_1.Prisma.Decimal(price),
+                costPrice: new client_1.Prisma.Decimal(costPrice),
                 subtotal: new client_1.Prisma.Decimal(subtotal),
             };
         });

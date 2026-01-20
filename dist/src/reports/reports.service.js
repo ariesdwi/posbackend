@@ -71,9 +71,19 @@ let ReportsService = class ReportsService {
                 },
             },
         });
-        const totalRevenue = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+        let totalRevenue = 0;
+        let totalCost = 0;
+        let totalItemsSold = 0;
+        transactions.forEach((t) => {
+            totalRevenue += Number(t.totalAmount);
+            t.items.forEach((item) => {
+                totalItemsSold += item.quantity;
+                totalCost += Number(item.costPrice || 0) * item.quantity;
+            });
+        });
         const totalTransactions = transactions.length;
-        const totalItemsSold = transactions.reduce((sum, t) => sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+        const totalProfit = totalRevenue - totalCost;
+        const averageMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
         const revenueByPaymentMethod = transactions.reduce((acc, t) => {
             const method = t.paymentMethod || 'UNKNOWN';
             acc[method] = (acc[method] || 0) + Number(t.totalAmount);
@@ -94,10 +104,22 @@ let ReportsService = class ReportsService {
                         productName: item.productName,
                         quantitySold: 0,
                         revenue: 0,
+                        totalCost: 0,
+                        profit: 0,
+                        marginPercentage: 0,
                     };
                 }
+                const itemRevenue = Number(item.subtotal);
+                const itemCost = Number(item.costPrice || 0) * item.quantity;
+                const itemProfit = itemRevenue - itemCost;
                 acc[item.productId].quantitySold += item.quantity;
-                acc[item.productId].revenue += Number(item.subtotal);
+                acc[item.productId].revenue += itemRevenue;
+                acc[item.productId].totalCost += itemCost;
+                acc[item.productId].profit += itemProfit;
+                acc[item.productId].marginPercentage =
+                    acc[item.productId].revenue > 0
+                        ? (acc[item.productId].profit / acc[item.productId].revenue) * 100
+                        : 0;
             });
             return acc;
         }, {});
@@ -112,9 +134,12 @@ let ReportsService = class ReportsService {
             },
             summary: {
                 totalRevenue,
+                totalCost,
+                totalProfit,
                 totalTransactions,
                 totalItemsSold,
                 averageTransactionValue: totalTransactions > 0 ? totalRevenue / totalTransactions : 0,
+                averageMargin,
             },
             revenueByPaymentMethod,
             revenueByCashier,
@@ -170,10 +195,22 @@ let ReportsService = class ReportsService {
                         productName: item.productName,
                         quantitySold: 0,
                         revenue: 0,
+                        totalCost: 0,
+                        profit: 0,
+                        marginPercentage: 0,
                     };
                 }
+                const itemRevenue = Number(item.subtotal);
+                const itemCost = Number(item.costPrice || 0) * item.quantity;
+                const itemProfit = itemRevenue - itemCost;
                 acc[item.productId].quantitySold += item.quantity;
-                acc[item.productId].revenue += Number(item.subtotal);
+                acc[item.productId].revenue += itemRevenue;
+                acc[item.productId].totalCost += itemCost;
+                acc[item.productId].profit += itemProfit;
+                acc[item.productId].marginPercentage =
+                    acc[item.productId].revenue > 0
+                        ? (acc[item.productId].profit / acc[item.productId].revenue) * 100
+                        : 0;
             });
             return acc;
         }, {});
@@ -278,16 +315,24 @@ let ReportsService = class ReportsService {
                     value: this.formatCurrency(reportData.summary.totalRevenue),
                 },
                 {
+                    label: 'MODAL (COST)',
+                    value: this.formatCurrency(reportData.summary.totalCost),
+                },
+                {
+                    label: 'PROFIT',
+                    value: this.formatCurrency(reportData.summary.totalProfit),
+                },
+                {
+                    label: 'MARGIN %',
+                    value: `${reportData.summary.averageMargin.toFixed(1)}%`,
+                },
+                {
                     label: 'TRANSAKSI',
                     value: reportData.summary.totalTransactions.toString(),
                 },
                 {
                     label: 'ITEM TERJUAL',
                     value: reportData.summary.totalItemsSold.toString(),
-                },
-                {
-                    label: 'RATA-RATA',
-                    value: this.formatCurrency(reportData.summary.averageTransactionValue),
                 },
             ];
             stats.forEach((stat) => {

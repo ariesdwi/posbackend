@@ -17,7 +17,6 @@ export declare class UsersController {
         };
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }[]>;
     findByRole(role: string): Promise<{
         id: string;
@@ -32,7 +31,6 @@ export declare class UsersController {
         };
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }[]>;
     findOneGlobal(id: string): Promise<{
         id: string;
@@ -48,7 +46,6 @@ export declare class UsersController {
         };
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }>;
     updateGlobal(id: string, updateUserDto: UpdateUserDto): Promise<{
         id: string;
@@ -58,7 +55,6 @@ export declare class UsersController {
         businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }>;
     removeGlobal(id: string): Promise<{
         message: string;
@@ -71,7 +67,16 @@ export declare class UsersController {
         businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
+        currentDeviceId: string | null;
+        currentSessionToken: string | null;
+        lastLoginAt: Date | null;
+        isEmailVerified: boolean;
+        emailVerificationToken: string | null;
+        emailVerificationExpires: Date | null;
+        passwordResetToken: string | null;
+        passwordResetExpires: Date | null;
+        oauthProvider: string | null;
+        oauthProviderId: string | null;
     }>;
     findAll(user: RequestUser): Promise<{
         id: string;
@@ -80,7 +85,6 @@ export declare class UsersController {
         updatedAt: Date;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }[]>;
     findOne(id: string, user: RequestUser): Promise<{
         id: string;
@@ -89,7 +93,6 @@ export declare class UsersController {
         updatedAt: Date;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }>;
     update(id: string, updateUserDto: UpdateUserDto, user: RequestUser): Promise<{
         id: string;
@@ -98,7 +101,6 @@ export declare class UsersController {
         updatedAt: Date;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        isActive: boolean;
     }>;
     remove(id: string, user: RequestUser): Promise<{
         message: string;

@@ -37,17 +37,34 @@ enum PaymentMethod {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String
+  password  String?  // Made optional for OAuth users
   name      String
-  role      UserRole @default(KASIR)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      UserRole
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
   transactions Transaction[]
   
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
+
+  // Session tracking for single-device authentication
+  currentDeviceId     String?   @map("current_device_id")
+  currentSessionToken String?   @map("current_session_token")
+  lastLoginAt         DateTime? @map("last_login_at")
+
+  // Email verification
+  isEmailVerified          Boolean   @default(false) @map("is_email_verified")
+  emailVerificationToken   String?   @map("email_verification_token")
+  emailVerificationExpires DateTime? @map("email_verification_expires")
+
+  // Password reset
+  passwordResetToken   String?   @map("password_reset_token")
+  passwordResetExpires DateTime? @map("password_reset_expires")
+
+  // OAuth support
+  oauthProvider   String? @map("oauth_provider") // 'APPLE', 'GOOGLE', or null
+  oauthProviderId String? @map("oauth_provider_id") // Provider-specific user ID
 
   @@map("users")
 }
