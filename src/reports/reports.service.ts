@@ -8,6 +8,9 @@ export interface ProductSale {
   productName: string;
   quantitySold: number;
   revenue: number;
+  totalCost: number;
+  profit: number;
+  marginPercentage: number;
 }
 
 export interface CategoryRevenue {
@@ -34,9 +37,12 @@ export interface ReportData {
   };
   summary: {
     totalRevenue: number;
+    totalCost: number;
+    totalProfit: number;
     totalTransactions: number;
     totalItemsSold: number;
     averageTransactionValue: number;
+    averageMargin: number;
   };
   revenueByPaymentMethod: Record<string, number>;
   revenueByCashier: Record<string, number>;
@@ -120,16 +126,21 @@ export class ReportsService {
     });
 
     // Calculate totals
-    const totalRevenue = transactions.reduce(
-      (sum, t) => sum + Number(t.totalAmount),
-      0,
-    );
+    let totalRevenue = 0;
+    let totalCost = 0;
+    let totalItemsSold = 0;
+
+    transactions.forEach((t) => {
+      totalRevenue += Number(t.totalAmount);
+      t.items.forEach((item) => {
+        totalItemsSold += item.quantity;
+        totalCost += Number((item as any).costPrice || 0) * item.quantity;
+      });
+    });
+
     const totalTransactions = transactions.length;
-    const totalItemsSold = transactions.reduce(
-      (sum, t) =>
-        sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
-      0,
-    );
+    const totalProfit = totalRevenue - totalCost;
+    const averageMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
     // Revenue by payment method
     const revenueByPaymentMethod = transactions.reduce(
@@ -151,14 +162,11 @@ export class ReportsService {
       {} as Record<string, number>,
     );
 
-    // Best selling products
+    // Product sales and margins
     const productSales = transactions.reduce(
-      (
-        acc: Record<string, ProductSale>,
-        t,
-      ) => {
+      (acc: Record<string, ProductSale>, t) => {
         t.items.forEach((item) => {
-          if (!item.productId) return; // Skip deleted products
+          if (!item.productId) return;
 
           if (!acc[item.productId]) {
             acc[item.productId] = {
@@ -166,10 +174,23 @@ export class ReportsService {
               productName: item.productName,
               quantitySold: 0,
               revenue: 0,
+              totalCost: 0,
+              profit: 0,
+              marginPercentage: 0,
             };
           }
+          const itemRevenue = Number(item.subtotal);
+          const itemCost = Number((item as any).costPrice || 0) * item.quantity;
+          const itemProfit = itemRevenue - itemCost;
+
           acc[item.productId].quantitySold += item.quantity;
-          acc[item.productId].revenue += Number(item.subtotal);
+          acc[item.productId].revenue += itemRevenue;
+          acc[item.productId].totalCost += itemCost;
+          acc[item.productId].profit += itemProfit;
+          acc[item.productId].marginPercentage =
+            acc[item.productId].revenue > 0
+              ? (acc[item.productId].profit / acc[item.productId].revenue) * 100
+              : 0;
         });
         return acc;
       },
@@ -188,10 +209,13 @@ export class ReportsService {
       },
       summary: {
         totalRevenue,
+        totalCost,
+        totalProfit,
         totalTransactions,
         totalItemsSold,
         averageTransactionValue:
           totalTransactions > 0 ? totalRevenue / totalTransactions : 0,
+        averageMargin,
       },
       revenueByPaymentMethod,
       revenueByCashier,
@@ -246,12 +270,9 @@ export class ReportsService {
     });
 
     const productSales = transactions.reduce(
-      (
-        acc: Record<string, ProductSale>,
-        t,
-      ) => {
+      (acc: Record<string, ProductSale>, t) => {
         t.items.forEach((item) => {
-          if (!item.productId) return; // Skip deleted products
+          if (!item.productId) return;
 
           if (!acc[item.productId]) {
             acc[item.productId] = {
@@ -259,10 +280,23 @@ export class ReportsService {
               productName: item.productName,
               quantitySold: 0,
               revenue: 0,
+              totalCost: 0,
+              profit: 0,
+              marginPercentage: 0,
             };
           }
+          const itemRevenue = Number(item.subtotal);
+          const itemCost = Number((item as any).costPrice || 0) * item.quantity;
+          const itemProfit = itemRevenue - itemCost;
+
           acc[item.productId].quantitySold += item.quantity;
-          acc[item.productId].revenue += Number(item.subtotal);
+          acc[item.productId].revenue += itemRevenue;
+          acc[item.productId].totalCost += itemCost;
+          acc[item.productId].profit += itemProfit;
+          acc[item.productId].marginPercentage =
+            acc[item.productId].revenue > 0
+              ? (acc[item.productId].profit / acc[item.productId].revenue) * 100
+              : 0;
         });
         return acc;
       },
@@ -411,18 +445,24 @@ export class ReportsService {
           value: this.formatCurrency(reportData.summary.totalRevenue),
         },
         {
+          label: 'MODAL (COST)',
+          value: this.formatCurrency(reportData.summary.totalCost),
+        },
+        {
+          label: 'PROFIT',
+          value: this.formatCurrency(reportData.summary.totalProfit),
+        },
+        {
+          label: 'MARGIN %',
+          value: `${reportData.summary.averageMargin.toFixed(1)}%`,
+        },
+        {
           label: 'TRANSAKSI',
           value: reportData.summary.totalTransactions.toString(),
         },
         {
           label: 'ITEM TERJUAL',
           value: reportData.summary.totalItemsSold.toString(),
-        },
-        {
-          label: 'RATA-RATA',
-          value: this.formatCurrency(
-            reportData.summary.averageTransactionValue,
-          ),
         },
       ];
 

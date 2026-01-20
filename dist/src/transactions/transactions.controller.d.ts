@@ -16,6 +16,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -27,10 +28,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -39,14 +41,14 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     checkout(id: string, checkoutDto: CheckoutDto, user: RequestUser): Promise<{
         user: {
@@ -60,6 +62,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -71,10 +74,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -83,14 +87,14 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     findAll(user: RequestUser, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
@@ -104,6 +108,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -115,10 +120,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -127,14 +133,14 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     })[]>;
     findOne(id: string, user: RequestUser): Promise<{
         user: {
@@ -148,6 +154,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -159,10 +166,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -171,14 +179,14 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     update(id: string, updateTransactionDto: UpdateTransactionDto, user: RequestUser): Promise<{
         user: {
@@ -192,6 +200,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -203,10 +212,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -215,14 +225,14 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, user: RequestUser): Promise<{
         user: {
@@ -236,6 +246,7 @@ export declare class TransactionsController {
                 name: string;
                 description: string | null;
                 price: import("@prisma/client-runtime-utils").Decimal;
+                costPrice: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
                 status: import("@prisma/client").$Enums.ProductStatus;
@@ -247,10 +258,11 @@ export declare class TransactionsController {
         } & {
             id: string;
             price: import("@prisma/client-runtime-utils").Decimal;
-            productId: string | null;
-            quantity: number;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
             productName: string;
+            quantity: number;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
+            productId: string | null;
             transactionId: string;
         })[];
     } & {
@@ -259,13 +271,13 @@ export declare class TransactionsController {
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        transactionNumber: string;
         tableNumber: string | null;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentMethod: import("@prisma/client").$Enums.PaymentMethod | null;
         paymentAmount: import("@prisma/client-runtime-utils").Decimal | null;
-        notes: string | null;
-        transactionNumber: string;
-        userId: string;
-        totalAmount: import("@prisma/client-runtime-utils").Decimal;
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
+        notes: string | null;
+        userId: string;
     }>;
 }

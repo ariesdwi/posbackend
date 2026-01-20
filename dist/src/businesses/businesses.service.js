@@ -51,7 +51,6 @@ let BusinessesService = class BusinessesService {
                         name: true,
                         email: true,
                         role: true,
-                        isActive: true,
                     },
                 },
                 _count: {

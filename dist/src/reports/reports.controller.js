@@ -46,6 +46,9 @@ let ReportsController = class ReportsController {
     getRevenueByCategory(startDate, endDate, user) {
         return this.reportsService.getRevenueByCategory(startDate, endDate, user.businessId);
     }
+    getMarginReport(startDate, endDate, user) {
+        return this.reportsService.getCustomReport(startDate, endDate, user.businessId);
+    }
     async exportPDF(res, type, user, date, startDate, endDate, month) {
         let reportData;
         const businessId = user.businessId;
@@ -154,6 +157,18 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getRevenueByCategory", null);
+__decorate([
+    (0, common_1.Get)('margin'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get profit margin report' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', example: '2026-01-01' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31' }),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getMarginReport", null);
 __decorate([
     (0, common_1.Get)('export/pdf'),
     (0, swagger_1.ApiOperation)({ summary: 'Export sales report as PDF' }),

@@ -37,7 +37,6 @@ export declare class BusinessesController {
             name: string;
             email: string;
             role: import("@prisma/client").$Enums.UserRole;
-            isActive: boolean;
         }[];
     } & {
         id: string;

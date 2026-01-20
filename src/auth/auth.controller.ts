@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Headers, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -9,6 +9,9 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { OAuthSignInDto } from './dto/oauth-signin.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -73,14 +76,16 @@ export class AuthController {
           email: 'admin@pos.com',
           name: 'Admin User',
           role: 'ADMIN',
-          isActive: true,
         },
       },
     },
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Headers('x-device-id') deviceId?: string,
+  ) {
+    return this.authService.login(loginDto, deviceId);
   }
 
   @Get('profile')
@@ -100,7 +105,6 @@ export class AuthController {
           email: 'kasir@kedaikita.com',
           name: 'Kasir User',
           role: 'KASIR',
-          isActive: true,
           businessId: 'business-id',
           business: {
             id: 'business-id',
@@ -118,5 +122,89 @@ export class AuthController {
   })
   async getProfile(@User() user: RequestUser) {
     return { user };
+  }
+
+  // ============ OAuth Sign-In Endpoints ============
+
+  @Post('apple')
+  @ApiOperation({
+    summary: 'Sign in with Apple',
+    description: 'Authenticate user using Apple ID token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful - Returns access token and user data',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid Apple token' })
+  async signInWithApple(@Body() oauthDto: OAuthSignInDto) {
+    return this.authService.signInWithApple(oauthDto.idToken);
+  }
+
+  @Post('google')
+  @ApiOperation({
+    summary: 'Sign in with Google',
+    description: 'Authenticate user using Google ID token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful - Returns access token and user data',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid Google token' })
+  async signInWithGoogle(@Body() oauthDto: OAuthSignInDto) {
+    return this.authService.signInWithGoogle(oauthDto.idToken);
+  }
+
+  // ============ Email Verification ============
+
+  @Get('verify')
+  @ApiOperation({
+    summary: 'Verify email address',
+    description: 'Verify user email using token from verification email',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Email verified successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or expired verification token',
+  })
+  async verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  // ============ Password Reset ============
+
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Request password reset',
+    description: 'Send password reset email to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset email sent (if email exists)',
+  })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Reset user password using token from reset email',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or expired reset token',
+  })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 }
