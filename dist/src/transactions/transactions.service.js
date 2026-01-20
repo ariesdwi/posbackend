@@ -113,59 +113,77 @@ let TransactionsService = class TransactionsService {
             paymentAmount >= totalAmount
             ? paymentAmount - totalAmount
             : 0;
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-        const count = await this.prisma.transaction.count({
-            where: {
-                businessId,
-                createdAt: {
-                    gte: new Date(today.setHours(0, 0, 0, 0)),
-                    lt: new Date(today.setHours(23, 59, 59, 999)),
-                },
-            },
-        });
-        const transactionNumber = `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}`;
-        return this.prisma.$transaction(async (tx) => {
-            const newTransaction = await tx.transaction.create({
-                data: {
-                    transactionNumber,
-                    userId,
+        const generateTransactionNumber = async (attempt = 0) => {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+            const count = await this.prisma.transaction.count({
+                where: {
                     businessId,
-                    tableNumber,
-                    totalAmount: new client_1.Prisma.Decimal(totalAmount),
-                    paymentMethod: paymentMethod || undefined,
-                    paymentAmount: paymentAmount
-                        ? new client_1.Prisma.Decimal(paymentAmount)
-                        : null,
-                    changeAmount: new client_1.Prisma.Decimal(changeAmount),
-                    status: finalStatus,
-                    notes,
-                    items: {
-                        create: transactionItems,
+                    createdAt: {
+                        gte: new Date(today.setHours(0, 0, 0, 0)),
+                        lt: new Date(today.setHours(23, 59, 59, 999)),
                     },
-                },
-                include: {
-                    items: { include: { product: true } },
-                    user: { select: { id: true, name: true, email: true } },
                 },
             });
-            for (const item of items) {
-                const product = products.find((p) => p.id === item.productId);
-                if (!product)
-                    continue;
-                const newStock = product.stock - item.quantity;
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: {
-                        stock: newStock,
-                        status: newStock > 0
-                            ? client_1.ProductStatus.AVAILABLE
-                            : client_1.ProductStatus.OUT_OF_STOCK,
-                    },
+            const suffix = attempt > 0 ? `-${Math.random().toString(36).substring(2, 6).toUpperCase()}` : '';
+            return `TRX-${dateStr}-${String(count + 1).padStart(4, '0')}${suffix}`;
+        };
+        const maxRetries = 3;
+        let lastError;
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                const transactionNumber = await generateTransactionNumber(attempt);
+                return await this.prisma.$transaction(async (tx) => {
+                    const newTransaction = await tx.transaction.create({
+                        data: {
+                            transactionNumber,
+                            userId,
+                            businessId,
+                            tableNumber,
+                            totalAmount: new client_1.Prisma.Decimal(totalAmount),
+                            paymentMethod: paymentMethod || undefined,
+                            paymentAmount: paymentAmount
+                                ? new client_1.Prisma.Decimal(paymentAmount)
+                                : null,
+                            changeAmount: new client_1.Prisma.Decimal(changeAmount),
+                            status: finalStatus,
+                            notes,
+                            items: {
+                                create: transactionItems,
+                            },
+                        },
+                        include: {
+                            items: { include: { product: true } },
+                            user: { select: { id: true, name: true, email: true } },
+                        },
+                    });
+                    for (const item of items) {
+                        const product = products.find((p) => p.id === item.productId);
+                        if (!product)
+                            continue;
+                        const newStock = product.stock - item.quantity;
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: {
+                                stock: newStock,
+                                status: newStock > 0
+                                    ? client_1.ProductStatus.AVAILABLE
+                                    : client_1.ProductStatus.OUT_OF_STOCK,
+                            },
+                        });
+                    }
+                    return newTransaction;
                 });
             }
-            return newTransaction;
-        });
+            catch (error) {
+                lastError = error;
+                if (error?.code === 'P2002' && error?.meta?.target?.includes('transactionNumber')) {
+                    continue;
+                }
+                throw error;
+            }
+        }
+        throw lastError;
     }
     async checkout(id, checkoutDto, businessId) {
         const transaction = await this.findOne(id, businessId);
