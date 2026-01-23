@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Delete,
   UseGuards,
   Query,
 } from '@nestjs/common';
@@ -120,5 +121,13 @@ export class TransactionsController {
       updateStatusDto,
       user.businessId,
     );
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.BUSINESS_OWNER)
+  @ApiOperation({ summary: 'Delete transaction (Admin only)' })
+  delete(@Param('id') id: string, @User() user: RequestUser) {
+    return this.transactionsService.delete(id, user.businessId);
   }
 }

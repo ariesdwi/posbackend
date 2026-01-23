@@ -126,6 +126,13 @@ export class UpdateTransactionItemDto {
   @Type(() => Number)
   @IsNotEmpty()
   subtotal: number;
+
+  @ApiProperty({ example: 15000, required: false })
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  costPrice?: number;
 }
 
 export class UpdateTransactionDto {

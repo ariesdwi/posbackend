@@ -287,6 +287,7 @@ let TransactionsService = class TransactionsService {
                 productName: item.productName,
                 quantity: item.quantity,
                 price: new client_1.Prisma.Decimal(item.price),
+                costPrice: new client_1.Prisma.Decimal(item.costPrice || 0),
                 subtotal: new client_1.Prisma.Decimal(item.subtotal),
             }));
             const updatedTransaction = await tx.transaction.update({
@@ -306,6 +307,16 @@ let TransactionsService = class TransactionsService {
             });
             return updatedTransaction;
         });
+    }
+    async delete(id, businessId) {
+        const transaction = await this.findOne(id, businessId);
+        await this.prisma.transaction.delete({
+            where: { id },
+        });
+        return {
+            success: true,
+            message: `Transaction ${transaction.transactionNumber} deleted successfully`,
+        };
     }
 };
 exports.TransactionsService = TransactionsService;

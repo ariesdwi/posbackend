@@ -130,6 +130,7 @@ class UpdateTransactionItemDto {
     price;
     quantity;
     subtotal;
+    costPrice;
 }
 exports.UpdateTransactionItemDto = UpdateTransactionItemDto;
 __decorate([
@@ -168,6 +169,14 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], UpdateTransactionItemDto.prototype, "subtotal", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 15000, required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateTransactionItemDto.prototype, "costPrice", void 0);
 class UpdateTransactionDto {
     items;
     subtotal;
