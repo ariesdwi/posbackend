@@ -25,6 +25,7 @@ export declare class UpdateTransactionItemDto {
     price: number;
     quantity: number;
     subtotal: number;
+    costPrice?: number;
 }
 export declare class UpdateTransactionDto {
     items: UpdateTransactionItemDto[];

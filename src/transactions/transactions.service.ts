@@ -372,6 +372,7 @@ export class TransactionsService {
         productName: item.productName,
         quantity: item.quantity,
         price: new Prisma.Decimal(item.price),
+        costPrice: new Prisma.Decimal(item.costPrice || 0),
         subtotal: new Prisma.Decimal(item.subtotal),
       }));
 
@@ -394,5 +395,20 @@ export class TransactionsService {
 
       return updatedTransaction;
     });
+  }
+
+  async delete(id: string, businessId: string) {
+    // Verify transaction exists and belongs to business
+    const transaction = await this.findOne(id, businessId);
+
+    // Delete transaction (cascade will delete transaction items)
+    await this.prisma.transaction.delete({
+      where: { id },
+    });
+
+    return {
+      success: true,
+      message: `Transaction ${transaction.transactionNumber} deleted successfully`,
+    };
   }
 }

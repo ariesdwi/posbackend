@@ -45,6 +45,9 @@ let TransactionsController = class TransactionsController {
     updateStatus(id, updateStatusDto, user) {
         return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);
     }
+    delete(id, user) {
+        return this.transactionsService.delete(id, user.businessId);
+    }
 };
 exports.TransactionsController = TransactionsController;
 __decorate([
@@ -117,6 +120,17 @@ __decorate([
     __metadata("design:paramtypes", [String, transaction_dto_1.UpdateTransactionStatusDto, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.BUSINESS_OWNER),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete transaction (Admin only)' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "delete", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, swagger_1.ApiTags)('Transactions'),
     (0, common_1.Controller)('transactions'),
