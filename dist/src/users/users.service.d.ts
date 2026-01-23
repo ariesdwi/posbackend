@@ -5,12 +5,12 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto, businessId: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
         currentDeviceId: string | null;
         currentSessionToken: string | null;
         lastLoginAt: Date | null;
@@ -24,34 +24,36 @@ export declare class UsersService {
     }>;
     findAll(businessId: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }[]>;
     findOne(id: string, businessId: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }>;
     update(id: string, updateUserDto: UpdateUserDto, businessId: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }>;
     remove(id: string, businessId: string): Promise<{
         message: string;
     }>;
     findAllGlobal(): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
@@ -60,12 +62,12 @@ export declare class UsersService {
             name: string;
             phone: string | null;
         };
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }[]>;
     findAllByRole(role: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
@@ -74,12 +76,12 @@ export declare class UsersService {
             name: string;
             phone: string | null;
         };
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }[]>;
     findOneGlobal(id: string): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
@@ -89,17 +91,15 @@ export declare class UsersService {
             address: string | null;
             phone: string | null;
         };
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }>;
     updateGlobal(id: string, updateUserDto: UpdateUserDto): Promise<{
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
     }>;
     removeGlobal(id: string): Promise<{
         message: string;

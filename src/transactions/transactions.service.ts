@@ -367,14 +367,31 @@ export class TransactionsService {
       });
 
       // Create new transaction items from DTO
-      const transactionItems = updateDto.items.map((item) => ({
-        productId: item.productId || null,
-        productName: item.productName,
-        quantity: item.quantity,
-        price: new Prisma.Decimal(item.price),
-        costPrice: new Prisma.Decimal(item.costPrice || 0),
-        subtotal: new Prisma.Decimal(item.subtotal),
-      }));
+      const itemProductIds = updateDto.items
+        .map((item) => item.productId)
+        .filter((id): id is string => !!id);
+
+      const products = await tx.product.findMany({
+        where: { id: { in: itemProductIds }, businessId },
+      });
+
+      const transactionItems = updateDto.items.map((item) => {
+        let costPrice = item.costPrice;
+        // If costPrice is missing/zero and we have a productId, fetch from products
+        if (item.productId && (!costPrice || costPrice === 0)) {
+          const product = products.find((p) => p.id === item.productId);
+          costPrice = product ? Number(product.costPrice) : 0;
+        }
+
+        return {
+          productId: item.productId || null,
+          productName: item.productName,
+          quantity: item.quantity,
+          price: new Prisma.Decimal(item.price),
+          costPrice: new Prisma.Decimal(costPrice || 0),
+          subtotal: new Prisma.Decimal(item.subtotal),
+        };
+      });
 
       // Update transaction with new items and totals
       const updatedTransaction = await tx.transaction.update({

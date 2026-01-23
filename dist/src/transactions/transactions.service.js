@@ -282,14 +282,27 @@ let TransactionsService = class TransactionsService {
             await tx.transactionItem.deleteMany({
                 where: { transactionId: id },
             });
-            const transactionItems = updateDto.items.map((item) => ({
-                productId: item.productId || null,
-                productName: item.productName,
-                quantity: item.quantity,
-                price: new client_1.Prisma.Decimal(item.price),
-                costPrice: new client_1.Prisma.Decimal(item.costPrice || 0),
-                subtotal: new client_1.Prisma.Decimal(item.subtotal),
-            }));
+            const itemProductIds = updateDto.items
+                .map((item) => item.productId)
+                .filter((id) => !!id);
+            const products = await tx.product.findMany({
+                where: { id: { in: itemProductIds }, businessId },
+            });
+            const transactionItems = updateDto.items.map((item) => {
+                let costPrice = item.costPrice;
+                if (item.productId && (!costPrice || costPrice === 0)) {
+                    const product = products.find((p) => p.id === item.productId);
+                    costPrice = product ? Number(product.costPrice) : 0;
+                }
+                return {
+                    productId: item.productId || null,
+                    productName: item.productName,
+                    quantity: item.quantity,
+                    price: new client_1.Prisma.Decimal(item.price),
+                    costPrice: new client_1.Prisma.Decimal(costPrice || 0),
+                    subtotal: new client_1.Prisma.Decimal(item.subtotal),
+                };
+            });
             const updatedTransaction = await tx.transaction.update({
                 where: { id },
                 data: {

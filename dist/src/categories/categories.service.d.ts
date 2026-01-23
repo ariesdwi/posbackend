@@ -6,10 +6,10 @@ export declare class CategoriesService {
     create(createCategoryDto: CreateCategoryDto, businessId: string): Promise<{
         id: string;
         name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        description: string | null;
     }>;
     findAll(businessId: string): Promise<({
         _count: {
@@ -18,15 +18,18 @@ export declare class CategoriesService {
     } & {
         id: string;
         name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        description: string | null;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         products: {
             id: string;
             name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             description: string | null;
             price: import("@prisma/client-runtime-utils").Decimal;
             costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -34,25 +37,22 @@ export declare class CategoriesService {
             imageUrl: string | null;
             status: import("@prisma/client").$Enums.ProductStatus;
             categoryId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            businessId: string;
         }[];
     } & {
         id: string;
         name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        description: string | null;
     }>;
     update(id: string, updateCategoryDto: UpdateCategoryDto, businessId: string): Promise<{
         id: string;
         name: string;
-        description: string | null;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
+        description: string | null;
     }>;
     remove(id: string, businessId: string): Promise<{
         message: string;
