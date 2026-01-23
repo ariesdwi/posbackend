@@ -11,12 +11,12 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -42,12 +42,12 @@ export declare class AuthController {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -67,12 +67,12 @@ export declare class AuthController {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -89,12 +89,12 @@ export declare class AuthController {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;

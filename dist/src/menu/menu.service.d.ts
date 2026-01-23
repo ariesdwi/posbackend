@@ -9,14 +9,17 @@ export declare class MenuService {
         category: {
             id: string;
             name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
+            description: string | null;
         };
     } & {
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -24,22 +27,22 @@ export declare class MenuService {
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        businessId: string;
     }>;
     findAll(businessId: string, categoryId?: string, search?: string): Promise<({
         category: {
             id: string;
             name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
+            description: string | null;
         };
     } & {
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -47,22 +50,22 @@ export declare class MenuService {
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        businessId: string;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         category: {
             id: string;
             name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
+            description: string | null;
         };
     } & {
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -70,22 +73,22 @@ export declare class MenuService {
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        businessId: string;
     }>;
     update(id: string, updateProductDto: UpdateProductDto, businessId: string, file?: Express.Multer.File): Promise<{
         category: {
             id: string;
             name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
+            description: string | null;
         };
     } & {
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -93,22 +96,22 @@ export declare class MenuService {
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        businessId: string;
     }>;
     updateStock(id: string, updateStockDto: UpdateStockDto, businessId: string): Promise<{
         category: {
             id: string;
             name: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
+            description: string | null;
         };
     } & {
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
         costPrice: import("@prisma/client-runtime-utils").Decimal;
@@ -116,9 +119,6 @@ export declare class MenuService {
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        businessId: string;
     }>;
     remove(id: string, businessId: string): Promise<{
         message: string;

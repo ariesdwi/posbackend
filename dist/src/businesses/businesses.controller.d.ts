@@ -13,10 +13,10 @@ export declare class BusinessesController {
     }>;
     findAll(): Promise<({
         _count: {
+            transactions: number;
             users: number;
             categories: number;
             products: number;
-            transactions: number;
         };
     } & {
         id: string;
@@ -27,17 +27,17 @@ export declare class BusinessesController {
         phone: string | null;
     })[]>;
     findOne(id: string): Promise<{
-        _count: {
-            categories: number;
-            products: number;
-            transactions: number;
-        };
         users: {
             id: string;
-            name: string;
             email: string;
+            name: string;
             role: import("@prisma/client").$Enums.UserRole;
         }[];
+        _count: {
+            transactions: number;
+            categories: number;
+            products: number;
+        };
     } & {
         id: string;
         name: string;

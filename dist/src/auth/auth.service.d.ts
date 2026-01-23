@@ -14,12 +14,12 @@ export declare class AuthService {
     register(registerDto: RegisterDto): Promise<{
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -45,12 +45,12 @@ export declare class AuthService {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -71,12 +71,12 @@ export declare class AuthService {
             phone: string | null;
         };
         id: string;
+        email: string;
         name: string;
+        role: import("@prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
         businessId: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
         currentDeviceId: string | null;
         currentSessionToken: string | null;
         lastLoginAt: Date | null;
@@ -93,12 +93,12 @@ export declare class AuthService {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -115,12 +115,12 @@ export declare class AuthService {
         accessToken: string;
         user: {
             id: string;
+            email: string;
             name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             createdAt: Date;
             updatedAt: Date;
             businessId: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
