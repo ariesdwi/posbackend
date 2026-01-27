@@ -113,7 +113,7 @@ export class ReportsController {
     @Query('endDate') endDate: string,
     @User() user: RequestUser,
   ) {
-    return this.reportsService.getCustomReport(
+    return this.reportsService.getMarginReport(
       startDate,
       endDate,
       user.businessId,
@@ -193,6 +193,43 @@ export class ReportsController {
     const pdfBuffer = await this.reportsService.generatePDFReport(reportData);
 
     const filename = `laporan-${type}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    res.end(pdfBuffer);
+  }
+
+  @Get('export/transactions')
+  @ApiOperation({ summary: 'Export transaction list as PDF by date range' })
+  @ApiQuery({ name: 'startDate', example: '2026-01-01' })
+  @ApiQuery({ name: 'endDate', example: '2026-01-31' })
+  async exportTransactionsPDF(
+    @Res() res: Response,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @User() user: RequestUser,
+  ) {
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ message: 'startDate and endDate are required' });
+    }
+
+    const reportData = await this.reportsService.getCustomReport(
+      startDate,
+      endDate,
+      user.businessId,
+    );
+
+    const pdfBuffer = await this.reportsService.generateTransactionsPDF(
+      reportData,
+    );
+
+    const filename = `transaksi-${startDate}-ke-${endDate}.pdf`;
 
     res.set({
       'Content-Type': 'application/pdf',

@@ -13,6 +13,12 @@ export interface CategoryRevenue {
     revenue: number;
     itemsSold: number;
 }
+export interface TransactionItemSummary {
+    productName: string;
+    quantity: number;
+    price: number;
+    subtotal: number;
+}
 export interface TransactionSummary {
     id: string;
     transactionNumber: string;
@@ -20,7 +26,13 @@ export interface TransactionSummary {
     paymentMethod: string;
     cashier: string;
     itemCount: number;
+    items: TransactionItemSummary[];
     createdAt: Date;
+}
+export interface DailyTrend {
+    date: string;
+    revenue: number;
+    profit: number;
 }
 export interface ReportData {
     period: {
@@ -40,7 +52,20 @@ export interface ReportData {
     revenueByPaymentMethod: Record<string, number>;
     revenueByCashier: Record<string, number>;
     bestSellers: ProductSale[];
+    dailyRevenue: DailyTrend[];
     transactions: TransactionSummary[];
+}
+export interface MarginReport {
+    period: {
+        startDate: string;
+        endDate: string;
+    };
+    summary: {
+        totalRevenue: number;
+        totalCost: number;
+        totalProfit: number;
+    };
+    items: ProductSale[];
 }
 export declare class ReportsService {
     private prisma;
@@ -63,6 +88,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -70,6 +96,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -91,6 +123,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -98,6 +131,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -119,6 +158,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -126,6 +166,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -147,6 +193,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -154,12 +201,20 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
     private getReportForPeriod;
+    getMarginReport(startDate: string, endDate: string, businessId: string): Promise<MarginReport>;
     getBestSellers(period: 'daily' | 'weekly' | 'monthly', businessId: string, limit?: number): Promise<ProductSale[]>;
     getRevenueByCategory(startDate: string, endDate: string, businessId: string): Promise<CategoryRevenue[]>;
+    generateTransactionsPDF(reportData: ReportData): Promise<Buffer>;
     generatePDFReport(reportData: ReportData): Promise<Buffer>;
     private formatCurrency;
 }
