@@ -47,7 +47,7 @@ let ReportsController = class ReportsController {
         return this.reportsService.getRevenueByCategory(startDate, endDate, user.businessId);
     }
     getMarginReport(startDate, endDate, user) {
-        return this.reportsService.getCustomReport(startDate, endDate, user.businessId);
+        return this.reportsService.getMarginReport(startDate, endDate, user.businessId);
     }
     async exportPDF(res, type, user, date, startDate, endDate, month) {
         let reportData;

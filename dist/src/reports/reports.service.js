@@ -126,6 +126,30 @@ let ReportsService = class ReportsService {
         const bestSellers = Object.values(productSales)
             .sort((a, b) => b.quantitySold - a.quantitySold)
             .slice(0, 10);
+        const dailyTrendMap = new Map();
+        const current = new Date(startDate);
+        while (current <= endDate) {
+            const dateStr = current.toISOString().split('T')[0];
+            dailyTrendMap.set(dateStr, { revenue: 0, profit: 0 });
+            current.setDate(current.getDate() + 1);
+        }
+        transactions.forEach((t) => {
+            const dateStr = t.createdAt.toISOString().split('T')[0];
+            const dayData = dailyTrendMap.get(dateStr) || { revenue: 0, profit: 0 };
+            let tProfit = 0;
+            t.items.forEach(item => {
+                const itemRevenue = Number(item.subtotal);
+                const itemCost = Number(item.costPrice || 0) * item.quantity;
+                tProfit += (itemRevenue - itemCost);
+            });
+            dayData.revenue += Number(t.totalAmount);
+            dayData.profit += tProfit;
+            dailyTrendMap.set(dateStr, dayData);
+        });
+        const dailyRevenue = Array.from(dailyTrendMap.entries()).map(([date, data]) => ({
+            date,
+            ...data
+        })).sort((a, b) => a.date.localeCompare(b.date));
         return {
             period: {
                 type: periodType,
@@ -144,6 +168,7 @@ let ReportsService = class ReportsService {
             revenueByPaymentMethod,
             revenueByCashier,
             bestSellers,
+            dailyRevenue,
             transactions: transactions.map((t) => ({
                 id: t.id,
                 transactionNumber: t.transactionNumber,
@@ -153,6 +178,62 @@ let ReportsService = class ReportsService {
                 itemCount: t.items.length,
                 createdAt: t.createdAt,
             })),
+        };
+    }
+    async getMarginReport(startDate, endDate, businessId) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        const transactions = await this.prisma.transaction.findMany({
+            where: {
+                createdAt: { gte: start, lte: end },
+                status: 'COMPLETED',
+                businessId,
+            },
+            include: {
+                items: true,
+            },
+        });
+        const productSales = transactions.reduce((acc, t) => {
+            t.items.forEach((item) => {
+                if (!item.productId)
+                    return;
+                if (!acc[item.productId]) {
+                    acc[item.productId] = {
+                        productId: item.productId,
+                        productName: item.productName,
+                        quantitySold: 0,
+                        revenue: 0,
+                        totalCost: 0,
+                        profit: 0,
+                        marginPercentage: 0,
+                    };
+                }
+                const itemRevenue = Number(item.subtotal);
+                const itemCost = Number(item.costPrice || 0) * item.quantity;
+                acc[item.productId].quantitySold += item.quantity;
+                acc[item.productId].revenue += itemRevenue;
+                acc[item.productId].totalCost += itemCost;
+                acc[item.productId].profit += (itemRevenue - itemCost);
+                acc[item.productId].marginPercentage =
+                    acc[item.productId].revenue > 0
+                        ? (acc[item.productId].profit / acc[item.productId].revenue) * 100
+                        : 0;
+            });
+            return acc;
+        }, {});
+        const items = Object.values(productSales).sort((a, b) => b.revenue - a.revenue);
+        const totalRevenue = items.reduce((sum, item) => sum + item.revenue, 0);
+        const totalCost = items.reduce((sum, item) => sum + item.totalCost, 0);
+        return {
+            period: { startDate, endDate },
+            summary: {
+                totalRevenue,
+                totalCost,
+                totalProfit: totalRevenue - totalCost,
+            },
+            items,
         };
     }
     async getBestSellers(period, businessId, limit = 10) {

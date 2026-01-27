@@ -29,6 +29,12 @@ export interface TransactionSummary {
   createdAt: Date;
 }
 
+export interface DailyTrend {
+  date: string;
+  revenue: number;
+  profit: number;
+}
+
 export interface ReportData {
   period: {
     type: string;
@@ -47,7 +53,21 @@ export interface ReportData {
   revenueByPaymentMethod: Record<string, number>;
   revenueByCashier: Record<string, number>;
   bestSellers: ProductSale[];
+  dailyRevenue: DailyTrend[];
   transactions: TransactionSummary[];
+}
+
+export interface MarginReport {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  summary: {
+    totalRevenue: number;
+    totalCost: number;
+    totalProfit: number;
+  };
+  items: ProductSale[];
 }
 
 @Injectable()
@@ -201,6 +221,38 @@ export class ReportsService {
       .sort((a, b) => b.quantitySold - a.quantitySold)
       .slice(0, 10);
 
+    // Calculate Daily Trend
+    const dailyTrendMap = new Map<string, { revenue: number; profit: number }>();
+    
+    // Initialize days
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const dateStr = current.toISOString().split('T')[0];
+      dailyTrendMap.set(dateStr, { revenue: 0, profit: 0 });
+      current.setDate(current.getDate() + 1);
+    }
+
+    transactions.forEach((t) => {
+      const dateStr = t.createdAt.toISOString().split('T')[0];
+      const dayData = dailyTrendMap.get(dateStr) || { revenue: 0, profit: 0 };
+      
+      let tProfit = 0;
+      t.items.forEach(item => {
+        const itemRevenue = Number(item.subtotal);
+        const itemCost = Number((item as any).costPrice || 0) * item.quantity;
+        tProfit += (itemRevenue - itemCost);
+      });
+
+      dayData.revenue += Number(t.totalAmount);
+      dayData.profit += tProfit;
+      dailyTrendMap.set(dateStr, dayData);
+    });
+
+    const dailyRevenue: DailyTrend[] = Array.from(dailyTrendMap.entries()).map(([date, data]) => ({
+      date,
+      ...data
+    })).sort((a, b) => a.date.localeCompare(b.date));
+
     return {
       period: {
         type: periodType,
@@ -220,6 +272,7 @@ export class ReportsService {
       revenueByPaymentMethod,
       revenueByCashier,
       bestSellers,
+      dailyRevenue,
       transactions: transactions.map((t) => ({
         id: t.id,
         transactionNumber: t.transactionNumber,
@@ -229,6 +282,74 @@ export class ReportsService {
         itemCount: t.items.length,
         createdAt: t.createdAt,
       })),
+    };
+  }
+
+  async getMarginReport(
+    startDate: string,
+    endDate: string,
+    businessId: string,
+  ): Promise<MarginReport> {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        createdAt: { gte: start, lte: end },
+        status: 'COMPLETED',
+        businessId,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    const productSales = transactions.reduce(
+      (acc: Record<string, ProductSale>, t) => {
+        t.items.forEach((item) => {
+          if (!item.productId) return;
+          if (!acc[item.productId]) {
+            acc[item.productId] = {
+              productId: item.productId,
+              productName: item.productName,
+              quantitySold: 0,
+              revenue: 0,
+              totalCost: 0,
+              profit: 0,
+              marginPercentage: 0,
+            };
+          }
+          const itemRevenue = Number(item.subtotal);
+          const itemCost = Number((item as any).costPrice || 0) * item.quantity;
+          
+          acc[item.productId].quantitySold += item.quantity;
+          acc[item.productId].revenue += itemRevenue;
+          acc[item.productId].totalCost += itemCost;
+          acc[item.productId].profit += (itemRevenue - itemCost);
+          acc[item.productId].marginPercentage = 
+            acc[item.productId].revenue > 0 
+              ? (acc[item.productId].profit / acc[item.productId].revenue) * 100 
+              : 0;
+        });
+        return acc;
+      },
+      {} as Record<string, ProductSale>,
+    );
+
+    const items = Object.values(productSales).sort((a, b) => b.revenue - a.revenue);
+    const totalRevenue = items.reduce((sum, item) => sum + item.revenue, 0);
+    const totalCost = items.reduce((sum, item) => sum + item.totalCost, 0);
+
+    return {
+      period: { startDate, endDate },
+      summary: {
+        totalRevenue,
+        totalCost,
+        totalProfit: totalRevenue - totalCost,
+      },
+      items,
     };
   }
 
@@ -367,6 +488,133 @@ export class ReportsService {
     return Object.values(revenueByCategory).sort(
       (a, b) => b.revenue - a.revenue,
     );
+  }
+
+  async generateTransactionsPDF(
+    transactions: TransactionSummary[],
+    startDate: string,
+    endDate: string,
+  ): Promise<Buffer> {
+    const primaryColor = '#7c68ee'; // Indigo branding
+    const lightBg = '#f8fafc'; // Slate 50
+    const foregroundColor = '#0f172a'; // Slate 900
+    const secondaryColor = '#64748b'; // Slate 500
+
+    return new Promise((resolve) => {
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true,
+      });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+      // Helper: Add Footer
+      const addFooter = () => {
+        const pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+          doc.switchToPage(i);
+          doc
+            .fontSize(8)
+            .fillColor(secondaryColor)
+            .text(
+              `Dicetak pada: ${new Date().toLocaleString('id-ID')} | Halaman ${i + 1} dari ${pages.count}`,
+              50,
+              doc.page.height - 50,
+              { align: 'center', width: doc.page.width - 100 },
+            );
+        }
+      };
+
+      // Header Bar
+      doc.rect(0, 0, doc.page.width, 100).fill(primaryColor);
+      doc
+        .fillColor('#ffffff')
+        .fontSize(20)
+        .font('Helvetica-Bold')
+        .text('DAFTAR TRANSAKSI', 50, 40);
+
+      doc
+        .fontSize(10)
+        .font('Helvetica')
+        .text(`Periode: ${startDate} s/d ${endDate}`, 50, 70);
+
+      // Reset text color
+      doc.fillColor(foregroundColor).moveDown(5);
+
+      const tableTop = doc.y;
+      const col1 = 50; // No. Transaksi
+      const col2 = 170; // Tanggal
+      const col3 = 270; // Kasir
+      const col4 = 380; // Total
+      const col5 = 480; // Metode
+
+      // Table Header
+      doc.rect(50, tableTop - 5, doc.page.width - 100, 25).fill(primaryColor);
+      doc
+        .fillColor('#ffffff')
+        .fontSize(9)
+        .font('Helvetica-Bold')
+        .text('NO. TRANSAKSI', col1, tableTop)
+        .text('TANGGAL', col2, tableTop)
+        .text('KASIR', col3, tableTop)
+        .text('TOTAL', col4, tableTop)
+        .text('METODE', col5, tableTop);
+
+      let currentTableY = tableTop + 25;
+
+      transactions.forEach((t, index: number) => {
+        if (currentTableY > 750) {
+          doc.addPage();
+          currentTableY = 60;
+          // Redraw header on new page
+          doc
+            .rect(50, currentTableY - 5, doc.page.width - 100, 25)
+            .fill(primaryColor);
+          doc
+            .fillColor('#ffffff')
+            .font('Helvetica-Bold')
+            .text('NO. TRANSAKSI', col1, currentTableY)
+            .text('TANGGAL', col2, currentTableY)
+            .text('KASIR', col3, currentTableY)
+            .text('TOTAL', col4, currentTableY)
+            .text('METODE', col5, currentTableY);
+          currentTableY += 25;
+        }
+
+        // Zebra striping
+        if (index % 2 !== 0) {
+          doc
+            .rect(50, currentTableY - 5, doc.page.width - 100, 20)
+            .fill(lightBg);
+        }
+
+        const dateStr = new Date(t.createdAt).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        doc
+          .fillColor(foregroundColor)
+          .font('Helvetica')
+          .fontSize(8)
+          .text(t.transactionNumber, col1, currentTableY)
+          .text(dateStr, col2, currentTableY)
+          .text(t.cashier, col3, currentTableY)
+          .text(this.formatCurrency(t.totalAmount), col4, currentTableY)
+          .text(t.paymentMethod || '-', col5, currentTableY);
+
+        currentTableY += 20;
+      });
+
+      addFooter();
+      doc.end();
+    });
   }
 
   async generatePDFReport(reportData: ReportData): Promise<Buffer> {

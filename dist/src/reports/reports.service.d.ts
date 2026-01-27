@@ -22,6 +22,11 @@ export interface TransactionSummary {
     itemCount: number;
     createdAt: Date;
 }
+export interface DailyTrend {
+    date: string;
+    revenue: number;
+    profit: number;
+}
 export interface ReportData {
     period: {
         type: string;
@@ -40,7 +45,20 @@ export interface ReportData {
     revenueByPaymentMethod: Record<string, number>;
     revenueByCashier: Record<string, number>;
     bestSellers: ProductSale[];
+    dailyRevenue: DailyTrend[];
     transactions: TransactionSummary[];
+}
+export interface MarginReport {
+    period: {
+        startDate: string;
+        endDate: string;
+    };
+    summary: {
+        totalRevenue: number;
+        totalCost: number;
+        totalProfit: number;
+    };
+    items: ProductSale[];
 }
 export declare class ReportsService {
     private prisma;
@@ -63,6 +81,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -91,6 +110,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -119,6 +139,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -147,6 +168,7 @@ export declare class ReportsService {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: ProductSale[];
+        dailyRevenue: DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -158,6 +180,7 @@ export declare class ReportsService {
         }[];
     }>;
     private getReportForPeriod;
+    getMarginReport(startDate: string, endDate: string, businessId: string): Promise<MarginReport>;
     getBestSellers(period: 'daily' | 'weekly' | 'monthly', businessId: string, limit?: number): Promise<ProductSale[]>;
     getRevenueByCategory(startDate: string, endDate: string, businessId: string): Promise<CategoryRevenue[]>;
     generatePDFReport(reportData: ReportData): Promise<Buffer>;

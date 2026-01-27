@@ -22,6 +22,7 @@ export declare class ReportsController {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: import("./reports.service").ProductSale[];
+        dailyRevenue: import("./reports.service").DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -50,6 +51,7 @@ export declare class ReportsController {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: import("./reports.service").ProductSale[];
+        dailyRevenue: import("./reports.service").DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -78,6 +80,7 @@ export declare class ReportsController {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: import("./reports.service").ProductSale[];
+        dailyRevenue: import("./reports.service").DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -106,6 +109,7 @@ export declare class ReportsController {
         revenueByPaymentMethod: Record<string, number>;
         revenueByCashier: Record<string, number>;
         bestSellers: import("./reports.service").ProductSale[];
+        dailyRevenue: import("./reports.service").DailyTrend[];
         transactions: {
             id: string;
             transactionNumber: string;
@@ -118,33 +122,6 @@ export declare class ReportsController {
     }>;
     getBestSellers(period: "daily" | "weekly" | "monthly" | undefined, user: RequestUser, limit?: string): Promise<import("./reports.service").ProductSale[]>;
     getRevenueByCategory(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").CategoryRevenue[]>;
-    getMarginReport(startDate: string, endDate: string, user: RequestUser): Promise<{
-        period: {
-            type: string;
-            startDate: string;
-            endDate: string;
-        };
-        summary: {
-            totalRevenue: number;
-            totalCost: number;
-            totalProfit: number;
-            totalTransactions: number;
-            totalItemsSold: number;
-            averageTransactionValue: number;
-            averageMargin: number;
-        };
-        revenueByPaymentMethod: Record<string, number>;
-        revenueByCashier: Record<string, number>;
-        bestSellers: import("./reports.service").ProductSale[];
-        transactions: {
-            id: string;
-            transactionNumber: string;
-            totalAmount: number;
-            paymentMethod: string;
-            cashier: string;
-            itemCount: number;
-            createdAt: Date;
-        }[];
-    }>;
+    getMarginReport(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").MarginReport>;
     exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', user: RequestUser, date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
 }
