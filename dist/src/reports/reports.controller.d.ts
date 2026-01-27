@@ -30,6 +30,12 @@ export declare class ReportsController {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -59,6 +65,12 @@ export declare class ReportsController {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -88,6 +100,12 @@ export declare class ReportsController {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -117,6 +135,12 @@ export declare class ReportsController {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -124,4 +148,5 @@ export declare class ReportsController {
     getRevenueByCategory(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").CategoryRevenue[]>;
     getMarginReport(startDate: string, endDate: string, user: RequestUser): Promise<import("./reports.service").MarginReport>;
     exportPDF(res: Response, type: 'daily' | 'weekly' | 'monthly' | 'custom', user: RequestUser, date?: string, startDate?: string, endDate?: string, month?: string): Promise<Response<any, Record<string, any>> | undefined>;
+    exportTransactionsPDF(res: Response, startDate: string, endDate: string, user: RequestUser): Promise<Response<any, Record<string, any>> | undefined>;
 }

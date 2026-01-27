@@ -13,6 +13,12 @@ export interface CategoryRevenue {
     revenue: number;
     itemsSold: number;
 }
+export interface TransactionItemSummary {
+    productName: string;
+    quantity: number;
+    price: number;
+    subtotal: number;
+}
 export interface TransactionSummary {
     id: string;
     transactionNumber: string;
@@ -20,6 +26,7 @@ export interface TransactionSummary {
     paymentMethod: string;
     cashier: string;
     itemCount: number;
+    items: TransactionItemSummary[];
     createdAt: Date;
 }
 export interface DailyTrend {
@@ -89,6 +96,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -118,6 +131,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -147,6 +166,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -176,6 +201,12 @@ export declare class ReportsService {
             paymentMethod: string;
             cashier: string;
             itemCount: number;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
             createdAt: Date;
         }[];
     }>;
@@ -183,6 +214,7 @@ export declare class ReportsService {
     getMarginReport(startDate: string, endDate: string, businessId: string): Promise<MarginReport>;
     getBestSellers(period: 'daily' | 'weekly' | 'monthly', businessId: string, limit?: number): Promise<ProductSale[]>;
     getRevenueByCategory(startDate: string, endDate: string, businessId: string): Promise<CategoryRevenue[]>;
+    generateTransactionsPDF(reportData: ReportData): Promise<Buffer>;
     generatePDFReport(reportData: ReportData): Promise<Buffer>;
     private formatCurrency;
 }

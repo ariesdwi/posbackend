@@ -226,9 +226,7 @@ export class ReportsController {
     );
 
     const pdfBuffer = await this.reportsService.generateTransactionsPDF(
-      reportData.transactions,
-      startDate,
-      endDate,
+      reportData,
     );
 
     const filename = `transaksi-${startDate}-ke-${endDate}.pdf`;

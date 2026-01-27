@@ -19,6 +19,13 @@ export interface CategoryRevenue {
   itemsSold: number;
 }
 
+export interface TransactionItemSummary {
+  productName: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+}
+
 export interface TransactionSummary {
   id: string;
   transactionNumber: string;
@@ -26,6 +33,7 @@ export interface TransactionSummary {
   paymentMethod: string;
   cashier: string;
   itemCount: number;
+  items: TransactionItemSummary[];
   createdAt: Date;
 }
 
@@ -280,6 +288,12 @@ export class ReportsService {
         paymentMethod: t.paymentMethod as string,
         cashier: t.user.name,
         itemCount: t.items.length,
+        items: t.items.map((item) => ({
+          productName: item.productName,
+          quantity: item.quantity,
+          price: Number(item.price),
+          subtotal: Number(item.subtotal),
+        })),
         createdAt: t.createdAt,
       })),
     };
@@ -491,14 +505,17 @@ export class ReportsService {
   }
 
   async generateTransactionsPDF(
-    transactions: TransactionSummary[],
-    startDate: string,
-    endDate: string,
+    reportData: ReportData,
   ): Promise<Buffer> {
     const primaryColor = '#7c68ee'; // Indigo branding
     const lightBg = '#f8fafc'; // Slate 50
     const foregroundColor = '#0f172a'; // Slate 900
     const secondaryColor = '#64748b'; // Slate 500
+    const borderColor = '#e2e8f0';
+
+    const { summary, transactions, period } = reportData;
+    const startDate = new Date(period.startDate).toLocaleDateString('id-ID');
+    const endDate = new Date(period.endDate).toLocaleDateString('id-ID');
 
     return new Promise((resolve) => {
       const doc = new PDFDocument({
@@ -534,14 +551,52 @@ export class ReportsService {
         .fillColor('#ffffff')
         .fontSize(20)
         .font('Helvetica-Bold')
-        .text('DAFTAR TRANSAKSI', 50, 40);
+        .text('LAPORAN DETAIL TRANSAKSI', 50, 40);
 
       doc
         .fontSize(10)
         .font('Helvetica')
         .text(`Periode: ${startDate} s/d ${endDate}`, 50, 70);
 
-      // Reset text color
+      doc.fillColor(foregroundColor).moveDown(5);
+
+      // Summary Section
+      const summaryY = doc.y;
+      doc
+        .fontSize(12)
+        .font('Helvetica-Bold')
+        .text('RINGKASAN PERIODE', 50, summaryY);
+      doc.moveDown(0.5);
+
+      const boxWidth = 160;
+      const boxHeight = 50;
+      let currentX = 50;
+      const currentY = doc.y;
+
+      const summaryStats = [
+        { label: 'TOTAL PENDAPATAN', value: this.formatCurrency(summary.totalRevenue) },
+        { label: 'TOTAL PROFIT', value: this.formatCurrency(summary.totalProfit) },
+        { label: 'TOTAL TRANSAKSI', value: summary.totalTransactions.toString() },
+      ];
+
+      summaryStats.forEach((stat) => {
+        doc
+          .rect(currentX, currentY, boxWidth, boxHeight)
+          .fill(lightBg)
+          .stroke(borderColor);
+        doc
+          .fillColor(secondaryColor)
+          .fontSize(8)
+          .font('Helvetica-Bold')
+          .text(stat.label, currentX + 10, currentY + 12);
+        doc
+          .fillColor(primaryColor)
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text(stat.value, currentX + 10, currentY + 28);
+        currentX += boxWidth + 15;
+      });
+
       doc.fillColor(foregroundColor).moveDown(5);
 
       const tableTop = doc.y;
@@ -566,7 +621,10 @@ export class ReportsService {
       let currentTableY = tableTop + 25;
 
       transactions.forEach((t, index: number) => {
-        if (currentTableY > 750) {
+        // Estimate height: Header row (20) + items (15 each) + padding (10)
+        const rowHeight = 20 + t.items.length * 15 + 10;
+
+        if (currentTableY + rowHeight > 750) {
           doc.addPage();
           currentTableY = 60;
           // Redraw header on new page
@@ -584,11 +642,11 @@ export class ReportsService {
           currentTableY += 25;
         }
 
-        // Zebra striping
+        // Transaction main info row
         if (index % 2 !== 0) {
           doc
-            .rect(50, currentTableY - 5, doc.page.width - 100, 20)
-            .fill(lightBg);
+            .rect(50, currentTableY - 5, doc.page.width - 100, rowHeight)
+            .fill('#fcfcfc'); // Very light stripe for the whole group
         }
 
         const dateStr = new Date(t.createdAt).toLocaleDateString('id-ID', {
@@ -601,15 +659,43 @@ export class ReportsService {
 
         doc
           .fillColor(foregroundColor)
-          .font('Helvetica')
+          .font('Helvetica-Bold')
           .fontSize(8)
           .text(t.transactionNumber, col1, currentTableY)
+          .font('Helvetica')
           .text(dateStr, col2, currentTableY)
           .text(t.cashier, col3, currentTableY)
+          .font('Helvetica-Bold')
           .text(this.formatCurrency(t.totalAmount), col4, currentTableY)
+          .font('Helvetica')
           .text(t.paymentMethod || '-', col5, currentTableY);
 
-        currentTableY += 20;
+        currentTableY += 15;
+
+        // Items detail
+        t.items.forEach((item) => {
+          doc
+            .fillColor(secondaryColor)
+            .fontSize(7)
+            .font('Helvetica-Oblique')
+            .text(
+              `- ${item.productName} (${item.quantity}x ${this.formatCurrency(item.price)})`,
+              col1 + 10,
+              currentTableY,
+              { continued: true }
+            )
+            .text(` = ${this.formatCurrency(item.subtotal)}`, { align: 'left' });
+          currentTableY += 13;
+        });
+
+        currentTableY += 10; // Extra spacing between transactions
+        
+        // Separator line
+        doc
+            .moveTo(50, currentTableY - 5)
+            .lineTo(doc.page.width - 50, currentTableY - 5)
+            .lineWidth(0.5)
+            .stroke(borderColor);
       });
 
       addFooter();

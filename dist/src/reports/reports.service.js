@@ -176,6 +176,12 @@ let ReportsService = class ReportsService {
                 paymentMethod: t.paymentMethod,
                 cashier: t.user.name,
                 itemCount: t.items.length,
+                items: t.items.map((item) => ({
+                    productName: item.productName,
+                    quantity: item.quantity,
+                    price: Number(item.price),
+                    subtotal: Number(item.subtotal),
+                })),
                 createdAt: t.createdAt,
             })),
         };
@@ -340,6 +346,158 @@ let ReportsService = class ReportsService {
             return acc;
         }, {});
         return Object.values(revenueByCategory).sort((a, b) => b.revenue - a.revenue);
+    }
+    async generateTransactionsPDF(reportData) {
+        const primaryColor = '#7c68ee';
+        const lightBg = '#f8fafc';
+        const foregroundColor = '#0f172a';
+        const secondaryColor = '#64748b';
+        const borderColor = '#e2e8f0';
+        const { summary, transactions, period } = reportData;
+        const startDate = new Date(period.startDate).toLocaleDateString('id-ID');
+        const endDate = new Date(period.endDate).toLocaleDateString('id-ID');
+        return new Promise((resolve) => {
+            const doc = new pdfkit_1.default({
+                margin: 50,
+                size: 'A4',
+                bufferPages: true,
+            });
+            const buffers = [];
+            doc.on('data', buffers.push.bind(buffers));
+            doc.on('end', () => resolve(Buffer.concat(buffers)));
+            const addFooter = () => {
+                const pages = doc.bufferedPageRange();
+                for (let i = 0; i < pages.count; i++) {
+                    doc.switchToPage(i);
+                    doc
+                        .fontSize(8)
+                        .fillColor(secondaryColor)
+                        .text(`Dicetak pada: ${new Date().toLocaleString('id-ID')} | Halaman ${i + 1} dari ${pages.count}`, 50, doc.page.height - 50, { align: 'center', width: doc.page.width - 100 });
+                }
+            };
+            doc.rect(0, 0, doc.page.width, 100).fill(primaryColor);
+            doc
+                .fillColor('#ffffff')
+                .fontSize(20)
+                .font('Helvetica-Bold')
+                .text('LAPORAN DETAIL TRANSAKSI', 50, 40);
+            doc
+                .fontSize(10)
+                .font('Helvetica')
+                .text(`Periode: ${startDate} s/d ${endDate}`, 50, 70);
+            doc.fillColor(foregroundColor).moveDown(5);
+            const summaryY = doc.y;
+            doc
+                .fontSize(12)
+                .font('Helvetica-Bold')
+                .text('RINGKASAN PERIODE', 50, summaryY);
+            doc.moveDown(0.5);
+            const boxWidth = 160;
+            const boxHeight = 50;
+            let currentX = 50;
+            const currentY = doc.y;
+            const summaryStats = [
+                { label: 'TOTAL PENDAPATAN', value: this.formatCurrency(summary.totalRevenue) },
+                { label: 'TOTAL PROFIT', value: this.formatCurrency(summary.totalProfit) },
+                { label: 'TOTAL TRANSAKSI', value: summary.totalTransactions.toString() },
+            ];
+            summaryStats.forEach((stat) => {
+                doc
+                    .rect(currentX, currentY, boxWidth, boxHeight)
+                    .fill(lightBg)
+                    .stroke(borderColor);
+                doc
+                    .fillColor(secondaryColor)
+                    .fontSize(8)
+                    .font('Helvetica-Bold')
+                    .text(stat.label, currentX + 10, currentY + 12);
+                doc
+                    .fillColor(primaryColor)
+                    .fontSize(12)
+                    .font('Helvetica-Bold')
+                    .text(stat.value, currentX + 10, currentY + 28);
+                currentX += boxWidth + 15;
+            });
+            doc.fillColor(foregroundColor).moveDown(5);
+            const tableTop = doc.y;
+            const col1 = 50;
+            const col2 = 170;
+            const col3 = 270;
+            const col4 = 380;
+            const col5 = 480;
+            doc.rect(50, tableTop - 5, doc.page.width - 100, 25).fill(primaryColor);
+            doc
+                .fillColor('#ffffff')
+                .fontSize(9)
+                .font('Helvetica-Bold')
+                .text('NO. TRANSAKSI', col1, tableTop)
+                .text('TANGGAL', col2, tableTop)
+                .text('KASIR', col3, tableTop)
+                .text('TOTAL', col4, tableTop)
+                .text('METODE', col5, tableTop);
+            let currentTableY = tableTop + 25;
+            transactions.forEach((t, index) => {
+                const rowHeight = 20 + t.items.length * 15 + 10;
+                if (currentTableY + rowHeight > 750) {
+                    doc.addPage();
+                    currentTableY = 60;
+                    doc
+                        .rect(50, currentTableY - 5, doc.page.width - 100, 25)
+                        .fill(primaryColor);
+                    doc
+                        .fillColor('#ffffff')
+                        .font('Helvetica-Bold')
+                        .text('NO. TRANSAKSI', col1, currentTableY)
+                        .text('TANGGAL', col2, currentTableY)
+                        .text('KASIR', col3, currentTableY)
+                        .text('TOTAL', col4, currentTableY)
+                        .text('METODE', col5, currentTableY);
+                    currentTableY += 25;
+                }
+                if (index % 2 !== 0) {
+                    doc
+                        .rect(50, currentTableY - 5, doc.page.width - 100, rowHeight)
+                        .fill('#fcfcfc');
+                }
+                const dateStr = new Date(t.createdAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                doc
+                    .fillColor(foregroundColor)
+                    .font('Helvetica-Bold')
+                    .fontSize(8)
+                    .text(t.transactionNumber, col1, currentTableY)
+                    .font('Helvetica')
+                    .text(dateStr, col2, currentTableY)
+                    .text(t.cashier, col3, currentTableY)
+                    .font('Helvetica-Bold')
+                    .text(this.formatCurrency(t.totalAmount), col4, currentTableY)
+                    .font('Helvetica')
+                    .text(t.paymentMethod || '-', col5, currentTableY);
+                currentTableY += 15;
+                t.items.forEach((item) => {
+                    doc
+                        .fillColor(secondaryColor)
+                        .fontSize(7)
+                        .font('Helvetica-Oblique')
+                        .text(`- ${item.productName} (${item.quantity}x ${this.formatCurrency(item.price)})`, col1 + 10, currentTableY, { continued: true })
+                        .text(` = ${this.formatCurrency(item.subtotal)}`, { align: 'left' });
+                    currentTableY += 13;
+                });
+                currentTableY += 10;
+                doc
+                    .moveTo(50, currentTableY - 5)
+                    .lineTo(doc.page.width - 50, currentTableY - 5)
+                    .lineWidth(0.5)
+                    .stroke(borderColor);
+            });
+            addFooter();
+            doc.end();
+        });
     }
     async generatePDFReport(reportData) {
         const primaryColor = '#7c68ee';

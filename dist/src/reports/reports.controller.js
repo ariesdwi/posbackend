@@ -81,6 +81,22 @@ let ReportsController = class ReportsController {
         });
         res.end(pdfBuffer);
     }
+    async exportTransactionsPDF(res, startDate, endDate, user) {
+        if (!startDate || !endDate) {
+            return res
+                .status(400)
+                .json({ message: 'startDate and endDate are required' });
+        }
+        const reportData = await this.reportsService.getCustomReport(startDate, endDate, user.businessId);
+        const pdfBuffer = await this.reportsService.generateTransactionsPDF(reportData);
+        const filename = `transaksi-${startDate}-ke-${endDate}.pdf`;
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+            'Content-Length': pdfBuffer.length,
+        });
+        res.end(pdfBuffer);
+    }
 };
 exports.ReportsController = ReportsController;
 __decorate([
@@ -204,6 +220,19 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportPDF", null);
+__decorate([
+    (0, common_1.Get)('export/transactions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Export transaction list as PDF by date range' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', example: '2026-01-01' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', example: '2026-01-31' }),
+    __param(0, (0, common_1.Res)()),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], ReportsController.prototype, "exportTransactionsPDF", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, swagger_1.ApiTags)('Reports'),
     (0, common_1.Controller)('reports'),
