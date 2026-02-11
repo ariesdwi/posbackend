@@ -14,4 +14,9 @@ export declare class UploadController {
             height: any;
         };
     }>;
+    getAuth(): Promise<{
+        token: string;
+        expire: number;
+        signature: string;
+    }>;
 }

@@ -43,6 +43,9 @@ let UploadController = class UploadController {
             },
         };
     }
+    async getAuth() {
+        return this.uploadService.getAuthenticationParameters();
+    }
 };
 exports.UploadController = UploadController;
 __decorate([
@@ -86,6 +89,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UploadController.prototype, "uploadImage", null);
+__decorate([
+    (0, common_1.Get)('auth'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get ImageKit authentication parameters' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UploadController.prototype, "getAuth", null);
 exports.UploadController = UploadController = __decorate([
     (0, swagger_1.ApiTags)('Upload'),
     (0, common_1.Controller)('upload'),
