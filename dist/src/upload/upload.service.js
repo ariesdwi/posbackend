@@ -35,6 +35,9 @@ let UploadService = class UploadService {
         ];
         return allowedMimeTypes.includes(file.mimetype);
     }
+    getAuthenticationParameters() {
+        return this.imageKit.getAuthenticationParameters();
+    }
     generateFileName(file) {
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 8);

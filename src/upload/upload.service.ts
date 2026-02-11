@@ -25,6 +25,10 @@ export class UploadService {
 
     return allowedMimeTypes.includes(file.mimetype);
   }
+  
+  getAuthenticationParameters() {
+    return this.imageKit.getAuthenticationParameters();
+  }
 
   generateFileName(file: Express.Multer.File): string {
     const timestamp = Date.now();

@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   UploadedFile,
   UseInterceptors,
   BadRequestException,
@@ -81,5 +82,11 @@ export class UploadController {
         height: uploadResult.height,
       },
     };
+  }
+
+  @Get('auth')
+  @ApiOperation({ summary: 'Get ImageKit authentication parameters' })
+  async getAuth() {
+    return this.uploadService.getAuthenticationParameters();
   }
 }
