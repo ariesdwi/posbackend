@@ -6,54 +6,54 @@ export declare class BusinessesController {
     create(createBusinessDto: CreateBusinessDto): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         address: string | null;
         phone: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(): Promise<({
         _count: {
-            transactions: number;
-            users: number;
             categories: number;
             products: number;
+            transactions: number;
+            users: number;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         address: string | null;
         phone: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     findOne(id: string): Promise<{
         users: {
             id: string;
-            email: string;
             name: string;
+            email: string;
             role: import("@prisma/client").$Enums.UserRole;
         }[];
         _count: {
-            transactions: number;
             categories: number;
             products: number;
+            transactions: number;
         };
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         address: string | null;
         phone: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getStats(id: string): Promise<{
         business: {
             id: string;
             name: string;
-            createdAt: Date;
-            updatedAt: Date;
             address: string | null;
             phone: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
         stats: {
             users: number;
@@ -66,10 +66,10 @@ export declare class BusinessesController {
     update(id: string, updateBusinessDto: UpdateBusinessDto): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         address: string | null;
         phone: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(id: string): Promise<{
         message: string;

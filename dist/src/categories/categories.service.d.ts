@@ -32,11 +32,11 @@ export declare class CategoriesService {
             businessId: string;
             description: string | null;
             price: import("@prisma/client-runtime-utils").Decimal;
-            costPrice: import("@prisma/client-runtime-utils").Decimal;
             stock: number;
             imageUrl: string | null;
             status: import("@prisma/client").$Enums.ProductStatus;
             categoryId: string;
+            costPrice: import("@prisma/client-runtime-utils").Decimal;
         }[];
     } & {
         id: string;
