@@ -21,11 +21,11 @@ export declare class MenuController {
         businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
-        costPrice: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        costPrice: import("@prisma/client-runtime-utils").Decimal;
     }>;
     findAll(user: RequestUser, categoryId?: string, search?: string): Promise<({
         category: {
@@ -44,11 +44,11 @@ export declare class MenuController {
         businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
-        costPrice: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        costPrice: import("@prisma/client-runtime-utils").Decimal;
     })[]>;
     findOne(id: string, user: RequestUser): Promise<{
         category: {
@@ -67,11 +67,11 @@ export declare class MenuController {
         businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
-        costPrice: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        costPrice: import("@prisma/client-runtime-utils").Decimal;
     }>;
     update(id: string, updateProductDto: UpdateProductDto, user: RequestUser, file?: Express.Multer.File): Promise<{
         category: {
@@ -90,11 +90,11 @@ export declare class MenuController {
         businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
-        costPrice: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        costPrice: import("@prisma/client-runtime-utils").Decimal;
     }>;
     updateStock(id: string, updateStockDto: UpdateStockDto, user: RequestUser): Promise<{
         category: {
@@ -113,11 +113,11 @@ export declare class MenuController {
         businessId: string;
         description: string | null;
         price: import("@prisma/client-runtime-utils").Decimal;
-        costPrice: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
         status: import("@prisma/client").$Enums.ProductStatus;
         categoryId: string;
+        costPrice: import("@prisma/client-runtime-utils").Decimal;
     }>;
     remove(id: string, user: RequestUser): Promise<{
         message: string;

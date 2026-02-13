@@ -126,6 +126,21 @@ let BusinessesService = class BusinessesService {
             },
         };
     }
+    async findOnePublic(id) {
+        const business = await this.prisma.business.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                address: true,
+                phone: true,
+            },
+        });
+        if (!business) {
+            throw new common_1.NotFoundException(`Business with ID ${id} not found`);
+        }
+        return business;
+    }
 };
 exports.BusinessesService = BusinessesService;
 exports.BusinessesService = BusinessesService = __decorate([

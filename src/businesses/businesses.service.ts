@@ -141,4 +141,22 @@ export class BusinessesService {
       },
     };
   }
+
+  async findOnePublic(id: string) {
+    const business = await this.prisma.business.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        phone: true,
+      },
+    });
+
+    if (!business) {
+      throw new NotFoundException(`Business with ID ${id} not found`);
+    }
+
+    return business;
+  }
 }

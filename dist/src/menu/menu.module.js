@@ -12,13 +12,16 @@ const menu_service_1 = require("./menu.service");
 const menu_controller_1 = require("./menu.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
 const upload_module_1 = require("../upload/upload.module");
+const categories_module_1 = require("../categories/categories.module");
+const businesses_module_1 = require("../businesses/businesses.module");
+const public_menu_controller_1 = require("./public-menu.controller");
 let MenuModule = class MenuModule {
 };
 exports.MenuModule = MenuModule;
 exports.MenuModule = MenuModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, upload_module_1.UploadModule],
-        controllers: [menu_controller_1.MenuController],
+        imports: [prisma_module_1.PrismaModule, upload_module_1.UploadModule, categories_module_1.CategoriesModule, businesses_module_1.BusinessesModule],
+        controllers: [menu_controller_1.MenuController, public_menu_controller_1.PublicMenuController],
         providers: [menu_service_1.MenuService],
     })
 ], MenuModule);
