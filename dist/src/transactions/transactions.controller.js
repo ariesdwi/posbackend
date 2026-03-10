@@ -40,7 +40,7 @@ let TransactionsController = class TransactionsController {
         return this.transactionsService.findOne(id, user.businessId);
     }
     update(id, updateTransactionDto, user) {
-        return this.transactionsService.update(id, updateTransactionDto, user.businessId);
+        return this.transactionsService.update(id, updateTransactionDto, user.businessId, user.role === client_1.UserRole.BUSINESS_OWNER);
     }
     updateStatus(id, updateStatusDto, user) {
         return this.transactionsService.updateStatus(id, updateStatusDto, user.businessId);

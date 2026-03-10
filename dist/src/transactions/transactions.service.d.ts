@@ -234,7 +234,7 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
     }>;
-    update(id: string, updateDto: UpdateTransactionDto, businessId: string): Promise<{
+    update(id: string, updateDto: UpdateTransactionDto, businessId: string, isAdmin?: boolean): Promise<{
         user: {
             id: string;
             name: string;

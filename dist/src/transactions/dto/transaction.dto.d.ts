@@ -35,4 +35,9 @@ export declare class UpdateTransactionDto {
     total: number;
     tableNumber?: string;
     notes?: string;
+    createdAt?: string;
+    transactionNumber?: string;
+    status?: TransactionStatus;
+    paymentMethod?: PaymentMethod;
+    paymentAmount?: number;
 }
