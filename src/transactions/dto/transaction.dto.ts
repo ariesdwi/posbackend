@@ -179,4 +179,31 @@ export class UpdateTransactionDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @ApiProperty({ example: '2026-03-10T00:00:00.000Z', required: false })
+  @IsString()
+  @IsOptional()
+  createdAt?: string;
+
+  @ApiProperty({ example: 'TRX-123', required: false })
+  @IsString()
+  @IsOptional()
+  transactionNumber?: string;
+
+  @ApiProperty({ enum: TransactionStatus, required: false })
+  @IsEnum(TransactionStatus)
+  @IsOptional()
+  status?: TransactionStatus;
+
+  @ApiProperty({ enum: PaymentMethod, required: false })
+  @IsEnum(PaymentMethod)
+  @IsOptional()
+  paymentMethod?: PaymentMethod;
+
+  @ApiProperty({ example: 100000, required: false })
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
+  paymentAmount?: number;
 }

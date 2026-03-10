@@ -349,14 +349,15 @@ export class TransactionsService {
     id: string,
     updateDto: UpdateTransactionDto,
     businessId: string,
+    isAdmin: boolean = false,
   ) {
     // Verify transaction exists and belongs to business
     const transaction = await this.findOne(id, businessId);
 
-    // Only allow updating PENDING transactions
-    if (transaction.status !== TransactionStatus.PENDING) {
+    // Only allow updating PENDING transactions (unless admin)
+    if (transaction.status !== TransactionStatus.PENDING && !isAdmin) {
       throw new BadRequestException(
-        'Only PENDING transactions can be updated. This transaction is already completed or cancelled.',
+        'Only PENDING transactions can be updated by kasir. Admins can update any transaction.',
       );
     }
 
@@ -393,13 +394,33 @@ export class TransactionsService {
         };
       });
 
+      // Recalculate changeAmount if payment details or total changed
+      const currentPaymentAmount = updateDto.paymentAmount !== undefined
+        ? updateDto.paymentAmount
+        : (transaction.paymentAmount ? Number(transaction.paymentAmount) : 0);
+      const currentTotal = Number(updateDto.total);
+      const currentStatus = updateDto.status || transaction.status;
+
+      let changeAmount = 0;
+      if (currentStatus === TransactionStatus.COMPLETED && currentPaymentAmount >= currentTotal) {
+        changeAmount = currentPaymentAmount - currentTotal;
+      }
+
       // Update transaction with new items and totals
       const updatedTransaction = await tx.transaction.update({
         where: { id },
         data: {
+          transactionNumber: updateDto.transactionNumber ?? transaction.transactionNumber,
           totalAmount: new Prisma.Decimal(updateDto.total),
           tableNumber: updateDto.tableNumber ?? transaction.tableNumber,
           notes: updateDto.notes ?? transaction.notes,
+          createdAt: updateDto.createdAt ? new Date(updateDto.createdAt) : transaction.createdAt,
+          status: updateDto.status ?? transaction.status,
+          paymentMethod: updateDto.paymentMethod ?? transaction.paymentMethod,
+          paymentAmount: updateDto.paymentAmount !== undefined
+            ? new Prisma.Decimal(updateDto.paymentAmount)
+            : transaction.paymentAmount,
+          changeAmount: new Prisma.Decimal(changeAmount),
           items: {
             create: transactionItems,
           },

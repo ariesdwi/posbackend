@@ -185,6 +185,11 @@ class UpdateTransactionDto {
     total;
     tableNumber;
     notes;
+    createdAt;
+    transactionNumber;
+    status;
+    paymentMethod;
+    paymentAmount;
 }
 exports.UpdateTransactionDto = UpdateTransactionDto;
 __decorate([
@@ -238,4 +243,36 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTransactionDto.prototype, "notes", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '2026-03-10T00:00:00.000Z', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "createdAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'TRX-123', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "transactionNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.TransactionStatus, required: false }),
+    (0, class_validator_1.IsEnum)(client_1.TransactionStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: client_1.PaymentMethod, required: false }),
+    (0, class_validator_1.IsEnum)(client_1.PaymentMethod),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTransactionDto.prototype, "paymentMethod", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 100000, required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpdateTransactionDto.prototype, "paymentAmount", void 0);
 //# sourceMappingURL=transaction.dto.js.map

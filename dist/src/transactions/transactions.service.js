@@ -273,10 +273,10 @@ let TransactionsService = class TransactionsService {
             },
         });
     }
-    async update(id, updateDto, businessId) {
+    async update(id, updateDto, businessId, isAdmin = false) {
         const transaction = await this.findOne(id, businessId);
-        if (transaction.status !== client_1.TransactionStatus.PENDING) {
-            throw new common_1.BadRequestException('Only PENDING transactions can be updated. This transaction is already completed or cancelled.');
+        if (transaction.status !== client_1.TransactionStatus.PENDING && !isAdmin) {
+            throw new common_1.BadRequestException('Only PENDING transactions can be updated by kasir. Admins can update any transaction.');
         }
         return this.prisma.$transaction(async (tx) => {
             await tx.transactionItem.deleteMany({
@@ -303,12 +303,29 @@ let TransactionsService = class TransactionsService {
                     subtotal: new client_1.Prisma.Decimal(item.subtotal),
                 };
             });
+            const currentPaymentAmount = updateDto.paymentAmount !== undefined
+                ? updateDto.paymentAmount
+                : (transaction.paymentAmount ? Number(transaction.paymentAmount) : 0);
+            const currentTotal = Number(updateDto.total);
+            const currentStatus = updateDto.status || transaction.status;
+            let changeAmount = 0;
+            if (currentStatus === client_1.TransactionStatus.COMPLETED && currentPaymentAmount >= currentTotal) {
+                changeAmount = currentPaymentAmount - currentTotal;
+            }
             const updatedTransaction = await tx.transaction.update({
                 where: { id },
                 data: {
+                    transactionNumber: updateDto.transactionNumber ?? transaction.transactionNumber,
                     totalAmount: new client_1.Prisma.Decimal(updateDto.total),
                     tableNumber: updateDto.tableNumber ?? transaction.tableNumber,
                     notes: updateDto.notes ?? transaction.notes,
+                    createdAt: updateDto.createdAt ? new Date(updateDto.createdAt) : transaction.createdAt,
+                    status: updateDto.status ?? transaction.status,
+                    paymentMethod: updateDto.paymentMethod ?? transaction.paymentMethod,
+                    paymentAmount: updateDto.paymentAmount !== undefined
+                        ? new client_1.Prisma.Decimal(updateDto.paymentAmount)
+                        : transaction.paymentAmount,
+                    changeAmount: new client_1.Prisma.Decimal(changeAmount),
                     items: {
                         create: transactionItems,
                     },

@@ -104,6 +104,7 @@ export class TransactionsController {
       id,
       updateTransactionDto,
       user.businessId,
+      user.role === UserRole.BUSINESS_OWNER,
     );
   }
 
