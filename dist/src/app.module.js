@@ -21,6 +21,7 @@ const reports_module_1 = require("./reports/reports.module");
 const receipts_module_1 = require("./receipts/receipts.module");
 const upload_module_1 = require("./upload/upload.module");
 const businesses_module_1 = require("./businesses/businesses.module");
+const shifts_module_1 = require("./shifts/shifts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,6 +41,7 @@ exports.AppModule = AppModule = __decorate([
             receipts_module_1.ReceiptsModule,
             upload_module_1.UploadModule,
             businesses_module_1.BusinessesModule,
+            shifts_module_1.ShiftsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

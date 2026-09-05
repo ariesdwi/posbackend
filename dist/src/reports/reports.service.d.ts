@@ -217,4 +217,49 @@ export declare class ReportsService {
     generateTransactionsPDF(reportData: ReportData): Promise<Buffer>;
     generatePDFReport(reportData: ReportData): Promise<Buffer>;
     private formatCurrency;
+    getKasirActivity(date: string, businessId: string): Promise<{
+        date: string;
+        kasirs: {
+            id: string;
+            name: string;
+            email: string;
+            firstLoginToday: string | null;
+            lastActivity: string | null;
+            workDuration: string | null;
+            totalTransactions: number;
+            totalRevenue: number;
+            status: string;
+        }[];
+        summary: {
+            totalKasir: number;
+            totalTransactions: number;
+            totalRevenue: number;
+        };
+    }>;
+    getKasirPerformance(startDate: string, endDate: string, businessId: string): Promise<{
+        period: {
+            startDate: string;
+            endDate: string;
+        };
+        kasirs: {
+            id: string;
+            name: string;
+            email: string;
+            workDays: number;
+            totalTransactions: number;
+            totalRevenue: number;
+            totalCost: number;
+            totalProfit: number;
+            totalItemsSold: number;
+            avgTransactionPerDay: number;
+            avgRevenuePerDay: number;
+            avgTransactionValue: number;
+        }[];
+        summary: {
+            totalKasir: number;
+            totalTransactions: number;
+            totalRevenue: number;
+            totalProfit: number;
+        };
+    }>;
 }

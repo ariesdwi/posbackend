@@ -9,8 +9,8 @@ export declare class CategoriesController {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     findAll(user: RequestUser): Promise<({
         _count: {
@@ -21,8 +21,8 @@ export declare class CategoriesController {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     })[]>;
     findOne(id: string, user: RequestUser): Promise<{
         products: {
@@ -30,8 +30,8 @@ export declare class CategoriesController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             stock: number;
             imageUrl: string | null;
@@ -44,16 +44,16 @@ export declare class CategoriesController {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     update(id: string, updateCategoryDto: UpdateCategoryDto, user: RequestUser): Promise<{
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     remove(id: string, user: RequestUser): Promise<{
         message: string;

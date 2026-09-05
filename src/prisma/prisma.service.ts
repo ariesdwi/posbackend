@@ -13,7 +13,10 @@ export class PrismaService
       connectionString: process.env.DATABASE_URL,
       max: 10, // Adjust based on your Neon plan and concurrent needs
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 10000, // 10 seconds for Neon cold starts
+      ssl: {
+        rejectUnauthorized: false, // Required for Neon pooler
+      },
     });
 
     pool.on('error', (err) => {

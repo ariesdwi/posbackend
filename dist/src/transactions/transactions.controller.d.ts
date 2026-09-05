@@ -16,8 +16,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -49,6 +49,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     checkout(id: string, checkoutDto: CheckoutDto, user: RequestUser): Promise<{
         user: {
@@ -62,8 +63,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -95,6 +96,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     findAll(user: RequestUser, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
@@ -108,8 +110,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -141,6 +143,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     })[]>;
     findOne(id: string, user: RequestUser): Promise<{
         user: {
@@ -154,8 +157,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -187,6 +190,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     update(id: string, updateTransactionDto: UpdateTransactionDto, user: RequestUser): Promise<{
         user: {
@@ -200,8 +204,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -233,6 +237,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, user: RequestUser): Promise<{
         user: {
@@ -246,8 +251,8 @@ export declare class TransactionsController {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -279,6 +284,7 @@ export declare class TransactionsController {
         changeAmount: import("@prisma/client-runtime-utils").Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     delete(id: string, user: RequestUser): Promise<{
         success: boolean;

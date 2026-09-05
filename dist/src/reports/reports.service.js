@@ -703,6 +703,170 @@ let ReportsService = class ReportsService {
             minimumFractionDigits: 0,
         }).format(amount);
     }
+    async getKasirActivity(date, businessId) {
+        const targetDate = new Date(date);
+        targetDate.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        const kasirUsers = await this.prisma.user.findMany({
+            where: {
+                businessId,
+                role: 'KASIR',
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                lastLoginAt: true,
+            },
+        });
+        const kasirActivity = await Promise.all(kasirUsers.map(async (kasir) => {
+            const transactions = await this.prisma.transaction.findMany({
+                where: {
+                    userId: kasir.id,
+                    businessId,
+                    createdAt: {
+                        gte: targetDate,
+                        lte: endOfDay,
+                    },
+                    status: 'COMPLETED',
+                },
+                orderBy: {
+                    createdAt: 'asc',
+                },
+            });
+            const totalTransactions = transactions.length;
+            const totalRevenue = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+            const firstTransaction = transactions[0];
+            const lastTransaction = transactions[transactions.length - 1];
+            let firstLoginToday = null;
+            let lastActivity = null;
+            let workDuration = null;
+            if (firstTransaction && lastTransaction) {
+                const firstTime = new Date(firstTransaction.createdAt);
+                const lastTime = new Date(lastTransaction.createdAt);
+                firstLoginToday = firstTime.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                lastActivity = lastTime.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                const durationMs = lastTime.getTime() - firstTime.getTime();
+                const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                workDuration = `${hours} jam ${minutes} menit`;
+            }
+            const now = new Date();
+            const isOnline = lastTransaction
+                ? now.getTime() - new Date(lastTransaction.createdAt).getTime() <
+                    30 * 60 * 1000
+                : false;
+            return {
+                id: kasir.id,
+                name: kasir.name,
+                email: kasir.email,
+                firstLoginToday,
+                lastActivity,
+                workDuration,
+                totalTransactions,
+                totalRevenue,
+                status: isOnline ? 'ONLINE' : 'OFFLINE',
+            };
+        }));
+        const summary = {
+            totalKasir: kasirUsers.length,
+            totalTransactions: kasirActivity.reduce((sum, k) => sum + k.totalTransactions, 0),
+            totalRevenue: kasirActivity.reduce((sum, k) => sum + k.totalRevenue, 0),
+        };
+        return {
+            date: targetDate.toISOString().split('T')[0],
+            kasirs: kasirActivity,
+            summary,
+        };
+    }
+    async getKasirPerformance(startDate, endDate, businessId) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        const kasirUsers = await this.prisma.user.findMany({
+            where: {
+                businessId,
+                role: 'KASIR',
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+        });
+        const kasirPerformance = await Promise.all(kasirUsers.map(async (kasir) => {
+            const transactions = await this.prisma.transaction.findMany({
+                where: {
+                    userId: kasir.id,
+                    businessId,
+                    createdAt: {
+                        gte: start,
+                        lte: end,
+                    },
+                    status: 'COMPLETED',
+                },
+                include: {
+                    items: true,
+                },
+            });
+            const workDaysSet = new Set();
+            transactions.forEach((t) => {
+                const dateStr = t.createdAt.toISOString().split('T')[0];
+                workDaysSet.add(dateStr);
+            });
+            const workDays = workDaysSet.size;
+            const totalTransactions = transactions.length;
+            const totalRevenue = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+            let totalCost = 0;
+            let totalItemsSold = 0;
+            transactions.forEach((t) => {
+                t.items.forEach((item) => {
+                    totalCost += Number(item.costPrice || 0) * item.quantity;
+                    totalItemsSold += item.quantity;
+                });
+            });
+            const totalProfit = totalRevenue - totalCost;
+            const avgTransactionPerDay = workDays > 0 ? totalTransactions / workDays : 0;
+            const avgRevenuePerDay = workDays > 0 ? totalRevenue / workDays : 0;
+            const avgTransactionValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+            return {
+                id: kasir.id,
+                name: kasir.name,
+                email: kasir.email,
+                workDays,
+                totalTransactions,
+                totalRevenue,
+                totalCost,
+                totalProfit,
+                totalItemsSold,
+                avgTransactionPerDay: Math.round(avgTransactionPerDay * 10) / 10,
+                avgRevenuePerDay: Math.round(avgRevenuePerDay),
+                avgTransactionValue: Math.round(avgTransactionValue),
+            };
+        }));
+        const summary = {
+            totalKasir: kasirUsers.length,
+            totalTransactions: kasirPerformance.reduce((sum, k) => sum + k.totalTransactions, 0),
+            totalRevenue: kasirPerformance.reduce((sum, k) => sum + k.totalRevenue, 0),
+            totalProfit: kasirPerformance.reduce((sum, k) => sum + k.totalProfit, 0),
+        };
+        return {
+            period: {
+                startDate: start.toISOString().split('T')[0],
+                endDate: end.toISOString().split('T')[0],
+            },
+            kasirs: kasirPerformance,
+            summary,
+        };
+    }
 };
 exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([

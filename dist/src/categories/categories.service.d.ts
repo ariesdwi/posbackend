@@ -8,8 +8,8 @@ export declare class CategoriesService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     findAll(businessId: string): Promise<({
         _count: {
@@ -20,8 +20,8 @@ export declare class CategoriesService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         products: {
@@ -29,8 +29,8 @@ export declare class CategoriesService {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             stock: number;
             imageUrl: string | null;
@@ -43,16 +43,16 @@ export declare class CategoriesService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     update(id: string, updateCategoryDto: UpdateCategoryDto, businessId: string): Promise<{
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
     }>;
     remove(id: string, businessId: string): Promise<{
         message: string;

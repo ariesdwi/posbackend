@@ -16,8 +16,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -49,6 +49,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     checkout(id: string, checkoutDto: CheckoutDto, businessId: string): Promise<{
         user: {
@@ -62,8 +63,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -95,6 +96,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     findAll(businessId: string, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
@@ -108,8 +110,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -141,6 +143,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         user: {
@@ -154,8 +157,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -187,6 +190,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, businessId: string): Promise<{
         user: {
@@ -200,8 +204,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -233,6 +237,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     update(id: string, updateDto: UpdateTransactionDto, businessId: string, isAdmin?: boolean): Promise<{
         user: {
@@ -246,8 +251,8 @@ export declare class TransactionsService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                businessId: string;
                 description: string | null;
+                businessId: string;
                 price: Prisma.Decimal;
                 stock: number;
                 imageUrl: string | null;
@@ -279,6 +284,7 @@ export declare class TransactionsService {
         changeAmount: Prisma.Decimal | null;
         notes: string | null;
         tableNumber: string | null;
+        shiftId: string | null;
     }>;
     delete(id: string, businessId: string): Promise<{
         success: boolean;

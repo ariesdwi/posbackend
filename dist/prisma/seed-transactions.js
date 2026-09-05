@@ -37,8 +37,10 @@ async function main() {
         client_1.PaymentMethod.CASH,
         client_1.PaymentMethod.CASH,
         client_1.PaymentMethod.QRIS,
-        client_1.PaymentMethod.TRANSFER,
-        client_1.PaymentMethod.CARD
+        client_1.PaymentMethod.DEBIT,
+        client_1.PaymentMethod.GRABFOOD,
+        client_1.PaymentMethod.SHOPEEFOOD,
+        client_1.PaymentMethod.GOFOOD
     ];
     const today = new Date();
     const daysToGenerate = 30;

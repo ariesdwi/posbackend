@@ -10,6 +10,7 @@ import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../common/decorators/user.decorator';
 import type { RequestUser } from '../common/decorators/user.decorator';
+import { KasirActivityQueryDto, KasirPerformanceQueryDto } from './dto/kasir-reports.dto';
 
 @ApiTags('Reports')
 @Controller('reports')
@@ -238,5 +239,63 @@ export class ReportsController {
     });
 
     res.end(pdfBuffer);
+  }
+
+  // ============ KASIR ACTIVITY & PERFORMANCE ENDPOINTS ============
+
+  @Get('kasir-activity')
+  @ApiOperation({
+    summary: 'Get kasir activity for a specific date',
+    description:
+      'Returns daily activity for all kasir: login time, work duration, transactions, revenue, and online status',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    example: '2026-07-23',
+    description: 'Date to check (YYYY-MM-DD). Defaults to today.',
+  })
+  getKasirActivity(
+    @Query() query: KasirActivityQueryDto,
+    @User() user: RequestUser,
+  ) {
+    const date = query.date || new Date().toISOString().split('T')[0];
+    return this.reportsService.getKasirActivity(date, user.businessId);
+  }
+
+  @Get('kasir-performance')
+  @ApiOperation({
+    summary: 'Get kasir performance report for a date range',
+    description:
+      'Returns performance metrics for all kasir: work days, total transactions, revenue, profit, and averages',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    example: '2026-07-01',
+    description: 'Start date (YYYY-MM-DD). Defaults to 30 days ago.',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    example: '2026-07-23',
+    description: 'End date (YYYY-MM-DD). Defaults to today.',
+  })
+  getKasirPerformance(
+    @Query() query: KasirPerformanceQueryDto,
+    @User() user: RequestUser,
+  ) {
+    const endDate = query.endDate || new Date().toISOString().split('T')[0];
+    const startDate =
+      query.startDate ||
+      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
+
+    return this.reportsService.getKasirPerformance(
+      startDate,
+      endDate,
+      user.businessId,
+    );
   }
 }

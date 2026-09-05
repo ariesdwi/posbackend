@@ -18,6 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const reports_service_1 = require("./reports.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const user_decorator_1 = require("../common/decorators/user.decorator");
+const kasir_reports_dto_1 = require("./dto/kasir-reports.dto");
 let ReportsController = class ReportsController {
     reportsService;
     constructor(reportsService) {
@@ -96,6 +97,18 @@ let ReportsController = class ReportsController {
             'Content-Length': pdfBuffer.length,
         });
         res.end(pdfBuffer);
+    }
+    getKasirActivity(query, user) {
+        const date = query.date || new Date().toISOString().split('T')[0];
+        return this.reportsService.getKasirActivity(date, user.businessId);
+    }
+    getKasirPerformance(query, user) {
+        const endDate = query.endDate || new Date().toISOString().split('T')[0];
+        const startDate = query.startDate ||
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split('T')[0];
+        return this.reportsService.getKasirPerformance(startDate, endDate, user.businessId);
     }
 };
 exports.ReportsController = ReportsController;
@@ -233,6 +246,48 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportTransactionsPDF", null);
+__decorate([
+    (0, common_1.Get)('kasir-activity'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get kasir activity for a specific date',
+        description: 'Returns daily activity for all kasir: login time, work duration, transactions, revenue, and online status',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'date',
+        required: false,
+        example: '2026-07-23',
+        description: 'Date to check (YYYY-MM-DD). Defaults to today.',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [kasir_reports_dto_1.KasirActivityQueryDto, Object]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getKasirActivity", null);
+__decorate([
+    (0, common_1.Get)('kasir-performance'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get kasir performance report for a date range',
+        description: 'Returns performance metrics for all kasir: work days, total transactions, revenue, profit, and averages',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'startDate',
+        required: false,
+        example: '2026-07-01',
+        description: 'Start date (YYYY-MM-DD). Defaults to 30 days ago.',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'endDate',
+        required: false,
+        example: '2026-07-23',
+        description: 'End date (YYYY-MM-DD). Defaults to today.',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [kasir_reports_dto_1.KasirPerformanceQueryDto, Object]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getKasirPerformance", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, swagger_1.ApiTags)('Reports'),
     (0, common_1.Controller)('reports'),

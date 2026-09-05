@@ -5,56 +5,56 @@ export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
     findAllGlobal(): Promise<{
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         business: {
             id: string;
             name: string;
             phone: string | null;
         };
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        businessId: string;
     }[]>;
     findByRole(role: string): Promise<{
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         business: {
             id: string;
             name: string;
             phone: string | null;
         };
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
-        businessId: string;
-    }[]>;
-    findOneGlobal(id: string): Promise<{
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
+        email: string;
+        role: import("@prisma/client").$Enums.UserRole;
+    }[]>;
+    findOneGlobal(id: string): Promise<{
         business: {
             id: string;
             name: string;
             address: string | null;
             phone: string | null;
         };
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        businessId: string;
     }>;
     updateGlobal(id: string, updateUserDto: UpdateUserDto): Promise<{
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        businessId: string;
     }>;
     removeGlobal(id: string): Promise<{
         message: string;
@@ -64,9 +64,9 @@ export declare class UsersController {
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        businessId: string;
         email: string;
         role: import("@prisma/client").$Enums.UserRole;
-        businessId: string;
         currentDeviceId: string | null;
         currentSessionToken: string | null;
         lastLoginAt: Date | null;

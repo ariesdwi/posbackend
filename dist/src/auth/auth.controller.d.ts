@@ -14,9 +14,9 @@ export declare class AuthController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
             email: string;
             role: import("@prisma/client").$Enums.UserRole;
-            businessId: string;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -45,9 +45,9 @@ export declare class AuthController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
             email: string;
             role: import("@prisma/client").$Enums.UserRole;
-            businessId: string;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -70,9 +70,9 @@ export declare class AuthController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
             email: string;
             role: import("@prisma/client").$Enums.UserRole;
-            businessId: string;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;
@@ -92,9 +92,9 @@ export declare class AuthController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            businessId: string;
             email: string;
             role: import("@prisma/client").$Enums.UserRole;
-            businessId: string;
             currentDeviceId: string | null;
             currentSessionToken: string | null;
             lastLoginAt: Date | null;

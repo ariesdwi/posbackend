@@ -10,16 +10,16 @@ export declare class MenuController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
@@ -33,16 +33,16 @@ export declare class MenuController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
@@ -56,16 +56,16 @@ export declare class MenuController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
@@ -79,16 +79,16 @@ export declare class MenuController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;
@@ -102,16 +102,16 @@ export declare class MenuController {
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            businessId: string;
             description: string | null;
+            businessId: string;
         };
     } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        businessId: string;
         description: string | null;
+        businessId: string;
         price: import("@prisma/client-runtime-utils").Decimal;
         stock: number;
         imageUrl: string | null;

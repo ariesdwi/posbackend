@@ -49,8 +49,10 @@ async function main() {
     PaymentMethod.CASH,
     PaymentMethod.CASH, // Weigh heavily towards CASH
     PaymentMethod.QRIS,
-    PaymentMethod.TRANSFER,
-    PaymentMethod.CARD
+    PaymentMethod.DEBIT,
+    PaymentMethod.GRABFOOD,
+    PaymentMethod.SHOPEEFOOD,
+    PaymentMethod.GOFOOD
   ];
 
   // Generate for last 30 days
