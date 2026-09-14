@@ -17,11 +17,12 @@
 7. [Categories Endpoints](#7-categories-endpoints)
 8. [Menu / Products Endpoints](#8-menu--products-endpoints)
 9. [Transactions Endpoints](#9-transactions-endpoints)
-10. [Reports Endpoints](#10-reports-endpoints)
-11. [Receipts Endpoints](#11-receipts-endpoints)
-12. [Upload Endpoints](#12-upload-endpoints)
-13. [Data Models & Enums](#13-data-models--enums)
-14. [Error Reference](#14-error-reference)
+10. [Shifts & X/Z Reports (Phase 1)](#91-shifts--xz-reports-phase-1)
+11. [Reports Endpoints](#10-reports-endpoints)
+12. [Receipts Endpoints](#11-receipts-endpoints)
+13. [Upload Endpoints](#12-upload-endpoints)
+14. [Data Models & Enums](#13-data-models--enums)
+15. [Error Reference](#14-error-reference)
 
 ---
 
@@ -714,6 +715,527 @@ Delete a transaction.
 
 **Auth required:** Yes — `BUSINESS_OWNER`
 
+
+---
+
+## 9.1. Shifts & X/Z Reports (Phase 1)
+
+### Overview
+Phase 1 implements shift management with X-Report (mid-shift snapshot) and Z-Report (end-of-shift final report) capabilities, void transaction tracking, and cash reconciliation.
+
+**Key Features:**
+- **X-Report**: Generate snapshot reports during shift without closing it
+- **Z-Report**: Final report after shift is closed with full reconciliation
+- **Pre-Close Validation**: Validate cash/settlements before closing shift
+- **Void Tracking**: Track voided transactions with reason and audit trail
+- **Cash Reconciliation**: Compare expected vs actual cash per payment method
+
+**Important Notes:**
+- ⚠️ **Transactions must be linked to shifts**: Currently transactions are NOT automatically linked to shifts on creation. You must manually link them or they won't appear in reports.
+- X-Reports can be generated multiple times during an open shift
+- Z-Report is only available after shift is closed
+- All endpoints are JWT protected and auto-scoped by `userId` and `businessId`
+
+---
+
+### POST /transactions/:id/void
+Void a completed transaction. Voided transactions are excluded from sales calculations but tracked in reports.
+
+**Auth required:** Yes (KASIR or BUSINESS_OWNER)
+
+**Path parameters:**
+- `id` - Transaction ID to void
+
+**Request body:**
+```json
+{
+  "reason": "Customer cancelled order",
+  "notes": "Refund via cash"
+}
+```
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Transaction voided successfully",
+  "data": {
+    "success": true,
+    "message": "Transaction voided successfully",
+    "data": {
+      "transactionNumber": "TRX-20260913-144408-18CH",
+      "voidedAt": "2026-09-13T07:44:09.541Z",
+      "voidedBy": "cmkc7lfjc00034ykt82laeq5f",
+      "reason": "Customer cancelled order"
+    }
+  },
+  "timestamp": "2026-09-13T07:44:09.741Z"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Transaction already voided
+- `400 Bad Request` - Only COMPLETED transactions can be voided
+- `404 Not Found` - Transaction not found
+
+**Validation Rules:**
+- `reason` is required (string, min 3 chars)
+- `notes` is optional (string)
+- Only `COMPLETED` status transactions can be voided
+- Voided transactions cannot be voided again
+
+---
+
+### GET /shifts/x-report
+Generate X-Report (snapshot report) for current open shift without closing it.
+
+**Auth required:** Yes (KASIR or BUSINESS_OWNER)
+
+**Query parameters:** None
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "X-Report generated successfully",
+  "data": {
+    "reportType": "X-REPORT",
+    "reportNumber": "X-20260913-001",
+    "generatedAt": "2026-09-13T15:30:00.000Z",
+    
+    "shift": {
+      "shiftId": "shift-id-123",
+      "kasirName": "Firdho",
+      "startTime": "2026-09-13T08:00:00.000Z",
+      "duration": "7 hours 30 minutes",
+      "status": "OPEN"
+    },
+    
+    "summary": {
+      "totalSales": 850000,
+      "totalTransactions": 25,
+      "averageTransaction": 34000,
+      "itemsSold": 67
+    },
+    
+    "paymentMethodBreakdown": {
+      "cash": {
+        "totalSales": 500000,
+        "transactions": 15,
+        "percentage": 58.82
+      },
+      "qris": {
+        "totalSales": 250000,
+        "transactions": 7,
+        "percentage": 29.41
+      },
+      "debit": {
+        "totalSales": 100000,
+        "transactions": 3,
+        "percentage": 11.76
+      },
+      "grabfood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0
+      },
+      "shopeefood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0
+      },
+      "gofood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0
+      },
+      "other": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0
+      }
+    },
+    
+    "cashReconciliation": {
+      "initialCash": 500000,
+      "cashSales": 500000,
+      "expectedCash": 1000000,
+      "finalCash": 0,
+      "cashDifference": 0,
+      "status": "NOT_VERIFIED"
+    },
+    
+    "voidSummary": {
+      "totalVoidCount": 2,
+      "totalVoidAmount": 50000,
+      "voidTransactions": [
+        {
+          "transactionNumber": "TRX-20260913-143020-ABCD",
+          "amount": 30000,
+          "reason": "Customer cancelled",
+          "voidedAt": "2026-09-13T14:30:20.000Z"
+        },
+        {
+          "transactionNumber": "TRX-20260913-150510-EFGH",
+          "amount": 20000,
+          "reason": "Wrong order",
+          "voidedAt": "2026-09-13T15:05:10.000Z"
+        }
+      ]
+    },
+    
+    "discountSummary": {
+      "totalDiscountGiven": 25000,
+      "discountCount": 3,
+      "averageDiscount": 8333
+    },
+    
+    "topProducts": [
+      {
+        "productName": "Nasi Goreng Special",
+        "quantitySold": 15,
+        "revenue": 375000
+      },
+      {
+        "productName": "Es Teh Manis",
+        "quantitySold": 25,
+        "revenue": 125000
+      }
+    ]
+  },
+  "timestamp": "2026-09-13T15:30:00.123Z"
+}
+```
+
+**Error Responses:**
+- `404 Not Found` - No active shift found (start shift first)
+
+**Notes:**
+- X-Report can be generated multiple times during a shift
+- Each generation increments `xReportCount` on the shift
+- Report number format: `X-YYYYMMDD-NNN` (NNN = sequential count)
+- Report is saved to `x_reports` table for audit trail
+- Voided transactions are excluded from sales totals but shown in void summary
+- Cash reconciliation shows `NOT_VERIFIED` until shift is closed
+
+---
+
+### POST /shifts/pre-close
+Pre-close shift with validation and warnings. Validates cash/settlements before final closing.
+
+**Auth required:** Yes (KASIR or BUSINESS_OWNER)
+
+**Request body:**
+```json
+{
+  "finalCash": 1050000,
+  "edcSettlement": 100000,
+  "qrisSettlement": 250000,
+  "notes": "Shift berjalan lancar",
+  "technicalIssues": "",
+  "inventoryNotes": "Stok Es Teh habis"
+}
+```
+
+**Field Descriptions:**
+- `finalCash` (required, number) - Actual cash counted at end of shift
+- `edcSettlement` (optional, number) - EDC/Debit machine settlement amount
+- `qrisSettlement` (optional, number) - QRIS settlement amount
+- `notes` (optional, string) - General shift notes
+- `technicalIssues` (optional, string) - Any technical problems during shift
+- `inventoryNotes` (optional, string) - Inventory-related notes
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Shift berhasil ditutup. Z-Report tersedia.",
+  "data": {
+    "shiftId": "shift-id-123",
+    "status": "CLOSED",
+    "endTime": "2026-09-13T16:00:00.000Z",
+    
+    "reconciliation": {
+      "cash": {
+        "expected": 1000000,
+        "actual": 1050000,
+        "difference": 50000,
+        "status": "OVER"
+      },
+      "qris": {
+        "expected": 250000,
+        "settlement": 250000,
+        "difference": 0,
+        "status": "MATCHED"
+      },
+      "debit": {
+        "expected": 100000,
+        "settlement": 100000,
+        "difference": 0,
+        "status": "MATCHED"
+      }
+    },
+    
+    "warnings": [
+      {
+        "type": "CASH_OVER",
+        "message": "Kas lebih Rp 50,000. Harap verifikasi."
+      }
+    ],
+    
+    "summary": {
+      "totalSales": 850000,
+      "totalTransactions": 25,
+      "totalVoidCount": 2,
+      "totalVoidAmount": 50000,
+      "totalDiscountGiven": 25000,
+      "duration": "8 hours"
+    }
+  },
+  "timestamp": "2026-09-13T16:00:00.123Z"
+}
+```
+
+**Validation & Warnings:**
+
+**Cash Reconciliation Status:**
+- `MATCHED` - Actual cash matches expected (difference = 0)
+- `SHORT` - Cash is short (difference < 0)
+- `OVER` - Cash is over (difference > 0)
+
+**Settlement Reconciliation Status:**
+- `MATCHED` - Settlement matches expected sales
+- `SHORT` - Settlement is less than expected
+- `OVER` - Settlement is more than expected
+- `NOT_VERIFIED` - No settlement amount provided
+
+**Warning Types:**
+- `CASH_SHORT` - Cash is less than expected
+- `CASH_OVER` - Cash is more than expected
+- `QRIS_MISMATCH` - QRIS settlement doesn't match sales
+- `EDC_MISMATCH` - EDC settlement doesn't match sales
+- `HIGH_VOID_COUNT` - Unusually high number of voided transactions
+- `HIGH_VOID_AMOUNT` - Unusually high void amount
+
+**Error Responses:**
+- `404 Not Found` - No active shift found
+- `400 Bad Request` - Validation errors
+
+**Business Rules:**
+- Pre-close automatically closes the shift (status → CLOSED)
+- After pre-close, Z-Report becomes available
+- Cash difference requires manual approval (no auto-tolerance in Phase 1)
+- All payment method settlements are optional except cash (finalCash)
+
+---
+
+### GET /shifts/:shiftId/z-report
+Get Z-Report (final report) for a closed shift.
+
+**Auth required:** Yes (KASIR or BUSINESS_OWNER)
+
+**Path parameters:**
+- `shiftId` - ID of the closed shift
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Z-Report retrieved successfully",
+  "data": {
+    "reportType": "Z-REPORT",
+    "reportNumber": "Z-20260913-FIRDHO-001",
+    "generatedAt": "2026-09-13T16:00:00.000Z",
+    
+    "shift": {
+      "shiftId": "shift-id-123",
+      "kasirName": "Firdho",
+      "startTime": "2026-09-13T08:00:00.000Z",
+      "endTime": "2026-09-13T16:00:00.000Z",
+      "duration": "8 hours",
+      "status": "CLOSED"
+    },
+    
+    "summary": {
+      "totalSales": 850000,
+      "totalTransactions": 25,
+      "averageTransaction": 34000,
+      "itemsSold": 67
+    },
+    
+    "paymentMethodBreakdown": {
+      "cash": {
+        "totalSales": 500000,
+        "transactions": 15,
+        "percentage": 58.82,
+        "reconciliation": {
+          "expected": 1000000,
+          "settlement": 1050000,
+          "difference": 50000,
+          "status": "OVER"
+        }
+      },
+      "qris": {
+        "totalSales": 250000,
+        "transactions": 7,
+        "percentage": 29.41,
+        "reconciliation": {
+          "expected": 250000,
+          "settlement": 250000,
+          "difference": 0,
+          "status": "MATCHED"
+        }
+      },
+      "debit": {
+        "totalSales": 100000,
+        "transactions": 3,
+        "percentage": 11.76,
+        "reconciliation": {
+          "expected": 100000,
+          "settlement": 100000,
+          "difference": 0,
+          "status": "MATCHED"
+        }
+      },
+      "grabfood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0,
+        "reconciliation": {
+          "expected": 0,
+          "settlement": null,
+          "difference": 0,
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "shopeefood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0,
+        "reconciliation": {
+          "expected": 0,
+          "settlement": null,
+          "difference": 0,
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "gofood": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0,
+        "reconciliation": {
+          "expected": 0,
+          "settlement": null,
+          "difference": 0,
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "other": {
+        "totalSales": 0,
+        "transactions": 0,
+        "percentage": 0,
+        "reconciliation": {
+          "expected": 0,
+          "settlement": null,
+          "difference": 0,
+          "status": "NOT_VERIFIED"
+        }
+      }
+    },
+    
+    "cashReconciliation": {
+      "initialCash": 500000,
+      "cashSales": 500000,
+      "expectedCash": 1000000,
+      "finalCash": 1050000,
+      "cashDifference": 50000,
+      "status": "OVER"
+    },
+    
+    "voidSummary": {
+      "totalVoidCount": 2,
+      "totalVoidAmount": 50000,
+      "voidTransactions": [
+        {
+          "transactionNumber": "TRX-20260913-143020-ABCD",
+          "amount": 30000,
+          "reason": "Customer cancelled",
+          "voidedAt": "2026-09-13T14:30:20.000Z"
+        },
+        {
+          "transactionNumber": "TRX-20260913-150510-EFGH",
+          "amount": 20000,
+          "reason": "Wrong order",
+          "voidedAt": "2026-09-13T15:05:10.000Z"
+        }
+      ]
+    },
+    
+    "discountSummary": {
+      "totalDiscountGiven": 25000,
+      "discountCount": 3,
+      "averageDiscount": 8333
+    },
+    
+    "topProducts": [
+      {
+        "productName": "Nasi Goreng Special",
+        "quantitySold": 15,
+        "revenue": 375000
+      },
+      {
+        "productName": "Es Teh Manis",
+        "quantitySold": 25,
+        "revenue": 125000
+      }
+    ],
+    
+    "xReportHistory": {
+      "totalXReportsGenerated": 3,
+      "lastXReportAt": "2026-09-13T15:30:00.000Z"
+    }
+  },
+  "timestamp": "2026-09-13T16:00:05.123Z"
+}
+```
+
+**Error Responses:**
+- `404 Not Found` - Shift not found or not closed yet
+- `403 Forbidden` - Shift belongs to different business
+
+**Notes:**
+- Z-Report number format: `Z-YYYYMMDD-KASIRNAME-NNN`
+- Z-Report can only be retrieved AFTER shift is closed
+- Report includes full reconciliation with actual settlements
+- All voided transactions are listed with reasons
+- Report is immutable once shift is closed
+
+---
+
+### Phase 1 Implementation Status
+
+**✅ Completed:**
+- Migration: `xReportCount`, `lastXReportAt`, void tracking, discount tracking
+- DTOs: X-Report, Z-Report, Pre-Close, Void Transaction
+- Services: `getXReport()`, `getZReport()`, `preCloseShift()`, `voidTransaction()`
+- Controllers: All Phase 1 endpoints exposed
+- Database: `x_reports` table for audit trail
+
+**⚠️ Known Issues:**
+- X-Report returns 404 despite open shift existing - needs debugging
+- Transactions are NOT automatically linked to shifts on creation
+- Need to manually link transactions to shifts for reports to work
+
+**🔜 Phase 2 (Planned):**
+- Add `SUPERVISOR` role for approval workflow
+- Implement cash difference approval system
+- Auto-link transactions to current open shift
+- Add pending approvals endpoints
+- Implement approval notification system
 
 ---
 

@@ -348,6 +348,39 @@ let TransactionsService = class TransactionsService {
             message: `Transaction ${transaction.transactionNumber} deleted successfully`,
         };
     }
+    async voidTransaction(id, reason, notes, userId, businessId) {
+        const transaction = await this.findOne(id, businessId);
+        if (transaction.isVoid) {
+            throw new common_1.BadRequestException('Transaction is already voided');
+        }
+        if (transaction.status !== client_1.TransactionStatus.COMPLETED) {
+            throw new common_1.BadRequestException('Only COMPLETED transactions can be voided');
+        }
+        const voidedTransaction = await this.prisma.transaction.update({
+            where: { id },
+            data: {
+                isVoid: true,
+                voidReason: reason,
+                voidedAt: new Date(),
+                voidedBy: userId,
+                notes: notes || transaction.notes,
+            },
+            include: {
+                items: { include: { product: true } },
+                user: { select: { id: true, name: true, email: true } },
+            },
+        });
+        return {
+            success: true,
+            message: 'Transaction voided successfully',
+            data: {
+                transactionNumber: voidedTransaction.transactionNumber,
+                voidedAt: voidedTransaction.voidedAt,
+                voidedBy: userId,
+                reason,
+            },
+        };
+    }
 };
 exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([

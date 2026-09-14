@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 import { ReportsService } from './reports.service';
 import type { RequestUser } from '../common/decorators/user.decorator';
-import { KasirActivityQueryDto, KasirPerformanceQueryDto } from './dto/kasir-reports.dto';
+import { KasirActivityQueryDto, KasirPerformanceQueryDto, KasirDailyDetailQueryDto } from './dto/kasir-reports.dto';
 export declare class ReportsController {
     private readonly reportsService;
     constructor(reportsService: ReportsService);
@@ -194,5 +194,49 @@ export declare class ReportsController {
             totalRevenue: number;
             totalProfit: number;
         };
+    }>;
+    getKasirDailyDetail(query: KasirDailyDetailQueryDto, user: RequestUser): Promise<{
+        date: string;
+        kasirId: string;
+        kasirName: string;
+        summary: {
+            totalSales: number;
+            totalTransactions: number;
+            totalProfit: number;
+            profitMargin: number;
+            itemsSold: number;
+        };
+        productBreakdown: {
+            productId: string;
+            productName: string;
+            categoryName: string;
+            quantitySold: number;
+            revenue: number;
+            costPrice: number;
+            profit: number;
+            profitMargin: number;
+            percentage: number;
+        }[];
+        paymentMethodBreakdown: any[];
+        transactions: {
+            transactionNumber: string;
+            time: string;
+            totalAmount: number;
+            paymentMethod: import("@prisma/client").$Enums.PaymentMethod;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
+        }[];
+        shiftInfo: {
+            shiftId: string;
+            startTime: string;
+            endTime: string | null;
+            status: import("@prisma/client").$Enums.ShiftStatus;
+            initialCash: number;
+            expectedCash: number;
+        } | null;
     }>;
 }

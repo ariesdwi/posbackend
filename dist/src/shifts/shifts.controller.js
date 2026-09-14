@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const shifts_service_1 = require("./shifts.service");
 const shift_dto_1 = require("./dto/shift.dto");
+const phase1_dto_1 = require("./dto/phase1.dto");
 let ShiftsController = class ShiftsController {
     shiftsService;
     constructor(shiftsService) {
@@ -41,6 +42,21 @@ let ShiftsController = class ShiftsController {
         const userId = req.user.id;
         const businessId = req.user.businessId;
         return this.shiftsService.getShiftById(shiftId, userId, businessId);
+    }
+    async getXReport(req) {
+        const userId = req.user.id;
+        const businessId = req.user.businessId;
+        return this.shiftsService.getXReport(userId, businessId);
+    }
+    async getZReport(req, shiftId) {
+        const userId = req.user.id;
+        const businessId = req.user.businessId;
+        return this.shiftsService.getZReport(shiftId, userId, businessId);
+    }
+    async preCloseShift(req, dto) {
+        const userId = req.user.id;
+        const businessId = req.user.businessId;
+        return this.shiftsService.preCloseShift(userId, businessId, dto);
     }
 };
 exports.ShiftsController = ShiftsController;
@@ -75,6 +91,29 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ShiftsController.prototype, "getShiftById", null);
+__decorate([
+    (0, common_1.Get)('x-report'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ShiftsController.prototype, "getXReport", null);
+__decorate([
+    (0, common_1.Get)(':shiftId/z-report'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('shiftId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ShiftsController.prototype, "getZReport", null);
+__decorate([
+    (0, common_1.Post)('pre-close'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, phase1_dto_1.PreCloseShiftDto]),
+    __metadata("design:returntype", Promise)
+], ShiftsController.prototype, "preCloseShift", null);
 exports.ShiftsController = ShiftsController = __decorate([
     (0, common_1.Controller)('shifts'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

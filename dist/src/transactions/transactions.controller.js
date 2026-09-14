@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const transactions_service_1 = require("./transactions.service");
 const transaction_dto_1 = require("./dto/transaction.dto");
+const phase1_dto_1 = require("../shifts/dto/phase1.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
@@ -47,6 +48,9 @@ let TransactionsController = class TransactionsController {
     }
     delete(id, user) {
         return this.transactionsService.delete(id, user.businessId);
+    }
+    voidTransaction(id, dto, user) {
+        return this.transactionsService.voidTransaction(id, dto.reason, dto.notes, user.id, user.businessId);
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -131,6 +135,19 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "delete", null);
+__decorate([
+    (0, common_1.Post)(':id/void'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Void a completed transaction',
+        description: 'Mark a completed transaction as void for shift report tracking. Voided transactions are excluded from sales calculations.',
+    }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, phase1_dto_1.VoidTransactionDto, Object]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "voidTransaction", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, swagger_1.ApiTags)('Transactions'),
     (0, common_1.Controller)('transactions'),

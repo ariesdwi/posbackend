@@ -10,7 +10,7 @@ import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../common/decorators/user.decorator';
 import type { RequestUser } from '../common/decorators/user.decorator';
-import { KasirActivityQueryDto, KasirPerformanceQueryDto } from './dto/kasir-reports.dto';
+import { KasirActivityQueryDto, KasirPerformanceQueryDto, KasirDailyDetailQueryDto } from './dto/kasir-reports.dto';
 
 @ApiTags('Reports')
 @Controller('reports')
@@ -295,6 +295,30 @@ export class ReportsController {
     return this.reportsService.getKasirPerformance(
       startDate,
       endDate,
+      user.businessId,
+    );
+  }
+
+  @Get('kasir-daily-detail')
+  @ApiOperation({
+    summary: 'Get detailed daily sales report for kasir (mobile)',
+    description:
+      'Returns complete daily report with product breakdown, payment method details, and transaction list for kasir mobile app',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    example: '2026-09-05',
+    description: 'Date to report (YYYY-MM-DD). Defaults to today.',
+  })
+  getKasirDailyDetail(
+    @Query() query: KasirDailyDetailQueryDto,
+    @User() user: RequestUser,
+  ) {
+    const date = query.date || new Date().toISOString().split('T')[0];
+    return this.reportsService.getKasirDailyDetail(
+      date,
+      user.id,
       user.businessId,
     );
   }

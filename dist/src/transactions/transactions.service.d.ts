@@ -50,6 +50,12 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     }>;
     checkout(id: string, checkoutDto: CheckoutDto, businessId: string): Promise<{
         user: {
@@ -97,6 +103,12 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     }>;
     findAll(businessId: string, startDate?: string, endDate?: string, status?: string, userId?: string, tableNumber?: string): Promise<({
         user: {
@@ -144,6 +156,12 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     })[]>;
     findOne(id: string, businessId: string): Promise<{
         user: {
@@ -191,6 +209,12 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     }>;
     updateStatus(id: string, updateStatusDto: UpdateTransactionStatusDto, businessId: string): Promise<{
         user: {
@@ -238,6 +262,12 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     }>;
     update(id: string, updateDto: UpdateTransactionDto, businessId: string, isAdmin?: boolean): Promise<{
         user: {
@@ -285,9 +315,25 @@ export declare class TransactionsService {
         notes: string | null;
         tableNumber: string | null;
         shiftId: string | null;
+        isVoid: boolean;
+        voidReason: string | null;
+        voidedAt: Date | null;
+        voidedBy: string | null;
+        discountAmount: Prisma.Decimal;
+        discountNotes: string | null;
     }>;
     delete(id: string, businessId: string): Promise<{
         success: boolean;
         message: string;
+    }>;
+    voidTransaction(id: string, reason: string, notes: string | undefined, userId: string, businessId: string): Promise<{
+        success: boolean;
+        message: string;
+        data: {
+            transactionNumber: string;
+            voidedAt: Date | null;
+            voidedBy: string;
+            reason: string;
+        };
     }>;
 }

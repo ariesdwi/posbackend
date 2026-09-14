@@ -22,6 +22,7 @@ import {
   CheckoutDto,
   UpdateTransactionDto,
 } from './dto/transaction.dto';
+import { VoidTransactionDto } from '../shifts/dto/phase1.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -130,5 +131,27 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Delete transaction (Admin only)' })
   delete(@Param('id') id: string, @User() user: RequestUser) {
     return this.transactionsService.delete(id, user.businessId);
+  }
+
+  // ============ PHASE 1: VOID TRANSACTION ============
+
+  @Post(':id/void')
+  @ApiOperation({
+    summary: 'Void a completed transaction',
+    description:
+      'Mark a completed transaction as void for shift report tracking. Voided transactions are excluded from sales calculations.',
+  })
+  voidTransaction(
+    @Param('id') id: string,
+    @Body() dto: VoidTransactionDto,
+    @User() user: RequestUser,
+  ) {
+    return this.transactionsService.voidTransaction(
+      id,
+      dto.reason,
+      dto.notes,
+      user.id,
+      user.businessId,
+    );
   }
 }

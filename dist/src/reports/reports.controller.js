@@ -110,6 +110,10 @@ let ReportsController = class ReportsController {
                 .split('T')[0];
         return this.reportsService.getKasirPerformance(startDate, endDate, user.businessId);
     }
+    getKasirDailyDetail(query, user) {
+        const date = query.date || new Date().toISOString().split('T')[0];
+        return this.reportsService.getKasirDailyDetail(date, user.id, user.businessId);
+    }
 };
 exports.ReportsController = ReportsController;
 __decorate([
@@ -288,6 +292,24 @@ __decorate([
     __metadata("design:paramtypes", [kasir_reports_dto_1.KasirPerformanceQueryDto, Object]),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getKasirPerformance", null);
+__decorate([
+    (0, common_1.Get)('kasir-daily-detail'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get detailed daily sales report for kasir (mobile)',
+        description: 'Returns complete daily report with product breakdown, payment method details, and transaction list for kasir mobile app',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'date',
+        required: false,
+        example: '2026-09-05',
+        description: 'Date to report (YYYY-MM-DD). Defaults to today.',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, user_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [kasir_reports_dto_1.KasirDailyDetailQueryDto, Object]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getKasirDailyDetail", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, swagger_1.ApiTags)('Reports'),
     (0, common_1.Controller)('reports'),

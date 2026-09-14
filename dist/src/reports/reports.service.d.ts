@@ -262,4 +262,48 @@ export declare class ReportsService {
             totalProfit: number;
         };
     }>;
+    getKasirDailyDetail(date: string, userId: string, businessId: string): Promise<{
+        date: string;
+        kasirId: string;
+        kasirName: string;
+        summary: {
+            totalSales: number;
+            totalTransactions: number;
+            totalProfit: number;
+            profitMargin: number;
+            itemsSold: number;
+        };
+        productBreakdown: {
+            productId: string;
+            productName: string;
+            categoryName: string;
+            quantitySold: number;
+            revenue: number;
+            costPrice: number;
+            profit: number;
+            profitMargin: number;
+            percentage: number;
+        }[];
+        paymentMethodBreakdown: any[];
+        transactions: {
+            transactionNumber: string;
+            time: string;
+            totalAmount: number;
+            paymentMethod: import("@prisma/client").$Enums.PaymentMethod;
+            items: {
+                productName: string;
+                quantity: number;
+                price: number;
+                subtotal: number;
+            }[];
+        }[];
+        shiftInfo: {
+            shiftId: string;
+            startTime: string;
+            endTime: string | null;
+            status: import("@prisma/client").$Enums.ShiftStatus;
+            initialCash: number;
+            expectedCash: number;
+        } | null;
+    }>;
 }

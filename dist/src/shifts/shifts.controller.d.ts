@@ -1,5 +1,6 @@
 import { ShiftsService } from './shifts.service';
 import { StartShiftDto, EndShiftDto, ShiftReportResponseDto, GetCurrentShiftResponseDto } from './dto/shift.dto';
+import { XReportResponseDto, ZReportResponseDto, PreCloseShiftDto, PreCloseShiftResponseDto } from './dto/phase1.dto';
 export declare class ShiftsController {
     private readonly shiftsService;
     constructor(shiftsService: ShiftsService);
@@ -7,4 +8,7 @@ export declare class ShiftsController {
     endShift(req: any, dto: EndShiftDto): Promise<ShiftReportResponseDto>;
     getCurrentShift(req: any): Promise<GetCurrentShiftResponseDto>;
     getShiftById(req: any, shiftId: string): Promise<ShiftReportResponseDto>;
+    getXReport(req: any): Promise<XReportResponseDto>;
+    getZReport(req: any, shiftId: string): Promise<ZReportResponseDto>;
+    preCloseShift(req: any, dto: PreCloseShiftDto): Promise<PreCloseShiftResponseDto>;
 }

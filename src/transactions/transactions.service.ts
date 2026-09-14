@@ -449,4 +449,56 @@ export class TransactionsService {
       message: `Transaction ${transaction.transactionNumber} deleted successfully`,
     };
   }
+
+  // ============ PHASE 1: VOID TRANSACTION ============
+
+  async voidTransaction(
+    id: string,
+    reason: string,
+    notes: string | undefined,
+    userId: string,
+    businessId: string,
+  ) {
+    // Verify transaction exists and belongs to business
+    const transaction = await this.findOne(id, businessId);
+
+    // Check if already voided
+    if (transaction.isVoid) {
+      throw new BadRequestException('Transaction is already voided');
+    }
+
+    // Only allow voiding COMPLETED transactions
+    if (transaction.status !== TransactionStatus.COMPLETED) {
+      throw new BadRequestException(
+        'Only COMPLETED transactions can be voided',
+      );
+    }
+
+    // Void transaction
+    const voidedTransaction = await this.prisma.transaction.update({
+      where: { id },
+      data: {
+        isVoid: true,
+        voidReason: reason,
+        voidedAt: new Date(),
+        voidedBy: userId,
+        notes: notes || transaction.notes,
+      },
+      include: {
+        items: { include: { product: true } },
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Transaction voided successfully',
+      data: {
+        transactionNumber: voidedTransaction.transactionNumber,
+        voidedAt: voidedTransaction.voidedAt,
+        voidedBy: userId,
+        reason,
+      },
+    };
+  }
 }

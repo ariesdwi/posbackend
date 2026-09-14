@@ -1,5 +1,6 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { StartShiftDto, EndShiftDto, ShiftReportResponseDto, GetCurrentShiftResponseDto } from './dto/shift.dto';
+import { XReportResponseDto, ZReportResponseDto, PreCloseShiftDto, PreCloseShiftResponseDto } from './dto/phase1.dto';
 export declare class ShiftsService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -8,4 +9,8 @@ export declare class ShiftsService {
     getCurrentShift(userId: string, businessId: string): Promise<GetCurrentShiftResponseDto>;
     getShiftById(shiftId: string, userId: string, businessId: string): Promise<ShiftReportResponseDto>;
     private buildShiftReport;
+    getXReport(userId: string, businessId: string): Promise<XReportResponseDto>;
+    getZReport(shiftId: string, userId: string, businessId: string): Promise<ZReportResponseDto>;
+    preCloseShift(userId: string, businessId: string, dto: PreCloseShiftDto): Promise<PreCloseShiftResponseDto>;
+    private calculateSalesBreakdown;
 }

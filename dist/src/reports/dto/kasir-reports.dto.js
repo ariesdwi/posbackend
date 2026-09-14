@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KasirPerformanceQueryDto = exports.KasirActivityQueryDto = void 0;
+exports.KasirDailyDetailResponseDto = exports.TransactionDetail = exports.PaymentMethodDetail = exports.ProductSalesDetail = exports.KasirDailyDetailQueryDto = exports.KasirPerformanceQueryDto = exports.KasirActivityQueryDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class KasirActivityQueryDto {
@@ -51,4 +51,47 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], KasirPerformanceQueryDto.prototype, "endDate", void 0);
+class KasirDailyDetailQueryDto {
+    date;
+}
+exports.KasirDailyDetailQueryDto = KasirDailyDetailQueryDto;
+class ProductSalesDetail {
+    productId;
+    productName;
+    categoryName;
+    quantitySold;
+    revenue;
+    costPrice;
+    profit;
+    profitMargin;
+    percentage;
+}
+exports.ProductSalesDetail = ProductSalesDetail;
+class PaymentMethodDetail {
+    method;
+    totalSales;
+    totalTransactions;
+    percentage;
+    expectedCashFromSales;
+}
+exports.PaymentMethodDetail = PaymentMethodDetail;
+class TransactionDetail {
+    transactionNumber;
+    time;
+    totalAmount;
+    paymentMethod;
+    items;
+}
+exports.TransactionDetail = TransactionDetail;
+class KasirDailyDetailResponseDto {
+    date;
+    kasirId;
+    kasirName;
+    summary;
+    productBreakdown;
+    paymentMethodBreakdown;
+    transactions;
+    shiftInfo;
+}
+exports.KasirDailyDetailResponseDto = KasirDailyDetailResponseDto;
 //# sourceMappingURL=kasir-reports.dto.js.map

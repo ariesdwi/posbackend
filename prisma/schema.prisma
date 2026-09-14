@@ -27,6 +27,7 @@ model User {
   passwordResetToken       String?       @map("password_reset_token")
   transactions             Transaction[]
   shifts                   Shift[]
+  xReports                 XReport[]
   business                 Business      @relation(fields: [businessId], references: [id])
 
   @@map("users")
@@ -96,6 +97,17 @@ model Transaction {
   tableNumber       String?
   businessId        String
   shiftId           String?
+  
+  // Phase 1: Void tracking
+  isVoid            Boolean           @default(false)
+  voidReason        String?
+  voidedAt          DateTime?
+  voidedBy          String?
+  
+  // Phase 1: Discount tracking
+  discountAmount    Decimal           @default(0) @db.Decimal(10, 2)
+  discountNotes     String?
+  
   items             TransactionItem[]
   business          Business          @relation(fields: [businessId], references: [id])
   user              User              @relation(fields: [userId], references: [id])
@@ -105,6 +117,7 @@ model Transaction {
   @@index([userId])
   @@index([status])
   @@index([shiftId])
+  @@index([isVoid])
   @@map("transactions")
 }
 
@@ -135,17 +148,62 @@ model Shift {
   expectedCash Decimal      @default(0) @db.Decimal(10, 2)
   cashDifference Decimal?   @db.Decimal(10, 2)
   notes        String?
+  
+  // Phase 1: X-Report tracking
+  xReportCount      Int      @default(0)
+  lastXReportAt     DateTime?
+  
+  // Phase 1: Summary totals
+  totalVoidCount    Int      @default(0)
+  totalVoidAmount   Decimal  @default(0) @db.Decimal(10, 2)
+  totalDiscountAmount Decimal @default(0) @db.Decimal(10, 2)
+  
+  // Phase 1: Additional notes
+  technicalIssues   String?
+  inventoryNotes    String?
+  
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   user         User         @relation(fields: [userId], references: [id])
   business     Business     @relation(fields: [businessId], references: [id])
   transactions Transaction[]
+  xReports     XReport[]
 
   @@index([userId])
   @@index([businessId])
   @@index([status])
   @@index([startTime])
   @@map("shifts")
+}
+
+model XReport {
+  id                String   @id @default(cuid())
+  shiftId           String
+  reportNumber      String   @unique
+  generatedAt       DateTime @default(now())
+  generatedBy       String
+  
+  // Snapshot data at time of generation
+  totalSales        Decimal  @db.Decimal(10, 2)
+  totalTransactions Int
+  cashSales         Decimal  @db.Decimal(10, 2)
+  qrisSales         Decimal  @db.Decimal(10, 2)
+  debitSales        Decimal  @db.Decimal(10, 2)
+  grabfoodSales     Decimal  @db.Decimal(10, 2)
+  shopeefoodSales   Decimal  @db.Decimal(10, 2)
+  gofoodSales       Decimal  @db.Decimal(10, 2)
+  otherSales        Decimal  @db.Decimal(10, 2)
+  
+  voidCount         Int      @default(0)
+  voidAmount        Decimal  @default(0) @db.Decimal(10, 2)
+  discountAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  
+  shift             Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [generatedBy], references: [id])
+
+  @@index([shiftId])
+  @@index([generatedAt])
+  @@map("x_reports")
 }
 
 enum UserRole {

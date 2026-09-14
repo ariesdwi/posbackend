@@ -867,6 +867,192 @@ let ReportsService = class ReportsService {
             summary,
         };
     }
+    async getKasirDailyDetail(date, userId, businessId) {
+        const reportDate = new Date(date);
+        reportDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(date);
+        endDate.setHours(23, 59, 59, 999);
+        const kasir = await this.prisma.user.findFirst({
+            where: {
+                id: userId,
+                businessId,
+            },
+            select: {
+                id: true,
+                name: true,
+                role: true,
+            },
+        });
+        if (!kasir) {
+            throw new Error('Kasir not found');
+        }
+        const transactions = await this.prisma.transaction.findMany({
+            where: {
+                userId,
+                businessId,
+                createdAt: {
+                    gte: reportDate,
+                    lte: endDate,
+                },
+                status: 'COMPLETED',
+            },
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                category: {
+                                    select: {
+                                        name: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'asc',
+            },
+        });
+        const totalTransactions = transactions.length;
+        const totalSales = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+        let totalProfit = 0;
+        let itemsSold = 0;
+        const productMap = new Map();
+        const paymentMethodMap = new Map();
+        transactions.forEach((transaction) => {
+            const method = transaction.paymentMethod || 'OTHER';
+            const existing = paymentMethodMap.get(method) || {
+                totalSales: 0,
+                totalTransactions: 0,
+            };
+            paymentMethodMap.set(method, {
+                totalSales: existing.totalSales + Number(transaction.totalAmount),
+                totalTransactions: existing.totalTransactions + 1,
+            });
+            transaction.items.forEach((item) => {
+                const productId = item.productId || 'unknown';
+                const productName = item.productName;
+                const categoryName = item.product?.category?.name || 'Uncategorized';
+                const quantity = item.quantity;
+                const revenue = Number(item.subtotal);
+                const costPrice = Number(item.costPrice || 0) * quantity;
+                const profit = revenue - costPrice;
+                itemsSold += quantity;
+                totalProfit += profit;
+                const existing = productMap.get(productId);
+                if (existing) {
+                    existing.quantitySold += quantity;
+                    existing.revenue += revenue;
+                    existing.costPrice += costPrice;
+                    existing.profit += profit;
+                }
+                else {
+                    productMap.set(productId, {
+                        productId,
+                        productName,
+                        categoryName,
+                        quantitySold: quantity,
+                        revenue,
+                        costPrice,
+                        profit,
+                    });
+                }
+            });
+        });
+        const productBreakdown = Array.from(productMap.values())
+            .map((product) => ({
+            productId: product.productId,
+            productName: product.productName,
+            categoryName: product.categoryName,
+            quantitySold: product.quantitySold,
+            revenue: product.revenue,
+            costPrice: product.costPrice,
+            profit: product.profit,
+            profitMargin: product.revenue > 0
+                ? Math.round((product.profit / product.revenue) * 100 * 10) / 10
+                : 0,
+            percentage: totalSales > 0
+                ? Math.round((product.revenue / totalSales) * 100 * 10) / 10
+                : 0,
+        }))
+            .sort((a, b) => b.revenue - a.revenue);
+        const paymentMethodBreakdown = Array.from(paymentMethodMap.entries()).map(([method, data]) => {
+            const result = {
+                method,
+                totalSales: data.totalSales,
+                totalTransactions: data.totalTransactions,
+                percentage: totalSales > 0
+                    ? Math.round((data.totalSales / totalSales) * 100 * 10) / 10
+                    : 0,
+            };
+            if (method === 'CASH') {
+                result.expectedCashFromSales = data.totalSales;
+            }
+            return result;
+        });
+        const transactionList = transactions.map((t) => ({
+            transactionNumber: t.transactionNumber,
+            time: t.createdAt.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            }),
+            totalAmount: Number(t.totalAmount),
+            paymentMethod: t.paymentMethod || 'OTHER',
+            items: t.items.map((item) => ({
+                productName: item.productName,
+                quantity: item.quantity,
+                price: Number(item.price),
+                subtotal: Number(item.subtotal),
+            })),
+        }));
+        const shift = await this.prisma.shift.findFirst({
+            where: {
+                userId,
+                businessId,
+                startTime: {
+                    gte: reportDate,
+                    lte: endDate,
+                },
+            },
+            select: {
+                id: true,
+                startTime: true,
+                endTime: true,
+                status: true,
+                initialCash: true,
+                expectedCash: true,
+            },
+        });
+        const profitMargin = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100 * 10) / 10 : 0;
+        return {
+            date,
+            kasirId: kasir.id,
+            kasirName: kasir.name,
+            summary: {
+                totalSales,
+                totalTransactions,
+                totalProfit,
+                profitMargin,
+                itemsSold,
+            },
+            productBreakdown,
+            paymentMethodBreakdown,
+            transactions: transactionList,
+            shiftInfo: shift
+                ? {
+                    shiftId: shift.id,
+                    startTime: shift.startTime.toISOString(),
+                    endTime: shift.endTime ? shift.endTime.toISOString() : null,
+                    status: shift.status,
+                    initialCash: Number(shift.initialCash),
+                    expectedCash: Number(shift.expectedCash),
+                }
+                : null,
+        };
+    }
 };
 exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([

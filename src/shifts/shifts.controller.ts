@@ -15,6 +15,12 @@ import {
   ShiftReportResponseDto,
   GetCurrentShiftResponseDto,
 } from './dto/shift.dto';
+import {
+  XReportResponseDto,
+  ZReportResponseDto,
+  PreCloseShiftDto,
+  PreCloseShiftResponseDto,
+} from './dto/phase1.dto';
 
 @Controller('shifts')
 @UseGuards(JwtAuthGuard)
@@ -58,5 +64,46 @@ export class ShiftsController {
     const userId = req.user.id; // Changed from req.user.userId
     const businessId = req.user.businessId;
     return this.shiftsService.getShiftById(shiftId, userId, businessId);
+  }
+
+  // ============ PHASE 1: X-REPORT & Z-REPORT ENDPOINTS ============
+
+  /**
+   * GET /shifts/x-report
+   * Generate X-Report (laporan sementara tanpa tutup shift)
+   */
+  @Get('x-report')
+  async getXReport(@Request() req: any): Promise<XReportResponseDto> {
+    const userId = req.user.id;
+    const businessId = req.user.businessId;
+    return this.shiftsService.getXReport(userId, businessId);
+  }
+
+  /**
+   * GET /shifts/:shiftId/z-report
+   * Get Z-Report (final report setelah shift ditutup)
+   */
+  @Get(':shiftId/z-report')
+  async getZReport(
+    @Request() req: any,
+    @Param('shiftId') shiftId: string,
+  ): Promise<ZReportResponseDto> {
+    const userId = req.user.id;
+    const businessId = req.user.businessId;
+    return this.shiftsService.getZReport(shiftId, userId, businessId);
+  }
+
+  /**
+   * POST /shifts/pre-close
+   * Pre-close shift dengan validasi dan warning
+   */
+  @Post('pre-close')
+  async preCloseShift(
+    @Request() req: any,
+    @Body() dto: PreCloseShiftDto,
+  ): Promise<PreCloseShiftResponseDto> {
+    const userId = req.user.id;
+    const businessId = req.user.businessId;
+    return this.shiftsService.preCloseShift(userId, businessId, dto);
   }
 }
