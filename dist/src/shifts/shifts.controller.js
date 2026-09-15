@@ -38,15 +38,15 @@ let ShiftsController = class ShiftsController {
         const businessId = req.user.businessId;
         return this.shiftsService.getCurrentShift(userId, businessId);
     }
-    async getShiftById(req, shiftId) {
-        const userId = req.user.id;
-        const businessId = req.user.businessId;
-        return this.shiftsService.getShiftById(shiftId, userId, businessId);
-    }
     async getXReport(req) {
         const userId = req.user.id;
         const businessId = req.user.businessId;
         return this.shiftsService.getXReport(userId, businessId);
+    }
+    async getShiftById(req, shiftId) {
+        const userId = req.user.id;
+        const businessId = req.user.businessId;
+        return this.shiftsService.getShiftById(shiftId, userId, businessId);
     }
     async getZReport(req, shiftId) {
         const userId = req.user.id;
@@ -84,6 +84,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ShiftsController.prototype, "getCurrentShift", null);
 __decorate([
+    (0, common_1.Get)('x-report'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ShiftsController.prototype, "getXReport", null);
+__decorate([
     (0, common_1.Get)(':shiftId'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('shiftId')),
@@ -91,13 +98,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ShiftsController.prototype, "getShiftById", null);
-__decorate([
-    (0, common_1.Get)('x-report'),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], ShiftsController.prototype, "getXReport", null);
 __decorate([
     (0, common_1.Get)(':shiftId/z-report'),
     __param(0, (0, common_1.Request)()),

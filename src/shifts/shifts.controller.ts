@@ -56,6 +56,20 @@ export class ShiftsController {
     return this.shiftsService.getCurrentShift(userId, businessId);
   }
 
+  // ============ PHASE 1: X-REPORT & Z-REPORT ENDPOINTS ============
+
+  /**
+   * GET /shifts/x-report
+   * Generate X-Report (laporan sementara tanpa tutup shift)
+   * IMPORTANT: Must be before :shiftId route to avoid conflict
+   */
+  @Get('x-report')
+  async getXReport(@Request() req: any): Promise<XReportResponseDto> {
+    const userId = req.user.id;
+    const businessId = req.user.businessId;
+    return this.shiftsService.getXReport(userId, businessId);
+  }
+
   @Get(':shiftId')
   async getShiftById(
     @Request() req: any,
@@ -64,19 +78,6 @@ export class ShiftsController {
     const userId = req.user.id; // Changed from req.user.userId
     const businessId = req.user.businessId;
     return this.shiftsService.getShiftById(shiftId, userId, businessId);
-  }
-
-  // ============ PHASE 1: X-REPORT & Z-REPORT ENDPOINTS ============
-
-  /**
-   * GET /shifts/x-report
-   * Generate X-Report (laporan sementara tanpa tutup shift)
-   */
-  @Get('x-report')
-  async getXReport(@Request() req: any): Promise<XReportResponseDto> {
-    const userId = req.user.id;
-    const businessId = req.user.businessId;
-    return this.shiftsService.getXReport(userId, businessId);
   }
 
   /**

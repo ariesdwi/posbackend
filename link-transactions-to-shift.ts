@@ -11,7 +11,8 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const businessId = 'cmkc7lejr00004yktqn5kj064';
+  // ⚠️ SAFETY: Only link transactions for Bebek Fara
+  const businessId = 'cmkc7lejr00004yktqn5kj064'; // Bebek Fara ONLY
   
   // Find current open shift
   const shift = await prisma.shift.findFirst({

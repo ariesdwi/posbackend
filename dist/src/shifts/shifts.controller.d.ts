@@ -7,8 +7,8 @@ export declare class ShiftsController {
     startShift(req: any, dto: StartShiftDto): Promise<ShiftReportResponseDto>;
     endShift(req: any, dto: EndShiftDto): Promise<ShiftReportResponseDto>;
     getCurrentShift(req: any): Promise<GetCurrentShiftResponseDto>;
-    getShiftById(req: any, shiftId: string): Promise<ShiftReportResponseDto>;
     getXReport(req: any): Promise<XReportResponseDto>;
+    getShiftById(req: any, shiftId: string): Promise<ShiftReportResponseDto>;
     getZReport(req: any, shiftId: string): Promise<ZReportResponseDto>;
     preCloseShift(req: any, dto: PreCloseShiftDto): Promise<PreCloseShiftResponseDto>;
 }

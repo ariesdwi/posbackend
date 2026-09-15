@@ -317,10 +317,9 @@ export class ShiftsService {
     userId: string,
     businessId: string,
   ): Promise<XReportResponseDto> {
-    // Get current open shift
+    // Get current open shift (any user in this business)
     const shift = await this.prisma.shift.findFirst({
       where: {
-        userId,
         businessId,
         status: 'OPEN',
       },
@@ -343,8 +342,16 @@ export class ShiftsService {
     });
 
     if (!shift) {
+      // Better error message with debugging info
+      const allShifts = await this.prisma.shift.findMany({
+        where: { businessId },
+        select: { id: true, status: true },
+      });
+      
       throw new NotFoundException(
-        'Tidak ada shift aktif. Mulai shift terlebih dahulu.',
+        `Tidak ada shift aktif untuk business ini. ` +
+        `Found ${allShifts.length} shifts total (businessId: ${businessId}). ` +
+        `Statuses: ${allShifts.map(s => s.status).join(', ')}`,
       );
     }
 

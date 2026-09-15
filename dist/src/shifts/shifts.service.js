@@ -240,7 +240,6 @@ let ShiftsService = class ShiftsService {
     async getXReport(userId, businessId) {
         const shift = await this.prisma.shift.findFirst({
             where: {
-                userId,
                 businessId,
                 status: 'OPEN',
             },
@@ -262,7 +261,13 @@ let ShiftsService = class ShiftsService {
             },
         });
         if (!shift) {
-            throw new common_1.NotFoundException('Tidak ada shift aktif. Mulai shift terlebih dahulu.');
+            const allShifts = await this.prisma.shift.findMany({
+                where: { businessId },
+                select: { id: true, status: true },
+            });
+            throw new common_1.NotFoundException(`Tidak ada shift aktif untuk business ini. ` +
+                `Found ${allShifts.length} shifts total (businessId: ${businessId}). ` +
+                `Statuses: ${allShifts.map(s => s.status).join(', ')}`);
         }
         const reportNumber = `X-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(shift.xReportCount + 1).padStart(3, '0')}`;
         const salesBreakdown = this.calculateSalesBreakdown(shift.transactions);
