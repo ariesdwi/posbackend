@@ -145,6 +145,16 @@ export class TransactionsService {
         ? paymentAmount - totalAmount
         : 0;
 
+    // ✅ AUTO-LINK to current open shift (Phase 2 improvement)
+    const currentShift = await this.prisma.shift.findFirst({
+      where: {
+        userId,
+        businessId,
+        status: 'OPEN',
+      },
+      select: { id: true },
+    });
+
     // Generate unique transaction number using timestamp + random suffix
     // Format: TRX-YYYYMMDD-HHMMSS-XXXX (where XXXX is random)
     // This eliminates race conditions by using high-precision timestamp
@@ -164,6 +174,7 @@ export class TransactionsService {
           transactionNumber,
           userId,
           businessId, // Link to business
+          shiftId: currentShift?.id || null, // ✅ Auto-link to shift!
           tableNumber,
           totalAmount: new Prisma.Decimal(totalAmount),
           paymentMethod: paymentMethod || undefined,

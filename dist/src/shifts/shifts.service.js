@@ -269,7 +269,6 @@ let ShiftsService = class ShiftsService {
                 `Found ${allShifts.length} shifts total (businessId: ${businessId}). ` +
                 `Statuses: ${allShifts.map(s => s.status).join(', ')}`);
         }
-        const reportNumber = `X-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(shift.xReportCount + 1).padStart(3, '0')}`;
         const salesBreakdown = this.calculateSalesBreakdown(shift.transactions);
         const voidTransactions = await this.prisma.transaction.findMany({
             where: {
@@ -316,31 +315,37 @@ let ShiftsService = class ShiftsService {
         const hours = Math.floor(durationMs / (1000 * 60 * 60));
         const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
         const duration = `${hours} hours ${minutes} minutes`;
-        await this.prisma.xReport.create({
-            data: {
-                shiftId: shift.id,
-                reportNumber,
-                generatedBy: userId,
-                totalSales: new client_1.Prisma.Decimal(salesBreakdown.totalSales),
-                totalTransactions: salesBreakdown.totalTransactions,
-                cashSales: new client_1.Prisma.Decimal(salesBreakdown.cash.totalSales),
-                qrisSales: new client_1.Prisma.Decimal(salesBreakdown.qris.totalSales),
-                debitSales: new client_1.Prisma.Decimal(salesBreakdown.debit.totalSales),
-                grabfoodSales: new client_1.Prisma.Decimal(salesBreakdown.grabfood.totalSales),
-                shopeefoodSales: new client_1.Prisma.Decimal(salesBreakdown.shopeefood.totalSales),
-                gofoodSales: new client_1.Prisma.Decimal(salesBreakdown.gofood.totalSales),
-                otherSales: new client_1.Prisma.Decimal(salesBreakdown.other.totalSales),
-                voidCount: voidSummary.totalVoidCount,
-                voidAmount: new client_1.Prisma.Decimal(voidSummary.totalVoidAmount),
-                discountAmount: new client_1.Prisma.Decimal(discountSummary.totalDiscountGiven),
-            },
-        });
-        await this.prisma.shift.update({
-            where: { id: shift.id },
-            data: {
-                xReportCount: shift.xReportCount + 1,
-                lastXReportAt: new Date(),
-            },
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+        const reportNumber = `X-${dateStr}-${timeStr}-${String(shift.xReportCount + 1).padStart(3, '0')}`;
+        await this.prisma.$transaction(async (tx) => {
+            await tx.xReport.create({
+                data: {
+                    shiftId: shift.id,
+                    reportNumber,
+                    generatedBy: userId,
+                    totalSales: new client_1.Prisma.Decimal(salesBreakdown.totalSales),
+                    totalTransactions: salesBreakdown.totalTransactions,
+                    cashSales: new client_1.Prisma.Decimal(salesBreakdown.cash.totalSales),
+                    qrisSales: new client_1.Prisma.Decimal(salesBreakdown.qris.totalSales),
+                    debitSales: new client_1.Prisma.Decimal(salesBreakdown.debit.totalSales),
+                    grabfoodSales: new client_1.Prisma.Decimal(salesBreakdown.grabfood.totalSales),
+                    shopeefoodSales: new client_1.Prisma.Decimal(salesBreakdown.shopeefood.totalSales),
+                    gofoodSales: new client_1.Prisma.Decimal(salesBreakdown.gofood.totalSales),
+                    otherSales: new client_1.Prisma.Decimal(salesBreakdown.other.totalSales),
+                    voidCount: voidSummary.totalVoidCount,
+                    voidAmount: new client_1.Prisma.Decimal(voidSummary.totalVoidAmount),
+                    discountAmount: new client_1.Prisma.Decimal(discountSummary.totalDiscountGiven),
+                },
+            });
+            await tx.shift.update({
+                where: { id: shift.id },
+                data: {
+                    xReportCount: shift.xReportCount + 1,
+                    lastXReportAt: new Date(),
+                },
+            });
         });
         const itemsSold = shift.transactions.reduce((sum, t) => {
             return sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0);

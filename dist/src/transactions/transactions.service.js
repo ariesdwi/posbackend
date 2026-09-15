@@ -113,6 +113,14 @@ let TransactionsService = class TransactionsService {
             paymentAmount >= totalAmount
             ? paymentAmount - totalAmount
             : 0;
+        const currentShift = await this.prisma.shift.findFirst({
+            where: {
+                userId,
+                businessId,
+                status: 'OPEN',
+            },
+            select: { id: true },
+        });
         const generateTransactionNumber = () => {
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
@@ -127,6 +135,7 @@ let TransactionsService = class TransactionsService {
                     transactionNumber,
                     userId,
                     businessId,
+                    shiftId: currentShift?.id || null,
                     tableNumber,
                     totalAmount: new client_1.Prisma.Decimal(totalAmount),
                     paymentMethod: paymentMethod || undefined,

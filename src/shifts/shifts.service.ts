@@ -355,9 +355,6 @@ export class ShiftsService {
       );
     }
 
-    // Generate report number
-    const reportNumber = `X-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(shift.xReportCount + 1).padStart(3, '0')}`;
-
     // Calculate sales breakdown
     const salesBreakdown = this.calculateSalesBreakdown(shift.transactions);
     
@@ -424,34 +421,44 @@ export class ShiftsService {
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
     const duration = `${hours} hours ${minutes} minutes`;
 
-    // Save X-Report snapshot to database
-    await this.prisma.xReport.create({
-      data: {
-        shiftId: shift.id,
-        reportNumber,
-        generatedBy: userId,
-        totalSales: new Prisma.Decimal(salesBreakdown.totalSales),
-        totalTransactions: salesBreakdown.totalTransactions,
-        cashSales: new Prisma.Decimal(salesBreakdown.cash.totalSales),
-        qrisSales: new Prisma.Decimal(salesBreakdown.qris.totalSales),
-        debitSales: new Prisma.Decimal(salesBreakdown.debit.totalSales),
-        grabfoodSales: new Prisma.Decimal(salesBreakdown.grabfood.totalSales),
-        shopeefoodSales: new Prisma.Decimal(salesBreakdown.shopeefood.totalSales),
-        gofoodSales: new Prisma.Decimal(salesBreakdown.gofood.totalSales),
-        otherSales: new Prisma.Decimal(salesBreakdown.other.totalSales),
-        voidCount: voidSummary.totalVoidCount,
-        voidAmount: new Prisma.Decimal(voidSummary.totalVoidAmount),
-        discountAmount: new Prisma.Decimal(discountSummary.totalDiscountGiven),
-      },
-    });
+    // ✅ Generate unique report number with timestamp to avoid duplicates
+    // Format: X-YYYYMMDD-HHMMSS-NNN (where NNN is counter)
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+    const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+    const reportNumber = `X-${dateStr}-${timeStr}-${String(shift.xReportCount + 1).padStart(3, '0')}`;
 
-    // Update shift X-Report count
-    await this.prisma.shift.update({
-      where: { id: shift.id },
-      data: {
-        xReportCount: shift.xReportCount + 1,
-        lastXReportAt: new Date(),
-      },
+    // Save X-Report snapshot and update shift count in a transaction
+    await this.prisma.$transaction(async (tx) => {
+      // Save X-Report
+      await tx.xReport.create({
+        data: {
+          shiftId: shift.id,
+          reportNumber,
+          generatedBy: userId,
+          totalSales: new Prisma.Decimal(salesBreakdown.totalSales),
+          totalTransactions: salesBreakdown.totalTransactions,
+          cashSales: new Prisma.Decimal(salesBreakdown.cash.totalSales),
+          qrisSales: new Prisma.Decimal(salesBreakdown.qris.totalSales),
+          debitSales: new Prisma.Decimal(salesBreakdown.debit.totalSales),
+          grabfoodSales: new Prisma.Decimal(salesBreakdown.grabfood.totalSales),
+          shopeefoodSales: new Prisma.Decimal(salesBreakdown.shopeefood.totalSales),
+          gofoodSales: new Prisma.Decimal(salesBreakdown.gofood.totalSales),
+          otherSales: new Prisma.Decimal(salesBreakdown.other.totalSales),
+          voidCount: voidSummary.totalVoidCount,
+          voidAmount: new Prisma.Decimal(voidSummary.totalVoidAmount),
+          discountAmount: new Prisma.Decimal(discountSummary.totalDiscountGiven),
+        },
+      });
+
+      // Update shift X-Report count
+      await tx.shift.update({
+        where: { id: shift.id },
+        data: {
+          xReportCount: shift.xReportCount + 1,
+          lastXReportAt: new Date(),
+        },
+      });
     });
 
     // Calculate items sold
