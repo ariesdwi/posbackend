@@ -215,7 +215,9 @@ let ShiftsService = class ShiftsService {
         const totalSales = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
         const totalTransactions = transactions.length;
         const initialCash = Number(shift.initialCash);
-        const totalCashToDeposit = initialCash + salesByPaymentMethod.cash.expectedCashFromSales;
+        const cashSales = salesByPaymentMethod.cash.expectedCashFromSales;
+        const expectedCash = initialCash + cashSales;
+        const totalCashToDeposit = expectedCash;
         const actualCashInHand = shift.finalCash ? Number(shift.finalCash) : null;
         return {
             shiftId: shift.id,
@@ -225,7 +227,7 @@ let ShiftsService = class ShiftsService {
             status: shift.status,
             initialCash,
             finalCash: actualCashInHand,
-            expectedCash: Number(shift.expectedCash),
+            expectedCash: expectedCash,
             cashDifference: shift.cashDifference ? Number(shift.cashDifference) : null,
             notes: shift.notes,
             salesByPaymentMethod,

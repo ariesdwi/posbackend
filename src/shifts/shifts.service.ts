@@ -283,8 +283,11 @@ export class ShiftsService {
     );
     const totalTransactions = transactions.length;
     const initialCash = Number(shift.initialCash);
-    const totalCashToDeposit =
-      initialCash + salesByPaymentMethod.cash.expectedCashFromSales;
+    const cashSales = salesByPaymentMethod.cash.expectedCashFromSales;
+    
+    // ✅ Calculate expectedCash in real-time (not from DB)
+    const expectedCash = initialCash + cashSales;
+    const totalCashToDeposit = expectedCash;
     const actualCashInHand = shift.finalCash ? Number(shift.finalCash) : null;
 
     return {
@@ -295,7 +298,7 @@ export class ShiftsService {
       status: shift.status,
       initialCash,
       finalCash: actualCashInHand,
-      expectedCash: Number(shift.expectedCash),
+      expectedCash: expectedCash,  // ✅ Real-time calculation
       cashDifference: shift.cashDifference ? Number(shift.cashDifference) : null,
       notes: shift.notes,
       salesByPaymentMethod,
